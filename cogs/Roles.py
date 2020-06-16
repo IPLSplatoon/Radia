@@ -144,6 +144,20 @@ class Roles(commands.Cog):
             embed.add_field(name="Removed from:", value=replyList, inline=False)
             await ctx.send(embed=embed)
 
+    @commands.has_role("Staff")
+    @commands.guild_only()
+    @commands.command(name='removeAllCaptains', help="Remove the captains role from everyone with it")
+    async def removeCaptain(self, ctx):
+        with ctx.typing():
+            settings = self.settings[str(ctx.message.guild.id)]
+            role = discord.utils.get(ctx.message.guild.roles, id=int(settings["CaptainRoleID"]))
+            for member in ctx.message.guild.members:
+                if role in member.roles:
+                    await member.remove_roles(role)
+            embed = await utils.embeder.create_embed("Removed Captain Role",
+                                                     "Removed the Captain role from members")
+            await ctx.send(embed=embed)
+
 
 def setup(bot):
     bot.add_cog(Roles(bot))
