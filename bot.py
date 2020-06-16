@@ -9,7 +9,7 @@ import asyncio
 import random
 
 load_dotenv("files/.env")
-TOKEN = os.environ.get("discord_Token")
+TOKEN = os.environ.get("low_ink_discord_token")
 # This is the list of cogs that discord.py loads in as file names without the .py extension
 extensions = [
     "cogs.information",
