@@ -21,6 +21,7 @@ class Information(commands.Cog):
         self.canned = self.sheets.get_responses("Canned Responses")
 
     @commands.has_role("Staff")  # Limits to only staff being able to use command
+    @commands.guild_only()
     @commands.command(name='refresh', help="Refresh information")
     async def refresh(self, ctx):
         self.rules = self.sheets.get_responses("Rules")
@@ -49,6 +50,7 @@ class Information(commands.Cog):
                 await ctx.send("Rule requested is not a valid category! >.<")
 
     @commands.has_role("Staff")  # Limits to only staff being able to use command
+    @commands.guild_only()
     @commands.command(name='whatis', help="Get explanations for Frequently asked questions",
                       aliases=["canned", "whatIs"])
     async def canned(self, ctx, category="listAll", image="false"):

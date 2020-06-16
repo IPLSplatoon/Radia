@@ -6,7 +6,7 @@ async def create_embed(title=None, description=None, url=None) -> discord.Embed:
 
     embed = discord.Embed(title=title, description=description, url=url, color=0x15b22f)
     embed.set_author(name="Radia", url="https://battlefy.com/low-ink",
-                     icon_url="https://cdn.vlee.me.uk/LowInk/LowInk.png")
+                     icon_url="https://cdn.vlee.me.uk/LowInk/LowInkIcon.png")
     embed.set_footer(text="The Low Ink Bot", icon_url="https://cdn.vlee.me.uk/LowInk/LowInk.png")
     embed.timestamp = datetime.datetime.utcnow()
     return embed
