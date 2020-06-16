@@ -6,6 +6,7 @@ from discord.ext import commands, tasks
 import discord
 import gSheetConector
 import battlefyConnector
+import datetime
 
 
 class Roles(commands.Cog):
@@ -25,6 +26,15 @@ class Roles(commands.Cog):
                 await self.__assignCaptainRole(server.id)  # Update roles
 
     async def __assignCaptainRole(self, serverID: int, channelID: int = 0) -> bool:
+        """
+        Private method, gives captain role to server
+        :param serverID: int
+            Server id to look through
+        :param channelID: int
+            Channel ID to post to
+        :return: bool
+            If successful or not
+        """
         guild = self.bot.get_guild(serverID)
         if guild is None:
             return False
@@ -64,18 +74,22 @@ class Roles(commands.Cog):
                 # Add field to embed
                 embed.add_field(name="Unable to assign to:", value=captainNotAssigned, inline=False)
             await replyChannel.send(embed=embed)  # send embed
+            print("Updated captain role for {} at {}".format(serverID, datetime.datetime.utcnow()))
             return True
         else:
             return False
 
     @commands.has_role("Staff")  # Limits to only staff being able to use command
+    @commands.guild_only()
     @commands.command(name='assignCaptain', help="Give Captains on battlefy the Captains role",
                       aliases=["captain", "Captains"])
     async def assignCap(self, ctx):
-        self.settings = self.sheets.get_settings("Settings")
-        await self.__assignCaptainRole(ctx.message.guild.id, ctx.message.channel.id)
+        with ctx.typing():
+            self.settings = self.sheets.get_settings("Settings")
+            await self.__assignCaptainRole(ctx.message.guild.id, ctx.message.channel.id)
 
     @commands.command(name='role', help="Give yourself a role", aliases=["rank", "assign"])
+    @commands.guild_only()
     async def autoAssign(self, ctx, role="listAll"):
         if role == "listAll":
             embed = await utils.embeder.create_embed("Role", "List the roles you can assign yourself")
@@ -100,10 +114,35 @@ class Roles(commands.Cog):
                             await ctx.send(embed=embed)
 
     @commands.has_role("Staff")
+    @commands.guild_only()
     @commands.command(name='updateRoles', help="Update settings and self assign roles")
-    async def updateStorage(self):
+    async def updateStorage(self, ctx):
         self.settings = self.sheets.get_settings("Settings")
         self.roles = self.sheets.get_self_assign_roles("AssignableRoles")
+        await ctx.send("Updated settings and roles list")
+
+    @commands.has_role("Staff")
+    @commands.guild_only()
+    @commands.command(name='removeChampions', help="Remove the Champion role from users who currently have it")
+    async def dethrone(self, ctx):
+        with ctx.typing():
+            removeRole = discord.utils.get(ctx.message.guild.roles, name="Low Ink Current Champions")
+            giveRole = discord.utils.get(ctx.message.guild.roles, name="Past Low Ink Winner")
+            userList = []
+            for member in ctx.message.guild.members:
+                if removeRole in member.roles:
+                    await member.remove_roles(removeRole)
+                    await member.add_roles(giveRole)
+                    userList.append(member)
+            replyList = "```\n"
+            if userList:
+                for people in userList:
+                    replyList = replyList + "- {}\n".format(people.display_name)
+            replyList = replyList + "```"
+            embed = await utils.embeder.create_embed("Removed Low Ink Champion Role",
+                                                     "Removed the Low Ink Champion Role from members")
+            embed.add_field(name="Removed from:", value=replyList, inline=False)
+            await ctx.send(embed=embed)
 
 
 def setup(bot):

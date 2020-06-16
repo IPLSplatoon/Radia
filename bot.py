@@ -1,7 +1,6 @@
 """
 This file starts and runs the main bot functions
 """
-
 import discord
 from discord.ext import commands
 import os
@@ -9,8 +8,8 @@ from dotenv import load_dotenv
 import asyncio
 import random
 
-load_dotenv(".env")
-TOKEN = os.environ.get("discord_Token")
+load_dotenv("files/.env")
+TOKEN = os.environ.get("low_ink_discord_token")
 # This is the list of cogs that discord.py loads in as file names without the .py extension
 extensions = [
     "cogs.information",
@@ -20,7 +19,12 @@ extensions = [
 presence_strings = [
     "Powered by High Ink?",
     "Signup for Low Ink!",
-    "The Low Ink bot."
+    "The Low Ink bot.",
+    "!help to get started",
+    "Sprinkles!",
+    "What is luti?",
+    "Round 3, here we go again!",
+    "What is Low Ink?"
 ]
 
 bot = commands.Bot("!")
@@ -61,5 +65,5 @@ if __name__ == "__main__":
             exc = '{}: {}'.format(type(e).__name__, e)
             print('Failed to load extension {}\n{}'.format(extension, exc))
 
-    bot.run("")
+    bot.run(TOKEN)
 
