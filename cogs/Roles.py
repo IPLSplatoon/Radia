@@ -91,27 +91,30 @@ class Roles(commands.Cog):
     @commands.command(name='role', help="Give yourself a role", aliases=["rank", "assign"])
     @commands.guild_only()
     async def autoAssign(self, ctx, role="listAll"):
-        if role == "listAll":
-            embed = await utils.embeder.create_embed("Role", "List the roles you can assign yourself")
-            rulesList = await utils.embeder.list_to_code_block(self.roles[ctx.message.guild.id])
-            embed.add_field(name="Roles", value=rulesList, inline=False)
-            await ctx.send(embed=embed)
-        else:
-            role = role.title()
-            if role in self.roles[ctx.message.guild.id]:
-                roleToAssign = discord.utils.get(ctx.message.guild.roles, name=role)
-                botRole = discord.utils.get(ctx.message.guild.roles, name="TourneyLeague")
-                if roleToAssign:  # check if role exists
-                    if roleToAssign < botRole:  # Check if role being assigned is bellow the bot
-                        embed = await utils.embeder.create_embed("Role", "Role Assigned/Removed")
-                        if roleToAssign in ctx.message.author.roles:
-                            await ctx.message.author.remove_roles(roleToAssign, reason="Role {} requested".format(role))
-                            embed.add_field(name="Removed:", value=role, inline=False)
-                            await ctx.send(embed=embed)
-                        else:
-                            await ctx.message.author.add_roles(roleToAssign, reason="Role {} requested".format(role))
-                            embed.add_field(name="Added:", value=role, inline=False)
-                            await ctx.send(embed=embed)
+        with ctx.typing():
+            if role == "listAll":
+                embed = await utils.embeder.create_embed("Role", "List the roles you can assign yourself")
+                rulesList = await utils.embeder.list_to_code_block(self.roles[ctx.message.guild.id])
+                embed.add_field(name="Roles", value=rulesList, inline=False)
+                await ctx.send(embed=embed)
+            else:
+                role = role.title()
+                if role in self.roles[ctx.message.guild.id]:
+                    roleToAssign = discord.utils.get(ctx.message.guild.roles, name=role)
+                    botRole = discord.utils.get(ctx.message.guild.roles, name="Radia")
+                    if roleToAssign:  # check if role exists
+                        if roleToAssign < botRole:  # Check if role being assigned is bellow the bot
+                            embed = await utils.embeder.create_embed("Role", "Role Assigned/Removed")
+                            if roleToAssign in ctx.message.author.roles:
+                                await ctx.message.author.remove_roles(roleToAssign,
+                                                                      reason="Role {} requested".format(role))
+                                embed.add_field(name="Removed:", value=role, inline=False)
+                                await ctx.send(embed=embed)
+                            else:
+                                await ctx.message.author.add_roles(roleToAssign,
+                                                                   reason="Role {} requested".format(role))
+                                embed.add_field(name="Added:", value=role, inline=False)
+                                await ctx.send(embed=embed)
 
     @commands.has_role("Staff")
     @commands.guild_only()
