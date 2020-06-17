@@ -106,8 +106,8 @@ class Roles(commands.Cog):
         with ctx.typing():
             if role == "listAll":
                 embed = await utils.embedder.create_embed("Role", "List the roles you can assign yourself")
-                rulesList = await utils.embedder.list_to_code_block(self.roles[ctx.message.guild.id])
-                embed.add_field(name="Roles", value=rulesList, inline=False)
+                rolesList = await utils.embedder.list_to_code_block(self.roles[ctx.message.guild.id])
+                embed.add_field(name="Roles", value=rolesList, inline=False)
                 await ctx.send(embed=embed)
             else:
                 role = role.title()
