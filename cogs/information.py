@@ -57,7 +57,7 @@ class Information(commands.Cog):
         if category == "listAll":
             embed = await utils.embeder.create_embed("What Is....", "List of What Is.... to view")
             categoryList = await utils.embeder.list_to_code_block(self.canned.options)
-            embed.add_field(name="Rule Categories", value=categoryList, inline=False)
+            embed.add_field(name="What Is Categories", value=categoryList, inline=False)
             await ctx.send(embed=embed)
         else:
             category = category.title()
