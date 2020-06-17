@@ -68,7 +68,7 @@ class Roles(commands.Cog):
             replyChannel = discord.utils.get(guild.text_channels, id=channelID)
             if replyChannel is None:
                 print("Channel for {} doesn't exist".format(channelID))
-            embed = await utils.embeder.create_embed("Assign Captain Role", "Report of assigning captain roles")
+            embed = await utils.embeder.create_embed("Assign Captain Role Report")
             embed.add_field(name="Status:", value="Complete", inline=True)
             captainAssignedCount = len(captains) - len(invalidCaptains)
             embed.add_field(name="No. Assigned to:", value=str(captainAssignedCount), inline=True)
