@@ -23,7 +23,7 @@ class Other(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command(name='pet', help="Get a picture of a pet",
-                      pass_context=True, hidden=False)
+                      pass_context=True, hidden=True)
     async def pet(self, ctx):
         embed = await utils.embeder.create_embed("Pets!", "Picture of pets",
                                                  "https://github.com/vlee489/Turnip-Bot/wiki/Credits")
