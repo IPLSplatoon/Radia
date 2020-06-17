@@ -79,7 +79,7 @@ class Roles(commands.Cog):
                     captainNotAssigned = captainNotAssigned + "- {} | {}\n".format(x, teamNames[x])
                 captainNotAssigned = captainNotAssigned + "```"
                 # Add field to embed
-                embed.add_field(name="List of captains that failed to be assigned",
+                embed.add_field(name="List of captains that failed to be assigned:",
                                 value=captainNotAssigned, inline=False)
             await replyChannel.send(embed=embed)  # send embed
             print("Updated captain role for {} at {}".format(serverID, datetime.datetime.utcnow()))
