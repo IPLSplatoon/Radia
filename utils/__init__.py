@@ -1,1 +1,1 @@
-from .embeder import create_embed
+from .embedder import create_embed

@@ -14,7 +14,7 @@ class Other(commands.Cog):
 
     @commands.command(name='stats', help="Gets the stats for the bot")
     async def stats(self, ctx):
-        embed = await utils.embeder.create_embed("Radia Status")
+        embed = await utils.embedder.create_embed("Radia Status")
         embed.add_field(name="Version:", value="Alpha 1.0", inline=True)
         embed.add_field(name="Latency:", value="{}ms".format(round(self.bot.latency * 1000, 2)), inline=True)
         embed.add_field(name="Contributors:", value="1", inline=False)
@@ -25,7 +25,7 @@ class Other(commands.Cog):
     @commands.command(name='pet', help="Get a picture of a pet",
                       pass_context=True, hidden=True)
     async def pet(self, ctx):
-        embed = await utils.embeder.create_embed("Pets!", "Picture of pets",
+        embed = await utils.embedder.create_embed("Pets!", "Picture of pets",
                                                  "https://github.com/vlee489/Turnip-Bot/wiki/Credits")
         ran = numpy.random.randint(0, petPicNumber)
         embed.set_image(url="https://cdn.vlee.me.uk/TurnipBot/pets/{}.png".format(ran))
