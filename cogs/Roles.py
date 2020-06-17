@@ -42,6 +42,8 @@ class Roles(commands.Cog):
             settings = self.settings[str(serverID)]
             captains = await self.battlefy.get_custom_field(settings["BattlefyTournamentID"],
                                                             settings["BattlefyFieldID"])
+            if not captains:
+                return False
             teamNames = await self.battlefy.get_captains_team(settings["BattlefyTournamentID"],
                                                               settings["BattlefyFieldID"])
             invalidCaptains = captains
@@ -63,6 +65,8 @@ class Roles(commands.Cog):
             if channelID == 0:
                 channelID = int(settings["BotChannelID"])
             replyChannel = discord.utils.get(guild.text_channels, id=channelID)
+            if replyChannel is None:
+                print("Channel for {} doesn't exist".format(channelID))
             embed = await utils.embeder.create_embed("Assign Captain Role", "Report of assigning captain roles")
             embed.add_field(name="Status:", value="Complete", inline=True)
             if invalidCaptains:  # If the list of invalid captains in not empty, we failed to assign all roles
@@ -72,7 +76,8 @@ class Roles(commands.Cog):
                     captainNotAssigned = captainNotAssigned + "- {} | {}\n".format(x, teamNames[x])
                 captainNotAssigned = captainNotAssigned + "```"
                 # Add field to embed
-                embed.add_field(name="Unable to assign to:", value=captainNotAssigned, inline=False)
+                embed.add_field(name="List of captains that failed to be assigned",
+                                value=captainNotAssigned, inline=False)
             await replyChannel.send(embed=embed)  # send embed
             print("Updated captain role for {} at {}".format(serverID, datetime.datetime.utcnow()))
             return True
