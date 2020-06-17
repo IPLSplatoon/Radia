@@ -13,7 +13,7 @@ import copy
 class Roles(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.sheets = gSheetConector.SheetConnector("files/Low Ink Bot-c125c84051d8.json", "Low Ink Bot DataSet")
+        self.sheets = gSheetConector.SheetConnector("files/googleAuth.json", "Low Ink Bot DataSet")
         self.settings = self.sheets.get_settings("Settings")
         self.battlefy = battlefyConnector.BattlefyUtils()
         self.roles = self.sheets.get_self_assign_roles("AssignableRoles")
