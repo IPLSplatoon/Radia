@@ -16,9 +16,10 @@ class Roles(commands.Cog):
         self.settings = self.sheets.get_settings("Settings")
         self.battlefy = battlefyConnector.BattlefyUtils()
         self.roles = self.sheets.get_self_assign_roles("AssignableRoles")
+        self.update_roles.start()
 
     @tasks.loop(hours=12)
-    async def update(self):
+    async def update_roles(self):
         self.settings = self.sheets.get_settings("Settings")  # Update settings
         self.roles = self.sheets.get_self_assign_roles("AssignableRoles")
         for server in self.bot.guilds:
@@ -69,6 +70,8 @@ class Roles(commands.Cog):
                 print("Channel for {} doesn't exist".format(channelID))
             embed = await utils.embeder.create_embed("Assign Captain Role", "Report of assigning captain roles")
             embed.add_field(name="Status:", value="Complete", inline=True)
+            captainAssignedCount = len(captains) - len(invalidCaptains)
+            embed.add_field(name="No. Assigned to:", value=str(captainAssignedCount), inline=True)
             if invalidCaptains:  # If the list of invalid captains in not empty, we failed to assign all roles
                 # Following creates a code block in a str
                 captainNotAssigned = "```\n"
@@ -108,14 +111,15 @@ class Roles(commands.Cog):
                     roleToAssign = discord.utils.get(ctx.message.guild.roles, name=role)
                     botRole = discord.utils.get(ctx.message.guild.roles, name="Radia")
                     if roleToAssign:  # check if role exists
-                        if roleToAssign < botRole:  # Check if role being assigned is bellow the bot
+                        if roleToAssign < botRole:  # Check if role being assigned is bellow the bot for sanity
                             embed = await utils.embeder.create_embed("Role", "Role Assigned/Removed")
+                            # If the user already has the role, we remove the role from them
                             if roleToAssign in ctx.message.author.roles:
                                 await ctx.message.author.remove_roles(roleToAssign,
                                                                       reason="Role {} requested".format(role))
                                 embed.add_field(name="Removed:", value=role, inline=False)
                                 await ctx.send(embed=embed)
-                            else:
+                            else:  # Else we assign them the role
                                 await ctx.message.author.add_roles(roleToAssign,
                                                                    reason="Role {} requested".format(role))
                                 embed.add_field(name="Added:", value=role, inline=False)
