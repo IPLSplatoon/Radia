@@ -7,13 +7,15 @@ import os
 from dotenv import load_dotenv
 import asyncio
 import random
+import datetime
 
 load_dotenv("files/.env")
 TOKEN = os.environ.get("low_ink_discord_token")
 # This is the list of cogs that discord.py loads in as file names without the .py extension
 extensions = [
     "cogs.information",
-    "cogs.Roles"
+    "cogs.Roles",
+    "cogs.other"
 ]
 
 presence_strings = [
@@ -22,9 +24,12 @@ presence_strings = [
     "The Low Ink bot.",
     "!help to get started",
     "Sprinkles!",
-    "What is luti?",
+    "what is luti?",
     "Round 3, here we go again!",
-    "What is Low Ink?"
+    "What is Low Ink?",
+    "Ban Kraken Mare",
+    "Icon by Ozei#3125",
+    "Wawa!"
 ]
 
 bot = commands.Bot("!")
@@ -41,9 +46,10 @@ async def on_command_error(ctx, error):
 # When the bot is loaded
 @bot.event
 async def on_ready():
-    print('Logged in as')
-    print(bot.user.name)
-    print(bot.user.id)
+    print('Logged in as:')
+    print("Name: {}".format(bot.user.name))
+    print("ID: {}".format(bot.user.id))
+    print("Booted up at: {}".format(datetime.datetime.utcnow()))
     print("Used in {} servers".format(len(bot.guilds)))
     print('------')
     bot.loop.create_task(presence_update())
@@ -53,7 +59,7 @@ async def on_ready():
 async def presence_update():
     while True:
         await bot.change_presence(activity=discord.Game(random.choice(presence_strings)))
-        await asyncio.sleep(120)
+        await asyncio.sleep(60)
 
 # Runs the whole show
 if __name__ == "__main__":

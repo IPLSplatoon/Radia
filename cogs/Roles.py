@@ -7,18 +7,20 @@ import discord
 import gSheetConector
 import battlefyConnector
 import datetime
+import copy
 
 
 class Roles(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.sheets = gSheetConector.SheetConnector("files/Low Ink Bot-c125c84051d8.json", "Low Ink Bot DataSet")
+        self.sheets = gSheetConector.SheetConnector("files/googleAuth.json", "Low Ink Bot DataSet")
         self.settings = self.sheets.get_settings("Settings")
         self.battlefy = battlefyConnector.BattlefyUtils()
         self.roles = self.sheets.get_self_assign_roles("AssignableRoles")
+        self.update_roles.start()
 
     @tasks.loop(hours=12)
-    async def update(self):
+    async def update_roles(self):
         self.settings = self.sheets.get_settings("Settings")  # Update settings
         self.roles = self.sheets.get_self_assign_roles("AssignableRoles")
         for server in self.bot.guilds:
@@ -46,7 +48,7 @@ class Roles(commands.Cog):
                 return False
             teamNames = await self.battlefy.get_captains_team(settings["BattlefyTournamentID"],
                                                               settings["BattlefyFieldID"])
-            invalidCaptains = captains
+            invalidCaptains = copy.deepcopy(captains)
             # Gets the role object relating to the server's captain role
             role = discord.utils.get(guild.roles, id=int(settings["CaptainRoleID"]))
             # Remove captain role from all member it
@@ -67,8 +69,11 @@ class Roles(commands.Cog):
             replyChannel = discord.utils.get(guild.text_channels, id=channelID)
             if replyChannel is None:
                 print("Channel for {} doesn't exist".format(channelID))
-            embed = await utils.embeder.create_embed("Assign Captain Role", "Report of assigning captain roles")
+            embed = await utils.embeder.create_embed("Assign Captain Role Report")
             embed.add_field(name="Status:", value="Complete", inline=True)
+            captainAssignedCount = len(captains) - len(invalidCaptains)
+            embed.add_field(name="No. Assigned to:", value=captainAssignedCount, inline=True)
+            embed.add_field(name="No. unable Assigned to:", value=len(invalidCaptains), inline=True)
             if invalidCaptains:  # If the list of invalid captains in not empty, we failed to assign all roles
                 # Following creates a code block in a str
                 captainNotAssigned = "```\n"
@@ -76,10 +81,12 @@ class Roles(commands.Cog):
                     captainNotAssigned = captainNotAssigned + "- {} | {}\n".format(x, teamNames[x])
                 captainNotAssigned = captainNotAssigned + "```"
                 # Add field to embed
-                embed.add_field(name="List of captains that failed to be assigned",
+                embed.add_field(name="List of captains that failed to be assigned:",
                                 value=captainNotAssigned, inline=False)
             await replyChannel.send(embed=embed)  # send embed
             print("Updated captain role for {} at {}".format(serverID, datetime.datetime.utcnow()))
+            print("Captains: {} | Unable to assign: {} | Assigned: {}".format(len(captains), len(invalidCaptains),
+                                                                              captainAssignedCount))
             return True
         else:
             return False
@@ -108,14 +115,15 @@ class Roles(commands.Cog):
                     roleToAssign = discord.utils.get(ctx.message.guild.roles, name=role)
                     botRole = discord.utils.get(ctx.message.guild.roles, name="Radia")
                     if roleToAssign:  # check if role exists
-                        if roleToAssign < botRole:  # Check if role being assigned is bellow the bot
+                        if roleToAssign < botRole:  # Check if role being assigned is bellow the bot for sanity
                             embed = await utils.embeder.create_embed("Role", "Role Assigned/Removed")
+                            # If the user already has the role, we remove the role from them
                             if roleToAssign in ctx.message.author.roles:
                                 await ctx.message.author.remove_roles(roleToAssign,
                                                                       reason="Role {} requested".format(role))
                                 embed.add_field(name="Removed:", value=role, inline=False)
                                 await ctx.send(embed=embed)
-                            else:
+                            else:  # Else we assign them the role
                                 await ctx.message.author.add_roles(roleToAssign,
                                                                    reason="Role {} requested".format(role))
                                 embed.add_field(name="Added:", value=role, inline=False)

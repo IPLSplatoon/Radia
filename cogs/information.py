@@ -11,7 +11,7 @@ import discord
 class Information(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.sheets = gSheetConector.SheetConnector("files/Low Ink Bot-c125c84051d8.json", "Low Ink Bot DataSet")
+        self.sheets = gSheetConector.SheetConnector("files/googleAuth.json", "Low Ink Bot DataSet")
         self.rules = self.sheets.get_responses("Rules")
         self.canned = self.sheets.get_responses("Canned Responses")
 
