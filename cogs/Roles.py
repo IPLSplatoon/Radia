@@ -7,6 +7,7 @@ import discord
 import gSheetConector
 import battlefyConnector
 import datetime
+import copy
 
 
 class Roles(commands.Cog):
@@ -47,7 +48,7 @@ class Roles(commands.Cog):
                 return False
             teamNames = await self.battlefy.get_captains_team(settings["BattlefyTournamentID"],
                                                               settings["BattlefyFieldID"])
-            invalidCaptains = captains
+            invalidCaptains = copy.deepcopy(captains)
             # Gets the role object relating to the server's captain role
             role = discord.utils.get(guild.roles, id=int(settings["CaptainRoleID"]))
             # Remove captain role from all member it
@@ -71,7 +72,8 @@ class Roles(commands.Cog):
             embed = await utils.embeder.create_embed("Assign Captain Role Report")
             embed.add_field(name="Status:", value="Complete", inline=True)
             captainAssignedCount = len(captains) - len(invalidCaptains)
-            embed.add_field(name="No. Assigned to:", value=str(captainAssignedCount), inline=True)
+            embed.add_field(name="No. Assigned to:", value=captainAssignedCount, inline=True)
+            embed.add_field(name="No. unable Assigned to:", value=len(invalidCaptains), inline=True)
             if invalidCaptains:  # If the list of invalid captains in not empty, we failed to assign all roles
                 # Following creates a code block in a str
                 captainNotAssigned = "```\n"
@@ -83,6 +85,8 @@ class Roles(commands.Cog):
                                 value=captainNotAssigned, inline=False)
             await replyChannel.send(embed=embed)  # send embed
             print("Updated captain role for {} at {}".format(serverID, datetime.datetime.utcnow()))
+            print("Captains: {} | Unable to assign: {} | Assigned: {}".format(len(captains), len(invalidCaptains),
+                                                                              captainAssignedCount))
             return True
         else:
             return False
