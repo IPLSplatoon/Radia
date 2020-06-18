@@ -9,6 +9,8 @@ import asyncio
 import random
 import datetime
 
+import gSheetConnector
+
 load_dotenv("files/.env")
 TOKEN = os.environ.get("low_ink_discord_token")
 # This is the list of cogs that discord.py loads in as file names without the .py extension
@@ -53,6 +55,25 @@ async def on_ready():
     print("Used in {} servers".format(len(bot.guilds)))
     print('------')
     bot.loop.create_task(presence_update())
+
+
+# Member join event
+@bot.event
+async def on_member_join(member: discord.member):
+    await assignNewMemberRole(member)
+
+
+# Give default role to member
+async def assignNewMemberRole(member: discord.member):
+    settings = gSheetConnector.SheetConnector("files/googleAuth.json", "Low Ink Bot DataSet") \
+        .get_settings("Settings")
+    if str(member.guild.id) in settings:
+        defaultRoleId = settings[str(member.guild.id)]["DefaultRoleID"]
+        defaultRole = member.guild.get_role(defaultRoleId)
+        if defaultRole is not None:
+            await member.add_roles(defaultRole)
+    else:
+        return
 
 
 # Updates presence data

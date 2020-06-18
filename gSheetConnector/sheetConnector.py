@@ -73,6 +73,7 @@ class SheetConnector:
                 tempHolding["BattlefyFieldID"] = lines["BattlefyFieldID"]
                 tempHolding["BotChannelID"] = str(lines["BotChannelID"])
                 tempHolding["BattlefyTournamentID"] = lines["BattlefyTournamentID"]
+                tempHolding["DefaultRoleID"] = lines["DefaultRoleID"]
             returnDict[str(lines["ServerID"])] = tempHolding
         return returnDict
 
