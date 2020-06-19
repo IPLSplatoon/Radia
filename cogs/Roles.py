@@ -143,7 +143,8 @@ class Roles(commands.Cog):
 
     @commands.has_role("Staff")
     @commands.guild_only()
-    @commands.command(name='removeChampions', help="Remove the Champion role from users who currently have it")
+    @commands.command(name='removeChampions', help="Remove the Champion role from users who currently have it",
+                      aliases=["dethrone", "removechampions"])
     async def dethrone(self, ctx):
         with ctx.typing():
             removeRole = discord.utils.get(ctx.message.guild.roles, name="Low Ink Current Champions")

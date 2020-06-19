@@ -65,11 +65,11 @@ async def on_ready():
 # Member join event
 @bot.event
 async def on_member_join(member: discord.member):
-    await assignNewMemberRole(member)
+    await assign_new_member_role(member)
 
 
 # Give default role to member
-async def assignNewMemberRole(member: discord.member):
+async def assign_new_member_role(member: discord.member):
     settings = gSheetConnector.SheetConnector("files/googleAuth.json", "Low Ink Bot DataSet") \
         .get_settings("Settings")
     if str(member.guild.id) in settings:
