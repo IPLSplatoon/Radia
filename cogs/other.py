@@ -26,7 +26,7 @@ class Other(commands.Cog):
                       pass_context=True, hidden=True)
     async def pet(self, ctx):
         embed = await utils.embedder.create_embed("Pets!", "Picture of pets",
-                                                 "https://github.com/vlee489/Turnip-Bot/wiki/Credits")
+                                                  "https://github.com/vlee489/Turnip-Bot/wiki/Credits")
         ran = numpy.random.randint(0, petPicNumber)
         embed.set_image(url="https://cdn.vlee.me.uk/TurnipBot/pets/{}.png".format(ran))
         await ctx.send(embed=embed)

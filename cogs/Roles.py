@@ -48,7 +48,7 @@ class Roles(commands.Cog):
                 return False
             teamNames = await self.battlefy.get_captains_team(settings["BattlefyTournamentID"],
                                                               settings["BattlefyFieldID"])
-            invalidCaptains = copy.deepcopy(captains)
+            captainCount = copy.deepcopy(len(captains))
             # Gets the role object relating to the server's captain role
             role = discord.utils.get(guild.roles, id=int(settings["CaptainRoleID"]))
             # Remove captain role from all member it
@@ -61,8 +61,9 @@ class Roles(commands.Cog):
                 username = "{}#{}".format(member.name, member.discriminator)
                 if username in captains:
                     await member.add_roles(role, reason="Add captain role")
-                    await member.edit(nick=teamNames[username])
-                    invalidCaptains.remove(username)
+                    nickname = (teamNames[username])[:32]  # Truncates team made to be 32 char long
+                    await member.edit(nick=nickname)
+                    captains.remove(username)
             # From here we get the channel in guild we want to post update to and send an update embed
             if channelID == 0:
                 channelID = int(settings["BotChannelID"])
@@ -71,22 +72,22 @@ class Roles(commands.Cog):
                 print("Channel for {} doesn't exist".format(channelID))
             embed = await utils.embedder.create_embed("Assign Captain Role Report")
             embed.add_field(name="Status:", value="Complete", inline=True)
-            captainAssignedCount = len(captains) - len(invalidCaptains)
+            captainAssignedCount = captainCount - len(captains)
             embed.add_field(name="No. Assigned to:", value=captainAssignedCount, inline=True)
-            embed.add_field(name="No. unable Assigned to:", value=len(invalidCaptains), inline=True)
-            if invalidCaptains:  # If the list of invalid captains in not empty, we failed to assign all roles
+            embed.add_field(name="No. unable Assigned to:", value=len(captains), inline=True)
+            if captains:  # If the list of invalid captains in not empty, we failed to assign all roles
                 # Following creates a code block in a str
                 captainNotAssigned = "```\n"
-                for x in invalidCaptains:
+                for x in captains:
                     captainNotAssigned = captainNotAssigned + "- {} | {}\n".format(x, teamNames[x])
                 captainNotAssigned = captainNotAssigned + "```"
                 # Add field to embed
                 embed.add_field(name="List of captains that failed to be assigned:",
                                 value=captainNotAssigned, inline=False)
-            await replyChannel.send(embed=embed)  # send embed
             print("Updated captain role for {} at {}".format(serverID, datetime.datetime.utcnow()))
-            print("Captains: {} | Unable to assign: {} | Assigned: {}".format(len(captains), len(invalidCaptains),
+            print("Captains: {} | Unable to assign: {} | Assigned: {}".format(captainCount, len(captains),
                                                                               captainAssignedCount))
+            await replyChannel.send(embed=embed)  # send embed
             return True
         else:
             return False
@@ -156,7 +157,7 @@ class Roles(commands.Cog):
                     replyList = replyList + "- {}\n".format(people.display_name)
             replyList = replyList + "```"
             embed = await utils.embedder.create_embed("Removed Low Ink Champion Role",
-                                                     "Removed the Low Ink Champion Role from members")
+                                                      "Removed the Low Ink Champion Role from members")
             embed.add_field(name="Removed from:", value=replyList, inline=False)
             await ctx.send(embed=embed)
 
@@ -171,8 +172,20 @@ class Roles(commands.Cog):
                 if role in member.roles:
                     await member.remove_roles(role)
             embed = await utils.embedder.create_embed("Removed Captain Role",
-                                                     "Removed the Captain role from members")
+                                                      "Removed the Captain role from members")
             await ctx.send(embed=embed)
+
+    @commands.has_role("Staff")
+    @commands.guild_only()
+    @commands.command(name='debug', help="Internal Debug command", hidden=True)
+    async def debug(self, ctx):
+        with ctx.typing():
+            with open("debug.txt", "w") as file:
+                file.write("Guild Members\n")
+                for member in ctx.message.guild.members:
+                    username = "{}#{}".format(member.name, member.discriminator)
+                    file.write("{} | {}\n".format(username, member.id))
+            await ctx.send("Debug saved to server")
 
 
 def setup(bot):
