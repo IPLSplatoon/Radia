@@ -41,8 +41,7 @@ class Information(commands.Cog):
             rules = rules.title()
             if rules in self.rules.variantList:
                 reply = self.rules.replies[int(self.rules.variantList[rules])]
-                embed = await utils.embedder.create_embed("{} Rules".format(rules), "Rules regarding {}".format(rules))
-                embed.add_field(name="Info", value=reply.reply, inline=False)
+                embed = await utils.embedder.create_embed("{} Rules".format(rules), reply.reply)
                 if image != "false":
                     embed.set_image(reply.image)
                 await ctx.send(embed=embed)
@@ -63,9 +62,7 @@ class Information(commands.Cog):
             category = category.title()
             if category in self.canned.variantList:
                 reply = self.canned.replies[int(self.canned.variantList[category])]
-                embed = await utils.embedder.create_embed("What is {}".format(category),
-                                                         "Information on {}".format(category))
-                embed.add_field(name="Info", value=reply.reply, inline=False)
+                embed = await utils.embedder.create_embed("What is {}".format(category), reply.reply)
                 if image != "false":
                     embed.set_image(url=reply.image)
                 await ctx.send(embed=embed)
