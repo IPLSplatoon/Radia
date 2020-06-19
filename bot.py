@@ -17,7 +17,8 @@ TOKEN = os.environ.get("low_ink_discord_token")
 extensions = [
     "cogs.information",
     "cogs.Roles",
-    "cogs.other"
+    "cogs.other",
+    "cogs.krakenmare"
 ]
 
 presence_strings = [
@@ -88,6 +89,7 @@ if __name__ == "__main__":
         try:
             # Loads in cogs
             bot.load_extension(extension)
+            print("Loaded cog: {}".format(extension))
         except Exception as e:
             exc = '{}: {}'.format(type(e).__name__, e)
             print('Failed to load extension {}\n{}'.format(extension, exc))
