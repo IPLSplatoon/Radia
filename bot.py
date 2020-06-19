@@ -8,11 +8,12 @@ from dotenv import load_dotenv
 import asyncio
 import random
 import datetime
-
 import gSheetConnector
+import utils
 
 load_dotenv("files/.env")
 TOKEN = os.environ.get("low_ink_discord_token")
+
 # This is the list of cogs that discord.py loads in as file names without the .py extension
 extensions = [
     "cogs.information",
@@ -43,6 +44,10 @@ async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingRequiredArgument):
         await ctx.send("Missing data, you got got to enter something after the command!\n"
                        "You can use `<help` for help")
+    elif isinstance(error, commands.CommandNotFound):
+        return
+    else:
+        utils.errorCollector.collect_error(error, "on_command_error")
 
 
 # When the bot is loaded

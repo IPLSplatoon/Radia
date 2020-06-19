@@ -93,7 +93,7 @@ class Roles(commands.Cog):
             else:
                 return False
         except discord.DiscordException as E:
-            utils.other.collect_error(E, "Assign Captain")
+            utils.errorCollector.collect_error(E, "Assign Captain")
 
     @commands.has_role("Staff")  # Limits to only staff being able to use command
     @commands.guild_only()
@@ -183,7 +183,7 @@ class Roles(commands.Cog):
     @commands.command(name='debug', help="Internal Debug command", hidden=True)
     async def debug(self, ctx):
         with ctx.typing():
-            with open("debug.txt", "w") as file:
+            with open("debug.txt", "w", encoding="utf-8") as file:
                 file.write("Guild Members\n")
                 for member in ctx.message.guild.members:
                     username = "{}#{}".format(member.name, member.discriminator)
