@@ -25,7 +25,7 @@ class Roles(commands.Cog):
         self.roles = self.sheets.get_self_assign_roles("AssignableRoles")
         for server in self.bot.guilds:
             if str(server.id) in self.settings:
-                await self.__assign_captainRole(server.id)  # Update roles
+                await self.__assign_captain_role(server.id)  # Update roles
 
     async def __assign_captain_role(self, serverID: int, channelID: int = 0) -> bool:
         """
@@ -102,7 +102,7 @@ class Roles(commands.Cog):
     async def assignCap(self, ctx):
         with ctx.typing():
             self.settings = self.sheets.get_settings("Settings")
-            await self.__assign_captainRole(ctx.message.guild.id, ctx.message.channel.id)
+            await self.__assign_captain_role(ctx.message.guild.id, ctx.message.channel.id)
 
     @commands.command(name='role', help="Give yourself a role", aliases=["rank", "assign"])
     @commands.guild_only()
