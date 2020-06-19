@@ -25,9 +25,9 @@ class Roles(commands.Cog):
         self.roles = self.sheets.get_self_assign_roles("AssignableRoles")
         for server in self.bot.guilds:
             if str(server.id) in self.settings:
-                await self.__assignCaptainRole(server.id)  # Update roles
+                await self.__assign_captainRole(server.id)  # Update roles
 
-    async def __assignCaptainRole(self, serverID: int, channelID: int = 0) -> bool:
+    async def __assign_captainRole(self, serverID: int, channelID: int = 0) -> bool:
         """
         Private method, gives captain role to server
         :param serverID: int
@@ -102,11 +102,11 @@ class Roles(commands.Cog):
     async def assignCap(self, ctx):
         with ctx.typing():
             self.settings = self.sheets.get_settings("Settings")
-            await self.__assignCaptainRole(ctx.message.guild.id, ctx.message.channel.id)
+            await self.__assign_captainRole(ctx.message.guild.id, ctx.message.channel.id)
 
     @commands.command(name='role', help="Give yourself a role", aliases=["rank", "assign"])
     @commands.guild_only()
-    async def autoAssign(self, ctx, role="listAll"):
+    async def auto_assign(self, ctx, role="listAll"):
         with ctx.typing():
             if role == "listAll":
                 embed = await utils.embedder.create_embed("Role", "List the roles you can assign yourself")
@@ -136,7 +136,7 @@ class Roles(commands.Cog):
     @commands.has_role("Staff")
     @commands.guild_only()
     @commands.command(name='updateRoles', help="Update settings and self assign roles")
-    async def updateStorage(self, ctx):
+    async def update_storage(self, ctx):
         self.settings = self.sheets.get_settings("Settings")
         self.roles = self.sheets.get_self_assign_roles("AssignableRoles")
         await ctx.send("Updated settings and roles list")
@@ -167,7 +167,7 @@ class Roles(commands.Cog):
     @commands.has_role("Staff")
     @commands.guild_only()
     @commands.command(name='removeAllCaptains', help="Remove the captains role from everyone with it")
-    async def removeCaptain(self, ctx):
+    async def remove_captain(self, ctx):
         with ctx.typing():
             settings = self.settings[str(ctx.message.guild.id)]
             role = discord.utils.get(ctx.message.guild.roles, id=int(settings["CaptainRoleID"]))
