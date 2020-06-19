@@ -27,7 +27,7 @@ class Roles(commands.Cog):
             if str(server.id) in self.settings:
                 await self.__assign_captainRole(server.id)  # Update roles
 
-    async def __assign_captainRole(self, serverID: int, channelID: int = 0) -> bool:
+    async def __assign_captain_role(self, serverID: int, channelID: int = 0) -> bool:
         """
         Private method, gives captain role to server
         :param serverID: int
