@@ -6,3 +6,4 @@ asyncio
 python-dotenv
 setuptools
 setuptools_scm
+sentry-sdk

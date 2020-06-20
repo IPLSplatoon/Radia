@@ -8,11 +8,12 @@ from dotenv import load_dotenv
 import asyncio
 import random
 import datetime
-
 import gSheetConnector
+import utils
 
 load_dotenv("files/.env")
 TOKEN = os.environ.get("low_ink_discord_token")
+
 # This is the list of cogs that discord.py loads in as file names without the .py extension
 extensions = [
     "cogs.information",
@@ -44,6 +45,10 @@ async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingRequiredArgument):
         await ctx.send("Missing data, you got got to enter something after the command!\n"
                        "You can use `<help` for help")
+    elif isinstance(error, commands.CommandNotFound):
+        return
+    else:
+        utils.errorCollector.collect_error(error, "on_command_error")
 
 
 # When the bot is loaded
@@ -61,11 +66,11 @@ async def on_ready():
 # Member join event
 @bot.event
 async def on_member_join(member: discord.member):
-    await assignNewMemberRole(member)
+    await assign_new_member_role(member)
 
 
 # Give default role to member
-async def assignNewMemberRole(member: discord.member):
+async def assign_new_member_role(member: discord.member):
     settings = gSheetConnector.SheetConnector("files/googleAuth.json", "Low Ink Bot DataSet") \
         .get_settings("Settings")
     if str(member.guild.id) in settings:

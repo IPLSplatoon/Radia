@@ -14,6 +14,7 @@ class Information(commands.Cog):
         self.sheets = gSheetConnector.SheetConnector("files/googleAuth.json", "Low Ink Bot DataSet")
         self.rules = self.sheets.get_responses("Rules")
         self.canned = self.sheets.get_responses("Canned Responses")
+        self.updates.start()
 
     @tasks.loop(hours=24)
     async def updates(self):
@@ -32,42 +33,48 @@ class Information(commands.Cog):
     @commands.command(name='rules', help="Get the rules for Low Ink",
                       aliases=["rule", "Rules", "Rule"])
     async def rules(self, ctx, rules="listAll", image="false"):
-        if rules == "listAll":
-            embed = await utils.embedder.create_embed("Rules", "List of Rules to view")
-            rulesList = await utils.embedder.list_to_code_block(self.rules.options)
-            embed.add_field(name="Rule Categories", value=rulesList, inline=False)
-            await ctx.send(embed=embed)
-        else:
-            rules = rules.title()
-            if rules in self.rules.variantList:
-                reply = self.rules.replies[int(self.rules.variantList[rules])]
-                embed = await utils.embedder.create_embed("{} Rules".format(rules), reply.reply)
-                if image != "false":
-                    embed.set_image(reply.image)
+        try:
+            if rules == "listAll":
+                embed = await utils.embedder.create_embed("Rules", "List of Rules to view")
+                rulesList = await utils.embedder.list_to_code_block(self.rules.options)
+                embed.add_field(name="Rule Categories", value=rulesList, inline=False)
                 await ctx.send(embed=embed)
             else:
-                await ctx.send("Rule requested is not a valid category! >.<")
+                rules = rules.title()
+                if rules in self.rules.variantList:
+                    reply = self.rules.replies[int(self.rules.variantList[rules])]
+                    embed = await utils.embedder.create_embed("{} Rules".format(rules), reply.reply)
+                    if image != "false":
+                        embed.set_image(reply.image)
+                    await ctx.send(embed=embed)
+                else:
+                    await ctx.send("Rule requested is not a valid category! >.<")
+        except discord.DiscordException as E:
+            utils.errorCollector.collect_error(E, "Rule Response")
 
     @commands.has_role("Staff")  # Limits to only staff being able to use command
     @commands.guild_only()
     @commands.command(name='whatis', help="Get explanations for Frequently asked questions",
                       aliases=["canned", "whatIs"])
     async def canned(self, ctx, category="listAll", image="false"):
-        if category == "listAll":
-            embed = await utils.embedder.create_embed("What Is....", "List of What Is.... to view")
-            categoryList = await utils.embedder.list_to_code_block(self.canned.options)
-            embed.add_field(name="What Is Categories", value=categoryList, inline=False)
-            await ctx.send(embed=embed)
-        else:
-            category = category.title()
-            if category in self.canned.variantList:
-                reply = self.canned.replies[int(self.canned.variantList[category])]
-                embed = await utils.embedder.create_embed("What is {}".format(category), reply.reply)
-                if image != "false":
-                    embed.set_image(url=reply.image)
+        try:
+            if category == "listAll":
+                embed = await utils.embedder.create_embed("What Is....", "List of What Is.... to view")
+                categoryList = await utils.embedder.list_to_code_block(self.canned.options)
+                embed.add_field(name="What Is Categories", value=categoryList, inline=False)
                 await ctx.send(embed=embed)
             else:
-                await ctx.send("What Is requested is not a valid category! >.<")
+                category = category.title()
+                if category in self.canned.variantList:
+                    reply = self.canned.replies[int(self.canned.variantList[category])]
+                    embed = await utils.embedder.create_embed("What is {}".format(category), reply.reply)
+                    if image != "false":
+                        embed.set_image(url=reply.image)
+                    await ctx.send(embed=embed)
+                else:
+                    await ctx.send("What Is requested is not a valid category! >.<")
+        except discord.DiscordException as E:
+            utils.errorCollector.collect_error(E, "Canned Response")
 
 
 def setup(bot):

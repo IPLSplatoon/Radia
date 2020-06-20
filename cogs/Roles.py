@@ -25,9 +25,9 @@ class Roles(commands.Cog):
         self.roles = self.sheets.get_self_assign_roles("AssignableRoles")
         for server in self.bot.guilds:
             if str(server.id) in self.settings:
-                await self.__assignCaptainRole(server.id)  # Update roles
+                await self.__assign_captain_role(server.id)  # Update roles
 
-    async def __assignCaptainRole(self, serverID: int, channelID: int = 0) -> bool:
+    async def __assign_captain_role(self, serverID: int, channelID: int = 0) -> bool:
         """
         Private method, gives captain role to server
         :param serverID: int
@@ -93,7 +93,7 @@ class Roles(commands.Cog):
             else:
                 return False
         except discord.DiscordException as E:
-            utils.other.collect_error(E, "Assign Captain")
+            utils.errorCollector.collect_error(E, "Assign Captain")
 
     @commands.has_role("Staff")  # Limits to only staff being able to use command
     @commands.guild_only()
@@ -102,11 +102,11 @@ class Roles(commands.Cog):
     async def assignCap(self, ctx):
         with ctx.typing():
             self.settings = self.sheets.get_settings("Settings")
-            await self.__assignCaptainRole(ctx.message.guild.id, ctx.message.channel.id)
+            await self.__assign_captain_role(ctx.message.guild.id, ctx.message.channel.id)
 
     @commands.command(name='role', help="Give yourself a role", aliases=["rank", "assign"])
     @commands.guild_only()
-    async def autoAssign(self, ctx, role="listAll"):
+    async def auto_assign(self, ctx, role="listAll"):
         with ctx.typing():
             if role == "listAll":
                 embed = await utils.embedder.create_embed("Role", "List the roles you can assign yourself")
@@ -136,14 +136,15 @@ class Roles(commands.Cog):
     @commands.has_role("Staff")
     @commands.guild_only()
     @commands.command(name='updateRoles', help="Update settings and self assign roles")
-    async def updateStorage(self, ctx):
+    async def update_storage(self, ctx):
         self.settings = self.sheets.get_settings("Settings")
         self.roles = self.sheets.get_self_assign_roles("AssignableRoles")
         await ctx.send("Updated settings and roles list")
 
     @commands.has_role("Staff")
     @commands.guild_only()
-    @commands.command(name='removeChampions', help="Remove the Champion role from users who currently have it")
+    @commands.command(name='removeChampions', help="Remove the Champion role from users who currently have it",
+                      aliases=["dethrone", "removechampions"])
     async def dethrone(self, ctx):
         with ctx.typing():
             removeRole = discord.utils.get(ctx.message.guild.roles, name="Low Ink Current Champions")
@@ -167,7 +168,7 @@ class Roles(commands.Cog):
     @commands.has_role("Staff")
     @commands.guild_only()
     @commands.command(name='removeAllCaptains', help="Remove the captains role from everyone with it")
-    async def removeCaptain(self, ctx):
+    async def remove_captain(self, ctx):
         with ctx.typing():
             settings = self.settings[str(ctx.message.guild.id)]
             role = discord.utils.get(ctx.message.guild.roles, id=int(settings["CaptainRoleID"]))
@@ -183,7 +184,7 @@ class Roles(commands.Cog):
     @commands.command(name='debug', help="Internal Debug command", hidden=True)
     async def debug(self, ctx):
         with ctx.typing():
-            with open("debug.txt", "w") as file:
+            with open("debug.txt", "w", encoding="utf-8") as file:
                 file.write("Guild Members\n")
                 for member in ctx.message.guild.members:
                     username = "{}#{}".format(member.name, member.discriminator)
