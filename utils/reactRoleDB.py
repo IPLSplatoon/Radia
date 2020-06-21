@@ -17,7 +17,7 @@ class MessageRoleList:
         self.unicode = {}
         self.custom = {}
 
-    def add_reaction(self, emoteID: str, roleID: str) -> bool:
+    async def add_reaction(self, emoteID: str, roleID: str) -> bool:
         """
         Add a reaction and role to the message
         :param emoteID: str
@@ -35,7 +35,7 @@ class MessageRoleList:
             return True
         return False
 
-    def get_role_id(self, emoteID: str) -> Optional[str]:
+    async def get_role_id(self, emoteID: str) -> Optional[str]:
         """
         Get the role ID that's tied to a role
         :param emoteID: str
@@ -51,7 +51,7 @@ class MessageRoleList:
                 return self.custom[emoteID]
         return None
 
-    def remove_role_id(self, emoteID: str) -> bool:
+    async def remove_role_id(self, emoteID: str) -> bool:
         """
         Remove a role from the list
         :param emoteID: str
@@ -77,34 +77,34 @@ class RoleReactList:
         if os.path.isfile(self.fileName):
             self.messageList = pickle.load(open(self.fileName, 'rb'))
 
-    def add_message_reaction(self, messageID: str, emoteID: str, roleID: str) -> bool:
+    async def add_message_reaction(self, messageID: str, emoteID: str, roleID: str) -> bool:
         if not messageID.isdigit():
             return False
         if messageID not in self.messageList:
             self.messageList[messageID] = MessageRoleList()
         messageRoleList = self.messageList[messageID]
-        if messageRoleList.add_reaction(emoteID, roleID):
+        if await messageRoleList.add_reaction(emoteID, roleID):
             pickle.dump(self.messageList, open(self.fileName, "wb"))
             return True
         return False
 
-    def remove_message_reaction(self, messageID: str, emoteID: str, roleID: str) -> bool:
+    async def remove_message_reaction(self, messageID: str, emoteID: str, roleID: str) -> bool:
         if not messageID.isdigit():
             return False
         if messageID not in self.messageList:
             return False
         messageRoleList = self.messageList[messageID]
-        if messageRoleList.add_reaction(emoteID, roleID):
+        if await messageRoleList.add_reaction(emoteID, roleID):
             pickle.dump(self.messageList, open(self.fileName, "wb"))
             return True
         return False
 
-    def get_reaction_role(self, messageID: str, emoteID: str) -> Optional[str]:
+    async def get_reaction_role(self, messageID: str, emoteID: str) -> Optional[str]:
         if not messageID.isdigit():
             return None
         if messageID not in self.messageList:
             return None
         messageRoleList = self.messageList[messageID]
-        return messageRoleList.get_role_id(emoteID)
+        return await messageRoleList.get_role_id(emoteID)
 
 
