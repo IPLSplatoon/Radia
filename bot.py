@@ -19,7 +19,8 @@ extensions = [
     "cogs.information",
     "cogs.Roles",
     "cogs.other",
-    "cogs.krakenmare"
+    "cogs.krakenmare",
+    "cogs.roleReact"
 ]
 
 presence_strings = [

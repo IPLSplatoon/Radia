@@ -7,3 +7,5 @@ python-dotenv
 setuptools
 setuptools_scm
 sentry-sdk
+google-api-python-client~=1.7.11
+emoji
