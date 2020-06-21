@@ -25,9 +25,13 @@ def emoji_check(emojiChar: str):
     """
     # Check if it's an Unicode emoji
     if emojiChar in emoji.UNICODE_EMOJI:
-        return 1, 'U+{}'.format(ord(emojiChar))  # Last section gets the unicode code
+        try:  # Try catch cause some emoji use a string length of 2 (E.g. flags) and they aren't supported
+            returnStr = 'U+{}'.format(ord(emojiChar))
+            return 1, returnStr  # Last section gets the unicode code
+        except TypeError:  # If we run into a type error we return is as if it isn't an emoji
+            return 0, None
     # This is a regular expression to check the format for a Discord custom Emoji
-    customEmojiExpression = re.compile("<:([A-Z]+[a-z]+[0-9]+):([0-9]+)>")
+    customEmojiExpression = re.compile("<:([A-Z]*[a-z]*[0-9]*[_]*){2,}:([0-9]+)>")
     # Check if the emoji is a custom emoji
     if customEmojiExpression.match(emojiChar):
         emojiChar = emojiChar[2:][:-1]  # Remove first 2 and last char from string
