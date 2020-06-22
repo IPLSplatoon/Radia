@@ -116,6 +116,15 @@ class RoleReact(commands.Cog):
             emoteType, emoteID = emoji_check(emote)
             if emoteType == 1 or 2:
                 if await self.roleDB.remove_message_reaction(messageID, emoteID):
+                    try:
+                        message = await ctx.message.channel.fetch_message(int(messageID))
+                        # check emote type and remove the reactions for it
+                        if emoteType == 1:
+                            await message.clear_reaction(emote)
+                        if emoteType == 2:
+                            await message.clear_reaction(emote[1:][:-1])
+                    except discord.DiscordException as e:
+                        utils.errorCollector.collect_error(e, "Role reaction removal")
                     embed = await utils.create_embed("Reaction Role Removed",
                                                      "You can delete your command and this message and the reactions now")
                     await ctx.send(embed=embed)
