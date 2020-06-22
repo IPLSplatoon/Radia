@@ -17,7 +17,7 @@ class Other(commands.Cog):
         embed = await utils.embedder.create_embed("Radia Status")
         embed.add_field(name="Version:", value="Alpha 1.0", inline=True)
         embed.add_field(name="Latency:", value="{}ms".format(round(self.bot.latency * 1000, 2)), inline=True)
-        embed.add_field(name="Contributors:", value="1", inline=False)
+        embed.add_field(name="Contributors:", value="3", inline=False)
         embed.add_field(name="Powered by Turnip Bot Stack",
                         value="https://github.com/vlee489/Turnip-Bot/", inline=False)
         await ctx.send(embed=embed)

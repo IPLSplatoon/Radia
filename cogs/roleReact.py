@@ -44,14 +44,101 @@ class RoleReact(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.sheets = gSheetConnector.SheetConnector("files/googleAuth.json", GOOGLE_SHEET_NAME)
+        self.roleDB = utils.RoleReactList("files/roleDB.p")
 
-    @commands.command(name='test', help="testing shit")
-    async def testing(self, ctx, emote):
-        print(emote)
-        emojiType, ID = emoji_check(emote)
-        print("Type {} | ID:{}".format(emojiType, ID))
+    @commands.has_role("Staff")
+    @commands.guild_only()
+    @commands.command(name='addReaction', help="Add a Reaction and Role to give out.")
+    async def add_react_role(self, ctx, messageID, emote, roleID):
+        roleToAssign = discord.utils.get(ctx.message.guild.roles, id=int(roleID))
+        # Check if role exists
+        if roleToAssign is None:
+            embed = await utils.create_embed("Reaction Role Add Error",
+                                             "Unable to find role with ID: {}".format(roleID))
+            await ctx.send(embed=embed)
+            return
+        # Checks if message exists
+        try:
+            message = await ctx.message.channel.fetch_message(int(messageID))
+        except discord.NotFound:
+            embed = await utils.create_embed("Reaction Role Add Error",
+                                             "Message does not exist with ID: {}".format(messageID))
+            await ctx.send(embed=embed)
+            return
+        except discord.HTTPException:
+            embed = await utils.create_embed("Reaction Role Add Error",
+                                             "Unable to find role with ID: {}".format(messageID))
+            await ctx.send(embed=embed)
+            return
+        # Get and check emote
+        try:
+            emoteType, emoteID = emoji_check(emote)
+            if emoteType == 1:  # if Emote is an unicode emoji
+                if await self.roleDB.add_message_reaction(messageID, emoteID, roleID):
+                    await message.add_reaction(chr(int((emoteID[2:]))))
+                else:
+                    embed = await utils.create_embed("Reaction Role Add Error",
+                                                     "Unable add to database: {}".format(messageID))
+                    await ctx.send(embed=embed)
+                    return
+            elif emoteType == 2:  # if Emote is a custom emoji
+                if await self.roleDB.add_message_reaction(messageID, emoteID, roleID):
+                    await message.add_reaction(emote[1:][:-1])
+                else:
+                    embed = await utils.create_embed("Reaction Role Add Error",
+                                                     "Unable add to database: {}".format(messageID))
+                    await ctx.send(embed=embed)
+                    return
+            else:  # if invalid emote
+                embed = await utils.create_embed("Reaction Role Add Error",
+                                                 "Invalid emote: {}".format(emote))
+                await ctx.send(embed=embed)
+                return
+            # if we have added the role without error
+            embed = await utils.create_embed("Reaction Role Added",
+                                             "You can delete you command and this message now")
+            await ctx.send(embed=embed)
+            return
+        except discord.DiscordException as e:  # Catch errors
+            utils.errorCollector.collect_error(e, "Add react role")
 
+    @commands.guild_only()
+    @commands.Cog.listener()
+    async def on_raw_reaction_add(self, payload):
+        # checks type to get emoji name/id for storage
+        if payload.emoji.is_custom_emoji():
+            emojiID = payload.emoji.id
+        else:
+            emojiID = emoji_check(payload.emoji.name)
+        # Get the role it might corresponds to from DB
+        role = await self.roleDB.get_reaction_role(str(payload.message_id), str(emojiID))
+        if role is not None:  # If the role isn't None
+            guild = self.bot.get_guild(payload.guild_id)  # Get guild object
+            role = discord.utils.get(guild.roles, id=int(role))  # get role object
+            botRole = discord.utils.get(guild.roles, name="Radia")  # Get bot's role
+            user = discord.utils.get(guild.members, id=payload.user_id)  # get user object
+            if botRole > role:  # We check the role we assign is bellow the bot's role for sanity reasons
+                if role not in user.roles:  # if the user doesn't have the role, give them the role
+                    await user.add_roles(role, reason="React Role assignment")
 
+    @commands.guild_only()
+    @commands.Cog.listener()
+    async def on_raw_reaction_remove(self, payload):
+        # checks type to get emoji name/id for storage
+        if payload.emoji.is_custom_emoji():
+            emojiID = payload.emoji.id
+        else:
+            emojiID = emoji_check(payload.emoji.name)
+        # Get the role it might corresponds to from DB
+        role = await self.roleDB.get_reaction_role(str(payload.message_id), str(emojiID))
+        if role is not None:  # If the role isn't None
+            guild = self.bot.get_guild(payload.guild_id)  # Get guild object
+            role = discord.utils.get(guild.roles, id=int(role))  # get role object
+            botRole = discord.utils.get(guild.roles, name="Radia")  # Get bot's role
+            user = discord.utils.get(guild.members, id=payload.user_id)  # get user object
+            if botRole > role:  # We check the role we assign is bellow the bot's role for sanity reasons
+                if role in user.roles:  # if the user doesn't have the role, give them the role
+                    await user.remove_roles(role, reason="React Role Removal")
 
 
 def setup(bot):
