@@ -108,10 +108,10 @@ class RoleReact(commands.Cog):
 
     @commands.has_role("Staff")
     @commands.guild_only()
-    @commands.command(name='removeReaction', help="Add a Reaction and Role to give out.\n"
+    @commands.command(name='removeReaction', help="Remove a Reaction and Role to give out.\n"
                                                   "<messageID>: The message ID of the reaction you want to add to.\n"
                                                   "<emote>: The emote you want to use.")
-    async def add_react_role(self, ctx, messageID, emote):
+    async def remove_react_role(self, ctx, messageID, emote):
         with ctx.typing:
             emoteType, emoteID = emoji_check(emote)
             if emoteType == 1 or 2:
