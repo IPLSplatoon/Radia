@@ -112,14 +112,24 @@ class RoleReact(commands.Cog):
             emojiID = emoji_check(payload.emoji.name)
         # Get the role it might corresponds to from DB
         role = await self.roleDB.get_reaction_role(str(payload.message_id), str(emojiID))
+        guild = self.bot.get_guild(payload.guild_id)  # Get guild object
+        user = discord.utils.get(guild.members, id=payload.user_id)  # get user object
         if role is not None:  # If the role isn't None
-            guild = self.bot.get_guild(payload.guild_id)  # Get guild object
             role = discord.utils.get(guild.roles, id=int(role))  # get role object
             botRole = discord.utils.get(guild.roles, name="Radia")  # Get bot's role
-            user = discord.utils.get(guild.members, id=payload.user_id)  # get user object
             if botRole > role:  # We check the role we assign is bellow the bot's role for sanity reasons
                 if role not in user.roles:  # if the user doesn't have the role, give them the role
                     await user.add_roles(role, reason="React Role assignment")
+        else:  # If reaction is added to a message that's taking role reactions
+            if await self.roleDB.message_in_db(str(payload.message_id)):
+                channel = discord.utils.get(guild.text_channels, id=payload.channel_id)
+                message = await channel.fetch_message(payload.message_id)
+                # We remove the invalid reactions
+                if payload.emoji.is_custom_emoji():
+                    await message.remove_reaction(":{}:{}".format(payload.emoji.name, payload.emoji.id), user)
+                else:
+                    await message.remove_reaction(payload.emoji.name, user)
+
 
     @commands.guild_only()
     @commands.Cog.listener()

@@ -72,12 +72,28 @@ class MessageRoleList:
 
 class RoleReactList:
     def __init__(self, fileName: str):
+        """
+        Constructor
+        :param fileName: str
+            Name of the file the DB will be saved/loaded as
+        """
         self.fileName = fileName
         self.messageList = {}
         if os.path.isfile(self.fileName):
             self.messageList = pickle.load(open(self.fileName, 'rb'))
 
     async def add_message_reaction(self, messageID: str, emoteID: str, roleID: str) -> bool:
+        """
+        Add a reaction:role pair for a message
+        :param messageID: str
+            MessageID from Discord
+        :param emoteID: str
+            emoteID for custom emotes or Unicode code
+        :param roleID: str
+            roleID of role to add
+        :return: bool
+            if the action was successful or not
+        """
         if not messageID.isdigit():
             return False
         if messageID not in self.messageList:
@@ -88,18 +104,36 @@ class RoleReactList:
             return True
         return False
 
-    async def remove_message_reaction(self, messageID: str, emoteID: str, roleID: str) -> bool:
+    async def remove_message_reaction(self, messageID: str, emoteID: str) -> bool:
+        """
+        Add a reaction:role pair for a message
+        :param messageID: str
+            MessageID from Discord
+        :param emoteID: str
+            emoteID for custom emotes or Unicode code
+        :return: bool
+            if the action was successful or not
+        """
         if not messageID.isdigit():
             return False
         if messageID not in self.messageList:
             return False
         messageRoleList = self.messageList[messageID]
-        if await messageRoleList.add_reaction(emoteID, roleID):
+        if await messageRoleList.remove_role_id(emoteID)
             pickle.dump(self.messageList, open(self.fileName, "wb"))
             return True
         return False
 
     async def get_reaction_role(self, messageID: str, emoteID: str) -> Optional[str]:
+        """
+        Get a role tied to a message and reaction
+        :param messageID: str
+            MessageID from Discord
+        :param emoteID: str
+            emoteID for custom emotes or Unicode code
+        :return: Optional[str]
+            The role id or None if it doesn't exist
+        """
         if not messageID.isdigit():
             return None
         if messageID not in self.messageList:
@@ -107,4 +141,12 @@ class RoleReactList:
         messageRoleList = self.messageList[messageID]
         return await messageRoleList.get_role_id(emoteID)
 
-
+    async def message_in_db(self, messageID: str) -> bool:
+        """
+        Check if a message exists in the db
+        :param messageID: str
+            MessageID from Discord
+        :return: bool
+            if the message exists or not
+        """
+        return messageID in self.messageList
