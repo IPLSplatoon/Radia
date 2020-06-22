@@ -71,7 +71,7 @@ class RoleReact(commands.Cog):
                 return
             except discord.HTTPException:
                 embed = await utils.create_embed("Reaction Role Add Error",
-                                                 "Unable to find role with ID: {}".format(messageID))
+                                                 "Unable to find message with ID: {}".format(messageID))
                 await ctx.send(embed=embed)
                 return
             # Get and check emote
