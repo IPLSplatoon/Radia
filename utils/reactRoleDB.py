@@ -119,7 +119,7 @@ class RoleReactList:
         if messageID not in self.messageList:
             return False
         messageRoleList = self.messageList[messageID]
-        if await messageRoleList.remove_role_id(emoteID)
+        if await messageRoleList.remove_role_id(emoteID):
             pickle.dump(self.messageList, open(self.fileName, "wb"))
             return True
         return False
