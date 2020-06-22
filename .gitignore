@@ -265,3 +265,4 @@ dmypy.json
 
 # Config secrets
 files/googleAuth.json
+files/roleDB.p
