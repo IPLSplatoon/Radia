@@ -130,7 +130,7 @@ class RoleReactList:
             return False
         messageRoleList = self.messageList[messageID]
         if await messageRoleList.remove_role_id(emoteID):
-            if messageRoleList.is_empty():  # If the message is empty
+            if await messageRoleList.is_empty():  # If the message is empty
                 # we'll delete the message object for the dict as well
                 del self.messageList[messageID]
             pickle.dump(self.messageList, open(self.fileName, "wb"))

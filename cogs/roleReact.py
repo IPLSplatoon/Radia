@@ -112,12 +112,12 @@ class RoleReact(commands.Cog):
                                                   "<messageID>: The message ID of the reaction you want to add to.\n"
                                                   "<emote>: The emote you want to use.")
     async def remove_react_role(self, ctx, messageID, emote):
-        with ctx.typing:
+        with ctx.typing():
             emoteType, emoteID = emoji_check(emote)
             if emoteType == 1 or 2:
-                if self.roleDB.remove_message_reaction(messageID, emoteID):
+                if await self.roleDB.remove_message_reaction(messageID, emoteID):
                     embed = await utils.create_embed("Reaction Role Removed",
-                                                     "You can delete you command and this message and the reactions now")
+                                                     "You can delete your command and this message and the reactions now")
                     await ctx.send(embed=embed)
                     return
                 else:
