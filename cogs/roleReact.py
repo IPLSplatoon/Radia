@@ -139,7 +139,7 @@ class RoleReact(commands.Cog):
         if payload.emoji.is_custom_emoji():
             emojiID = payload.emoji.id
         else:
-            emojiID = emoji_check(payload.emoji.name)
+            emojiID = emoji_check(payload.emoji.name)[1]
         # Get the role it might corresponds to from DB
         role = await self.roleDB.get_reaction_role(str(payload.message_id), str(emojiID))
         guild = self.bot.get_guild(payload.guild_id)  # Get guild object
@@ -167,7 +167,7 @@ class RoleReact(commands.Cog):
         if payload.emoji.is_custom_emoji():
             emojiID = payload.emoji.id
         else:
-            emojiID = emoji_check(payload.emoji.name)
+            emojiID = emoji_check(payload.emoji.name)[1]
         # Get the role it might corresponds to from DB
         role = await self.roleDB.get_reaction_role(str(payload.message_id), str(emojiID))
         if role is not None:  # If the role isn't None
