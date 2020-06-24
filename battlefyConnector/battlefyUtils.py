@@ -3,6 +3,8 @@ Contains utilities for parsing Battlefy data
 """
 from .battlefyConnector import BattlefyAIO
 from typing import Optional
+from .teamDesign import Player, Team
+import dateutil.parser
 
 
 class BattlefyUtils:
@@ -54,3 +56,35 @@ class BattlefyUtils:
                         returnDict[fields["value"]] = teams["name"]
                         pass
         return returnDict
+
+    async def get_list_of_teams(self, tournamentID: str, DiscordFieldID: str, FCFieldID: str) -> Optional[list]:
+        request = await self.battlefy.getTournamentTeams(tournamentID)
+        if not request:  # Check if the return has data
+            return None
+        teamList = []
+        for teams in request:
+            teamRoaster = []
+            for players in teams["players"]:
+                tempPlayer = Player(players["persistentPlayerID"], players["userSlug"],
+                                    players["inGameName"], dateutil.parser.isoparse(players["createdAt"]))
+                teamRoaster.append(tempPlayer)
+            captain = None
+            if "captain" in teams:
+                captain = Player(teams["captain"]["persistentPlayerID"], teams["captain"]["userSlug"],
+                                 teams["captain"]["inGameName"],
+                                 dateutil.parser.isoparse(teams["captain"]["createdAt"]))
+            customFields = teams["customFields"]
+            persistentTeam = teams["persistentTeam"]
+            discord = "Unknown"
+            FCCode = "Unkown"
+            for fields in customFields:
+                print(fields)
+                if fields["_id"] == DiscordFieldID:
+                    discord = fields["value"]
+                elif fields["_id"] == FCFieldID:
+                    FCCode = fields["value"]
+
+            team = Team(teams["name"], teams["pendingTeamID"], discord, FCCode, captain, teamRoaster, persistentTeam["logoUrl"])
+            teamList.append(team)
+        return teamList
+
