@@ -10,3 +10,6 @@ sentry-sdk
 google-api-python-client
 emoji
 aiohttp
+pynamodb
+
+python-dateutil

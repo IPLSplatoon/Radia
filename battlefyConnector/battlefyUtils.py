@@ -65,26 +65,29 @@ class BattlefyUtils:
         for teams in request:
             teamRoaster = []
             for players in teams["players"]:
-                tempPlayer = Player(players["persistentPlayerID"], players["userSlug"],
-                                    players["inGameName"], dateutil.parser.isoparse(players["createdAt"]))
+                tempPlayer = Player()
+                tempPlayer.load(players["persistentPlayerID"], players["userSlug"],
+                                players["inGameName"], dateutil.parser.isoparse(players["createdAt"]))
                 teamRoaster.append(tempPlayer)
-            captain = None
+            captain = Player()
             if "captain" in teams:
-                captain = Player(teams["captain"]["persistentPlayerID"], teams["captain"]["userSlug"],
-                                 teams["captain"]["inGameName"],
-                                 dateutil.parser.isoparse(teams["captain"]["createdAt"]))
+                captain.load(teams["captain"]["persistentPlayerID"], teams["captain"]["userSlug"],
+                             teams["captain"]["inGameName"],
+                             dateutil.parser.isoparse(teams["captain"]["createdAt"]))
             customFields = teams["customFields"]
             persistentTeam = teams["persistentTeam"]
             discord = "Unknown"
-            FCCode = "Unkown"
+            FCCode = "Unknown"
             for fields in customFields:
-                print(fields)
                 if fields["_id"] == DiscordFieldID:
                     discord = fields["value"]
                 elif fields["_id"] == FCFieldID:
                     FCCode = fields["value"]
 
-            team = Team(teams["name"], teams["pendingTeamID"], discord, FCCode, captain, teamRoaster, persistentTeam["logoUrl"])
+            logo = persistentTeam["logoUrl"]
+            if not logo:
+                logo = "Unknown"
+
+            team = Team(teams["name"], teams["persistentTeamID"], discord, FCCode, captain, teamRoaster, logo)
             teamList.append(team)
         return teamList
-

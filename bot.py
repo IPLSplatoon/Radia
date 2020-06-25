@@ -20,7 +20,8 @@ extensions = [
     "cogs.Roles",
     "cogs.other",
     "cogs.krakenmare",
-    "cogs.roleReact"
+    "cogs.roleReact",
+    "cogs.team"
 ]
 
 presence_strings = [

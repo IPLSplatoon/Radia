@@ -74,6 +74,11 @@ class SheetConnector:
                 tempHolding["BotChannelID"] = str(lines["BotChannelID"])
                 tempHolding["BattlefyTournamentID"] = lines["BattlefyTournamentID"]
                 tempHolding["DefaultRoleID"] = lines["DefaultRoleID"]
+                tempHolding["BattlefyFCID"] = lines["BattlefyFCID"]
+                if lines["AutoAssignCaptainRole"] == "TRUE":
+                    lines["AutoAssignCaptainRole"] = True
+                else:
+                    lines["AutoAssignCaptainRole"] = False
             returnDict[str(lines["ServerID"])] = tempHolding
         return returnDict
 
