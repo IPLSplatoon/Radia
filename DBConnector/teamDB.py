@@ -1,5 +1,5 @@
 from .models.teamModel import TeamModel
-from .errors import MoreThenOneError
+from .errors import MoreThenOneError, CheckInBlockedError
 import battlefyConnector
 from battlefyConnector import Team, Player
 from typing import Optional
@@ -66,9 +66,32 @@ class TeamDB:
         if len(teams) > 1:
             raise MoreThenOneError("More then 1 teams returned")
         team = teams[0]
+        if team.allowCheckIN is False:
+            raise CheckInBlockedError("Checkin disabled for team")
         team.update(
             actions=[
                 TeamModel.checkIN.set(checkinStatus)
+            ]
+        )
+        return True
+
+    async def update_allow_checkin(self, checkinAllow: bool, discordUsername: str = None,
+                                  teamName: str = None, teamID: str = None) -> bool:
+        teams = None
+        if discordUsername:
+            teams = await self.get_teams_model(discordUsername=discordUsername)
+        if teamName:
+            teams = await self.get_teams_model(teamName=teamName)
+        if teamID:
+            teams = await self.get_teams_model(teamID=teamID)
+        if teams is None or len(teams) < 1:
+            return False
+        if len(teams) > 1:
+            raise MoreThenOneError("More then 1 teams returned")
+        team = teams[0]
+        team.update(
+            actions=[
+                TeamModel.allowCheckIN.set(checkinAllow)
             ]
         )
         return True
@@ -96,8 +119,8 @@ class TeamDB:
                 tempPlayer = Player()
                 tempPlayer.load_from_dict(player)
                 players.append(tempPlayer)
-            returnList.append(Team(teamModel.teamName, teamModel.teamID, teamModel.captainDiscord,
-                                   teamModel.captainFC, captain, players, teamModel.teamIconURL, teamModel.checkIN))
+            returnList.append(Team(teamModel.teamName, teamModel.teamID, teamModel.captainDiscord, teamModel.captainFC,
+                                   captain, players, teamModel.teamIconURL, teamModel.checkIN, teamModel.allowCheckIN))
         return returnList
 
 

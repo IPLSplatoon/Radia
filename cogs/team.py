@@ -33,7 +33,7 @@ class Teams(commands.Cog):
 
     @commands.has_role("Staff")
     @commands.guild_only()
-    @commands.command(name='enableCheckin', help="Enable checkin command")
+    @commands.command(name='toggleCheckin', help="Toggle checkin command")
     async def enable_checkin(self, ctx):
         if self.enableCheckin:
             self.enableCheckin = False
@@ -57,9 +57,12 @@ class Teams(commands.Cog):
         embed.add_field(name="Team Captain:", value=team.captain.inGameName, inline=True)
         embed.add_field(name="Captain Discord:", value=team.captainDiscord, inline=True)
         if self.enableCheckin:
-            embed.add_field(name="Day 2 Checkin:", value=team.checkin, inline=True)
+            if team.allowCheckin:
+                embed.add_field(name="Day 2 Checkin:", value=team.checkin, inline=True)
+            else:
+                embed.add_field(name="Day 2 Checkin:", value="**Disabled**", inline=True)
         else:
-            embed.add_field(name="Day 2 Checkin:", value="N/A", inline=True)
+            embed.add_field(name="Day 2 Checkin:", value="N/A ({})".format(team.checkin), inline=True)
         embed.add_field(name="Captain FC:", value=team.captainFC, inline=False)
         embed.add_field(name="Team ID:", value="`{}`".format(team.teamID), inline=False)
         if team.teamIconURL != "Unknown":
@@ -98,27 +101,37 @@ class Teams(commands.Cog):
                 embed = await self.team_embed(team)
                 await ctx.send(embed=embed)
 
-    @commands.has_role("Captain")
+    @commands.has_role("Captains")
     @commands.command(name='checkin', help="Checkin your team!")
     async def checkin(self, ctx):
         with ctx.typing():
             if self.enableCheckin:
-                checkin = await self.database.update_team_checkin(True, discordUsername=str(ctx.message.author))
-                if checkin:
-                    embed = await utils.create_embed("Team Checkin Complete", "Your team has now be checked in!")
+                try:
+                    checkin = await self.database.update_team_checkin(True, discordUsername=str(ctx.message.author))
+                    if checkin:
+                        embed = await utils.create_embed("Team Checkin Complete", "Your team has now be checked in!")
+                        await ctx.send(embed=embed)
+                except DBConnector.errors.CheckInBlockedError:
+                    embed = await utils.create_embed("Team Checkin Disabled",
+                                                     "Your team has been blocked for checking in!")
                     await ctx.send(embed=embed)
             else:
                 embed = await utils.create_embed("Team Checkin Closed", "Checkin/out are not enabled at the minute")
                 await ctx.send(embed=embed)
 
-    @commands.has_role("Captain")
+    @commands.has_role("Captains")
     @commands.command(name='checkout', help="Checkout your team!")
     async def checkout(self, ctx):
         with ctx.typing():
             if self.enableCheckin:
-                checkin = await self.database.update_team_checkin(False, discordUsername=str(ctx.message.author))
-                if checkin:
-                    embed = await utils.create_embed("Team Checkout Complete", "Your team has now be checked out!")
+                try:
+                    checkin = await self.database.update_team_checkin(False, discordUsername=str(ctx.message.author))
+                    if checkin:
+                        embed = await utils.create_embed("Team Checkout Complete", "Your team has now be checked out!")
+                        await ctx.send(embed=embed)
+                except DBConnector.errors.CheckInBlockedError:
+                    embed = await utils.create_embed("Team Checkin Disabled",
+                                                     "Your team has been blocked for checking in!")
                     await ctx.send(embed=embed)
             else:
                 embed = await utils.create_embed("Team Checkin Closed", "Checkin/out are not enabled at the minute")
@@ -146,13 +159,16 @@ class Teams(commands.Cog):
                     embed = await utils.create_embed("Team Checkin update Complete",
                                                      "Team with following attributes has been update")
                     embed.add_field(name="Checked in status: ", value=checkinStatus, inline=False)
-                    embed.add_field(name="{}: ".format(queryType), value="`{}`".format(query), inline=False)
+                    embed.add_field(name="{}: ".format(queryType), value="`{}`".format(str(query)), inline=False)
                     await ctx.send(embed=embed)
                 else:
                     embed = await utils.create_embed("Team Checkin Error", "Unable to find team with query provided!")
                     await ctx.send(embed=embed)
             except DBConnector.errors.MoreThenOneError:
                 embed = await utils.create_embed("Team Checkin Error", "More then one team returned via Query")
+                await ctx.send(embed=embed)
+            except DBConnector.errors.CheckInBlockedError:
+                embed = await utils.create_embed("Team Checkin Disabled", "The team been disabled from checking in.")
                 await ctx.send(embed=embed)
 
     @commands.has_role("Staff")
@@ -174,6 +190,39 @@ class Teams(commands.Cog):
             else:
                 embed = await utils.create_embed("Listing Error", "Too long to post on discord, check console")
                 print(checkedInList)
+                await ctx.send(embed=embed)
+
+    @commands.has_role("Staff")
+    @commands.command(name='allowCheckin', help="Enable checkin for a team.")
+    async def staff_checkin(self, ctx, allowCheckin, query, queryType="mention"):
+        with ctx.typing():
+            if allowCheckin.upper() in ["YES", "TRUE", "YEP"]:
+                allowCheckinStatus = True
+            else:
+                allowCheckinStatus = False
+            try:
+                if queryType.upper() in ["ID", "TEAMID"]:
+                    checkin = await self.database.update_allow_checkin(allowCheckinStatus, teamID=query)
+                elif queryType.upper() in ["NAME", "TEAMNAME"]:
+                    checkin = await self.database.update_allow_checkin(allowCheckinStatus, teamName=query)
+                else:
+                    memberID = int(query[3:][:-1])
+                    member = await self.get_member(ctx.message.guild.id, memberID)
+                    username = "{}#{}".format(member.name, member.discriminator)
+                    checkin = await self.database.update_allow_checkin(allowCheckinStatus, discordUsername=username)
+                if checkin:
+                    embed = await utils.create_embed("Team Allow Checkin",
+                                                     "Team with following attributes has been update")
+                    embed.add_field(name="Allow Checkin: ", value=allowCheckinStatus, inline=False)
+                    embed.add_field(name="{}: ".format(queryType), value="`{}`".format(str(query)), inline=False)
+                    await ctx.send(embed=embed)
+                else:
+                    embed = await utils.create_embed("Team Allow Checkin Error",
+                                                     "Unable to find team with query provided!")
+                    await ctx.send(embed=embed)
+            except DBConnector.errors.MoreThenOneError:
+                embed = await utils.create_embed("Team Allow Checkin Error",
+                                                 "More then one team returned via Query")
                 await ctx.send(embed=embed)
 
 

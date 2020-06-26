@@ -34,13 +34,14 @@ class Player:
 
 
 class Team:
-    def __init__(self, teamName: str, teamID: str, captainDiscord: str, captainFC: str,
-                 captain: Player, players: list, teamIconURL: str, checkin: bool = False):
+    def __init__(self, teamName: str, teamID: str, captainDiscord: str, captainFC: str, captain: Player,
+                 players: list, teamIconURL: str, checkin: bool = False, allowCheckin: bool = False):
         self.teamName = teamName  # name
         self.teamID = teamID  # persistentTeamID
         self.captainDiscord = captainDiscord  # 5c71dc2bc61fc30322c85caf
         self.captainFC = captainFC  # 5c71dc2bc61fc30322c85caf
         self.checkin = checkin
+        self.allowCheckin = allowCheckin
         self.captain = captain  # Player: captain
         self.players = players  # Player: players
         self.teamIconURL = teamIconURL  # persistentTeam:logoUrl

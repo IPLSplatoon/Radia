@@ -15,4 +15,5 @@ class TeamModel(Model):
     captain = attributes.MapAttribute(default="Unknown")
     players = attributes.ListAttribute()
     checkIN = attributes.BooleanAttribute(default=False)
+    allowCheckIN = attributes.BooleanAttribute(default=False)
     teamIconURL = attributes.UnicodeAttribute(default="Unknown")
