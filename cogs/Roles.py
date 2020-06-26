@@ -8,12 +8,17 @@ import gSheetConnector
 import battlefyConnector
 import datetime
 import copy
+import os
+from dotenv import load_dotenv
+
+load_dotenv("files/.env")
+GOOGLE_SHEET_NAME = os.environ.get("google_sheet_name")
 
 
 class Roles(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.sheets = gSheetConnector.SheetConnector("files/googleAuth.json", "Low Ink Bot DataSet")
+        self.sheets = gSheetConnector.SheetConnector("files/googleAuth.json", GOOGLE_SHEET_NAME)
         self.settings = self.sheets.get_settings("Settings")
         self.battlefy = battlefyConnector.BattlefyUtils()
         self.roles = self.sheets.get_self_assign_roles("AssignableRoles")
