@@ -25,7 +25,9 @@ class Roles(commands.Cog):
         self.roles = self.sheets.get_self_assign_roles("AssignableRoles")
         for server in self.bot.guilds:
             if str(server.id) in self.settings:
-                await self.__assign_captain_role(server.id)  # Update roles
+                serverSetting = self.settings[str(server.id)]
+                if serverSetting["AutoAssignCaptainRole"]:
+                    await self.__assign_captain_role(server.id)  # Update roles
 
     async def __assign_captain_role(self, serverID: int, channelID: int = 0) -> bool:
         """
