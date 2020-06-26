@@ -49,6 +49,10 @@ async def on_command_error(ctx, error):
                        "You can use `<help` for help")
     elif isinstance(error, commands.CommandNotFound):
         return
+    elif isinstance(error, commands.MissingRole):
+        return
+    elif isinstance(error, commands.TooManyArguments):
+        return 
     else:
         utils.errorCollector.collect_error(error, "on_command_error")
 
