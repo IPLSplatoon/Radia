@@ -208,12 +208,12 @@ class Teams(commands.Cog):
                 await ctx.send(embed=embed)
 
     @commands.has_role("Staff")
-    @commands.command(name='allowCheckin', help="Enable checkin for a team."
+    @commands.command(name='allowCheckin', help="Enable checkin for a team.\n"
                                                 "<allowCheckin>: Allow a team to check in Yes/No\n"
                                                 "<query>: The team you want to find\n"
                                                 "<queryType>: What to find a team by. Can be ID, teamName or a mention",
                       aliases=["allowcheckin"])
-    async def staff_checkin(self, ctx, allowCheckin, query, queryType="mention"):
+    async def staff_allow_checkin(self, ctx, allowCheckin, query, queryType="mention"):
         with ctx.typing():
             if allowCheckin.upper() in ["YES", "TRUE", "YEP"]:
                 allowCheckinStatus = True
