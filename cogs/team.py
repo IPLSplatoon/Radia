@@ -33,7 +33,7 @@ class Teams(commands.Cog):
 
     @commands.has_role("Staff")
     @commands.guild_only()
-    @commands.command(name='toggleCheckin', help="Toggle checkin command")
+    @commands.command(name='toggleCheckin', help="Toggle checkin command", aliases=["togglecheckin"])
     async def enable_checkin(self, ctx):
         if self.enableCheckin:
             self.enableCheckin = False
@@ -52,6 +52,13 @@ class Teams(commands.Cog):
         return None
 
     async def team_embed(self, team: Team) -> discord.embeds:
+        """
+        Create a discord embed with team's information
+        :param team: Team
+            Team you want an embed for
+        :return: discord.embeds
+            Returns a discord embed object
+        """
         embed = await utils.embedder.create_embed(team.teamName, "Team Info on: {}".format(team.teamName),
                                                   "https://battlefy.com/teams/{}".format(team.teamID))
         embed.add_field(name="Team Captain:", value=team.captain.inGameName, inline=True)
@@ -81,7 +88,10 @@ class Teams(commands.Cog):
         return embed
 
     @commands.has_role("Staff")
-    @commands.command(name='team', help="Get info on a team(s)")
+    @commands.command(name='team', help="Get info on a team(s)\n"
+                                        "<query>: The team you want to find\n"
+                                        "<queryType>: What to find a team by. Can be ID, teamname or a mention",
+                      aliases=["teams"])
     async def get_teams(self, ctx, query, queryType="mention"):
         with ctx.typing():
             if queryType.upper() in ["ID", "TEAMID"]:
@@ -138,7 +148,12 @@ class Teams(commands.Cog):
                 await ctx.send(embed=embed)
 
     @commands.has_role("Staff")
-    @commands.command(name='checkinOverride', help="Allows staff to set checkin for teams")
+    @commands.command(name='checkinOverride', help="Allows staff to set checkin for teams\n"
+                                                   "<checkin>: yes or no to check in/our a team\n"
+                                                   "<query>: The team you want to find\n"
+                                                   "<queryType>: What to find a team by. Can be ID, teamname or a "
+                                                   "mention",
+                      aliases=["checkinoverride"])
     async def staff_checkin(self, ctx, checkin, query, queryType="mention"):
         with ctx.typing():
             if checkin.upper() in ["YES", "TRUE", "YEP"]:
@@ -172,7 +187,7 @@ class Teams(commands.Cog):
                 await ctx.send(embed=embed)
 
     @commands.has_role("Staff")
-    @commands.command(name='checkinList', help="List all checked in teams")
+    @commands.command(name='checkinList', help="List all checked in teams", aliases=["checkinlist"])
     async def checkin_list(self, ctx):
         with ctx.typing():
             checkedInTeams = await self.database.get_teams(checkIN=True)
@@ -193,7 +208,11 @@ class Teams(commands.Cog):
                 await ctx.send(embed=embed)
 
     @commands.has_role("Staff")
-    @commands.command(name='allowCheckin', help="Enable checkin for a team.")
+    @commands.command(name='allowCheckin', help="Enable checkin for a team."
+                                                "<allowCheckin>: Allow a team to check in Yes/No\n"
+                                                "<query>: The team you want to find\n"
+                                                "<queryType>: What to find a team by. Can be ID, teamName or a mention",
+                      aliases=["allowcheckin"])
     async def staff_checkin(self, ctx, allowCheckin, query, queryType="mention"):
         with ctx.typing():
             if allowCheckin.upper() in ["YES", "TRUE", "YEP"]:

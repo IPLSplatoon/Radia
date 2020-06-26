@@ -66,7 +66,7 @@ class Roles(commands.Cog):
                         await member.edit(nick=None)  # We remove their nickname as well
                 # Assign the captain role to current signed up captains
                 for member in guild.members:
-                    username = "{}#{}".format(member.name, member.discriminator)
+                    username = str(member)
                     if username in captains:
                         await member.add_roles(role, reason="Add captain role")
                         nickname = (teamNames[username])[:32]  # Truncates team made to be 32 char long
@@ -184,6 +184,36 @@ class Roles(commands.Cog):
                     await member.remove_roles(role)
             embed = await utils.embedder.create_embed("Removed Captain Role",
                                                       "Removed the Captain role from members")
+            await ctx.send(embed=embed)
+
+    @commands.has_role("Staff")
+    @commands.guild_only()
+    @commands.command(name='checkCaptain', help="Internal Debug command", aliases=["checkcaptain"])
+    async def check_captain(self, ctx):
+        with ctx.typing():
+            settings = self.settings[str(ctx.message.guild.id)]
+            captains = await self.battlefy.get_custom_field(settings["BattlefyTournamentID"],
+                                                            settings["BattlefyFieldID"])
+            if not captains:
+                return
+            teamNames = await self.battlefy.get_captains_team(settings["BattlefyTournamentID"],
+                                                              settings["BattlefyFieldID"])
+            for member in ctx.message.guild.members:
+                if str(member) in captains:
+                    captains.remove(str(member))
+
+            embed = await utils.create_embed("Captains not Found", "This is the list of people who will fail "
+                                                                   "to have the captain role assigned to them")
+            embed.add_field(name="No Players not found:", value=len(captains), inline=False)
+            if captains:  # If the list of invalid captains in not empty, we failed to assign all roles
+                # Following creates a code block in a str
+                captainNotAssigned = "```\n"
+                for x in captains:
+                    captainNotAssigned = captainNotAssigned + "- {} | {}\n".format(x, teamNames[x])
+                captainNotAssigned = captainNotAssigned + "```"
+                # Add field to embed
+                embed.add_field(name="List of captains that failed to be assigned:",
+                                value=captainNotAssigned, inline=False)
             await ctx.send(embed=embed)
 
     @commands.has_role("Staff")
