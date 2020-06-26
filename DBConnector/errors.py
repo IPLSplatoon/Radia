@@ -11,4 +11,7 @@ class MoreThenOneError(AttributeError):
 
 
 class CheckInBlockedError(AttributeError):
+    """
+    Raised when team hasn't had checkin enabled for them
+    """
     pass

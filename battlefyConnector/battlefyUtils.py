@@ -58,6 +58,17 @@ class BattlefyUtils:
         return returnDict
 
     async def get_list_of_teams(self, tournamentID: str, DiscordFieldID: str, FCFieldID: str) -> Optional[list]:
+        """
+        Get a list of teams fully registered on battlefy
+        :param tournamentID: str
+            The TournamentID
+        :param DiscordFieldID: str
+            The DiscordFieldID of the battlefy signup
+        :param FCFieldID:
+            The fieldID that contain's the friend code
+        :return: list
+            List of Team objects
+        """
         request = await self.battlefy.getTournamentTeams(tournamentID)
         if not request:  # Check if the return has data
             return None

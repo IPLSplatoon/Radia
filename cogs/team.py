@@ -67,9 +67,9 @@ class Teams(commands.Cog):
             if team.allowCheckin:
                 embed.add_field(name="Day 2 Checkin:", value=team.checkin, inline=True)
             else:
-                embed.add_field(name="Day 2 Checkin:", value="**Disabled**", inline=True)
+                embed.add_field(name="Day 2 Checkin:", value="**Disabled** (*{}*)".format(team.checkin), inline=True)
         else:
-            embed.add_field(name="Day 2 Checkin:", value="N/A ({})".format(team.checkin), inline=True)
+            embed.add_field(name="Day 2 Checkin:", value="N/A (*{}*)".format(team.checkin), inline=True)
         embed.add_field(name="Captain FC:", value=team.captainFC, inline=False)
         embed.add_field(name="Team ID:", value="`{}`".format(team.teamID), inline=False)
         if team.teamIconURL != "Unknown":

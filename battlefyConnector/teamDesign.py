@@ -6,7 +6,13 @@ import dateutil.parser
 
 
 class Player:
+    """
+    Define a player object
+    """
     def __init__(self):
+        """
+        constructor
+        """
         self.persistentPlayerID = "None"
         self.battlefyUsername = "None"
         self.inGameName = "None"
@@ -19,6 +25,11 @@ class Player:
         self.createdAt = createdAt  # createdAt
 
     def json_return(self) -> dict:
+        """
+        Get a dict return from this object's attributes
+        :return: dict
+            Dict with object's attributes
+        """
         return {
             "persistentPlayerID": self.persistentPlayerID,
             "battlefyUsername": self.battlefyUsername,
@@ -27,6 +38,12 @@ class Player:
         }
 
     def load_from_dict(self, data: dict):
+        """
+        Loads fields from dict
+        :param data: dict
+            The data to load in
+        :return: None
+        """
         self.persistentPlayerID = data["persistentPlayerID"]
         self.battlefyUsername = data["battlefyUsername"]
         self.inGameName = data["inGameName"]
@@ -34,8 +51,14 @@ class Player:
 
 
 class Team:
+    """
+    Defines a team object
+    """
     def __init__(self, teamName: str, teamID: str, captainDiscord: str, captainFC: str, captain: Player,
                  players: list, teamIconURL: str, checkin: bool = False, allowCheckin: bool = False):
+        """
+        Constructor with fields
+        """
         self.teamName = teamName  # name
         self.teamID = teamID  # persistentTeamID
         self.captainDiscord = captainDiscord  # 5c71dc2bc61fc30322c85caf
@@ -47,6 +70,11 @@ class Team:
         self.teamIconURL = teamIconURL  # persistentTeam:logoUrl
 
     def player_list(self) -> list:
+        """
+        Get a list of player dicts
+        :return: list
+            List of player dict
+        """
         playerList = []
         for player in self.players:
             playerList.append(player.json_return())

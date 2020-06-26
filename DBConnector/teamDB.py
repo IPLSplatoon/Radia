@@ -7,12 +7,26 @@ from typing import Optional
 
 class TeamDB:
     def __init__(self, tournamentID: str, discordFieldID: str, FCFieldID: str):
+        """
+        Constructor
+        :param tournamentID:
+            tournament ID
+        :param discordFieldID:
+            fieldID of the discord username
+        :param FCFieldID:
+            fieldID of Friend code
+        """
         self.tournamentID = tournamentID
         self.discordFieldID = discordFieldID
         self.FCFieldID = FCFieldID
         self.battlefy = battlefyConnector.BattlefyUtils()
 
     async def add_teams(self) -> bool:
+        """
+        Adds teams into DB from battlefy
+        :return: bool
+            if tasks was successful or not.
+        """
         teams = await self.battlefy.get_list_of_teams(self.tournamentID, self.discordFieldID, self.FCFieldID)
         if teams is None:
             return False
@@ -31,6 +45,19 @@ class TeamDB:
 
     async def get_teams_model(self, discordUsername: str = None, teamName: str = None,
                               teamID: str = None, checkIn: bool = None) -> list:
+        """
+        Gets a list of teams matching query
+        :param discordUsername: str
+            discord name query
+        :param teamName: str
+            team name query
+        :param teamID: str
+            teamID query
+        :param checkIn: bool
+            checkin query
+        :return: list
+            List of teams that match query
+        """
         returnList = []
         if discordUsername:
             for team in TeamModel.scan(TeamModel.captainDiscord == discordUsername):
@@ -54,6 +81,19 @@ class TeamDB:
 
     async def update_team_checkin(self, checkinStatus: bool, discordUsername: str = None,
                                   teamName: str = None, teamID: str = None) -> bool:
+        """
+        Update team's checkin status
+        :param checkinStatus: bool
+            checkin status to be set as:
+        :param discordUsername: str
+            discord name query
+        :param teamName: str
+            team name query
+        :param teamID: str
+            teamID query
+        :return: bool
+            if successful or not
+        """
         teams = None
         if discordUsername:
             teams = await self.get_teams_model(discordUsername=discordUsername)
@@ -77,6 +117,19 @@ class TeamDB:
 
     async def update_allow_checkin(self, checkinAllow: bool, discordUsername: str = None,
                                   teamName: str = None, teamID: str = None) -> bool:
+        """
+        Update the allowCheckIn status of a team
+        :param checkinAllow: bool
+            checkinAllow status to be set as:
+        :param discordUsername: str
+            discord name query
+        :param teamName: str
+            team name query
+        :param teamID: str
+            teamID query
+        :return: bool
+            if successful or not
+        """
         teams = None
         if discordUsername:
             teams = await self.get_teams_model(discordUsername=discordUsername)
@@ -98,6 +151,19 @@ class TeamDB:
 
     async def get_teams(self, discordUsername: str = None, teamName: str = None,
                         teamID: str = None, checkIN: bool = None) -> Optional[list]:
+        """
+        Get a list of Team objects from query
+        :param discordUsername: str
+            discord name query
+        :param teamName: str
+            team name query
+        :param teamID: str
+            teamID query
+        :param checkIN: bool
+            checkin query
+        :return: list
+            List of Team objects
+        """
         if discordUsername:
             teamsModels = await self.get_teams_model(discordUsername=discordUsername)
         elif teamName:
