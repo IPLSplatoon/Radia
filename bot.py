@@ -52,7 +52,7 @@ async def on_command_error(ctx, error):
     elif isinstance(error, commands.MissingRole):
         return
     elif isinstance(error, commands.TooManyArguments):
-        return 
+        return
     else:
         utils.errorCollector.collect_error(error, "on_command_error")
 
