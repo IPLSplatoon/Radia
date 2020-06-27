@@ -172,16 +172,49 @@ class Roles(commands.Cog):
             embed.add_field(name="Removed from:", value=replyList, inline=False)
             await ctx.send(embed=embed)
 
+    async def get_member(self, guildID: int, memberID: int) -> discord.member:
+        guild = self.bot.get_guild(guildID)
+        if guild is None:
+            return None
+        for member in guild.members:
+            if member.id == memberID:
+                return member
+        return None
+
+    @commands.has_role("Staff")
+    @commands.guild_only()
+    @commands.command(name='addChampions', help="Add the Champion role to the mentioned user",
+                      aliases=["coronate", "addchampions"])
+    async def coronate(self, ctx, mention):
+        with ctx.typing():
+            pastRole = discord.utils.get(ctx.message.guild.roles, name="Past Low Ink Winner")
+            currentRole = discord.utils.get(ctx.message.guild.roles, name="Low Ink Current Champions")
+            memberID = int(mention[3:][:-1])
+            member = await self.get_member(ctx.message.guild.id, memberID)
+            if member:
+                await member.add_roles(pastRole)
+                await member.add_roles(currentRole)
+            embed = await utils.embedder.create_embed("Added Champion Role",
+                                                      "Added Champion Role to {}".format(mention))
+            await ctx.send(embed=embed)
+
     @commands.has_role("Staff")
     @commands.guild_only()
     @commands.command(name='removeAllCaptains', help="Remove the captains role from everyone with it")
-    async def remove_captain(self, ctx):
+    async def remove_captain(self, ctx, removeNick="False"):
         with ctx.typing():
+            if removeNick.upper() in ["TRUE", "YES"]:
+                removeNick = True
+            else:
+                removeNick = False
             settings = self.settings[str(ctx.message.guild.id)]
             role = discord.utils.get(ctx.message.guild.roles, id=int(settings["CaptainRoleID"]))
             for member in ctx.message.guild.members:
                 if role in member.roles:
                     await member.remove_roles(role)
+                    if removeNick:
+                        await member.edit(nick=None)
+
             embed = await utils.embedder.create_embed("Removed Captain Role",
                                                       "Removed the Captain role from members")
             await ctx.send(embed=embed)
