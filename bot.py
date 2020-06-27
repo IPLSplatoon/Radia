@@ -37,7 +37,8 @@ presence_strings = [
     "Icon by Ozei#3125",
     "Wawa!",
     "Stream @ Twitch.tv/inkfarer",
-    "According to all known laws of aviation"
+    "According to all known laws of aviation",
+    "I kid you not Hoeen, he turns himself into a pickle."
 ]
 
 bot = commands.Bot("!")
