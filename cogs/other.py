@@ -31,6 +31,20 @@ class Other(commands.Cog):
         embed.set_image(url="https://cdn.vlee.me.uk/TurnipBot/pets/{}.png".format(ran))
         await ctx.send(embed=embed)
 
+    @commands.command(name='stream', help="Get Stream Link",
+                      pass_context=True, hidden=True)
+    async def stream(self, ctx):
+        embed = await utils.embedder.create_embed("Stream", "The stream is at @ Inkfarer on Twitch",
+                                                  "https://www.twitch.tv/inkfarer")
+        await ctx.send(embed=embed)
+
+    @commands.command(name='bracket', help="Get Bracket link",
+                      pass_context=True, hidden=True)
+    async def bracket(self, ctx):
+        embed = await utils.embedder.create_embed("Bracket", "Bracket @ Battlefy.com/low-ink",
+                                                  "https://battlefy.com/low-ink/low-ink-june-2020/5ed6c6f60c8581672c929a67/info?infoTab=details")
+        await ctx.send(embed=embed)
+
 
 def setup(bot):
     bot.add_cog(Other(bot))

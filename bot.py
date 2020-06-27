@@ -35,7 +35,9 @@ presence_strings = [
     "What is Low Ink?",
     "Ban Kraken Mare",
     "Icon by Ozei#3125",
-    "Wawa!"
+    "Wawa!",
+    "Stream @ Twitch.tv/inkfarer",
+    "According to all known laws of aviation"
 ]
 
 bot = commands.Bot("!")
