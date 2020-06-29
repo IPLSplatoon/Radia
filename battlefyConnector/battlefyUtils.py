@@ -7,6 +7,13 @@ from .teamDesign import Player, Team
 import dateutil.parser
 
 
+def field_check(key, data) -> str:
+    if key in data:
+        return data[key]
+    else:
+        return "Unknown"
+
+
 class BattlefyUtils:
     def __init__(self):
         self.battlefy = BattlefyAIO()
@@ -77,8 +84,8 @@ class BattlefyUtils:
             teamRoaster = []
             for players in teams["players"]:
                 tempPlayer = Player()
-                tempPlayer.load(players["persistentPlayerID"], players["userSlug"],
-                                players["inGameName"], dateutil.parser.isoparse(players["createdAt"]))
+                tempPlayer.load(field_check("persistentPlayerID", players), field_check("userSlug", players),
+                                field_check("inGameName", players), dateutil.parser.isoparse(players["createdAt"]))
                 teamRoaster.append(tempPlayer)
             captain = Player()
             if "captain" in teams:

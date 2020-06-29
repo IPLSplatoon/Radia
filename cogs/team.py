@@ -284,7 +284,7 @@ class Teams(commands.Cog):
         with ctx.typing():
             if bracket.upper() in ["TOP", "ALPHA", "A"]:
                 assignRole = discord.utils.get(ctx.message.guild.roles, id=717475987821953085)
-            elif bracket.upper() in ["MID", "BETA", "M", "MIDDLE"]:
+            elif bracket.upper() in ["MID", "BETA", "B", "MIDDLE"]:
                 assignRole = discord.utils.get(ctx.message.guild.roles, id=717476155590180876)
             elif bracket.upper() in ["BOTTOM", "GAMMA", "G"]:
                 assignRole = discord.utils.get(ctx.message.guild.roles, id=726243712908263484)
