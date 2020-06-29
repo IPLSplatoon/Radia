@@ -31,7 +31,7 @@ presence_strings = [
     "!help to get started",
     "Sprinkles!",
     "what is luti?",
-    "Round 3, here we go again!",
+    "Round 4, here we go again!",
     "What is Low Ink?",
     "Ban Kraken Mare",
     "Icon by Ozei#3125",
