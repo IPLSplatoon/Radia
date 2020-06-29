@@ -7,5 +7,7 @@
   </component>
   <component name="PackageRequirementsSettings">
     <option name="requirementsPath" value="$MODULE_DIR$/requirments.txt" />
+    <option name="versionSpecifier" value="Don't specify version" />
+    <option name="keepMatchingSpecifier" value="false" />
   </component>
 </module>

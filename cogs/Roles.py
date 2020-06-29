@@ -8,12 +8,17 @@ import gSheetConnector
 import battlefyConnector
 import datetime
 import copy
+import os
+from dotenv import load_dotenv
+
+load_dotenv("files/.env")
+GOOGLE_SHEET_NAME = os.environ.get("google_sheet_name")
 
 
 class Roles(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.sheets = gSheetConnector.SheetConnector("files/googleAuth.json", "Low Ink Bot DataSet")
+        self.sheets = gSheetConnector.SheetConnector("files/googleAuth.json", GOOGLE_SHEET_NAME)
         self.settings = self.sheets.get_settings("Settings")
         self.battlefy = battlefyConnector.BattlefyUtils()
         self.roles = self.sheets.get_self_assign_roles("AssignableRoles")
@@ -25,7 +30,9 @@ class Roles(commands.Cog):
         self.roles = self.sheets.get_self_assign_roles("AssignableRoles")
         for server in self.bot.guilds:
             if str(server.id) in self.settings:
-                await self.__assign_captain_role(server.id)  # Update roles
+                serverSetting = self.settings[str(server.id)]
+                if serverSetting["AutoAssignCaptainRole"]:
+                    await self.__assign_captain_role(server.id)  # Update roles
 
     async def __assign_captain_role(self, serverID: int, channelID: int = 0) -> bool:
         """
@@ -59,7 +66,7 @@ class Roles(commands.Cog):
                         await member.edit(nick=None)  # We remove their nickname as well
                 # Assign the captain role to current signed up captains
                 for member in guild.members:
-                    username = "{}#{}".format(member.name, member.discriminator)
+                    username = str(member)
                     if username in captains:
                         await member.add_roles(role, reason="Add captain role")
                         nickname = (teamNames[username])[:32]  # Truncates team made to be 32 char long
@@ -165,18 +172,81 @@ class Roles(commands.Cog):
             embed.add_field(name="Removed from:", value=replyList, inline=False)
             await ctx.send(embed=embed)
 
+    async def get_member(self, guildID: int, memberID: int) -> discord.member:
+        guild = self.bot.get_guild(guildID)
+        if guild is None:
+            return None
+        for member in guild.members:
+            if member.id == memberID:
+                return member
+        return None
+
+    @commands.has_role("Staff")
+    @commands.guild_only()
+    @commands.command(name='addChampions', help="Add the Champion role to the mentioned user",
+                      aliases=["coronate", "addchampions"])
+    async def coronate(self, ctx, mention):
+        with ctx.typing():
+            pastRole = discord.utils.get(ctx.message.guild.roles, name="Past Low Ink Winner")
+            currentRole = discord.utils.get(ctx.message.guild.roles, name="Low Ink Current Champions")
+            memberID = int(mention[3:][:-1])
+            member = await self.get_member(ctx.message.guild.id, memberID)
+            if member:
+                await member.add_roles(pastRole)
+                await member.add_roles(currentRole)
+            embed = await utils.embedder.create_embed("Added Champion Role",
+                                                      "Added Champion Role to {}".format(mention))
+            await ctx.send(embed=embed)
+
     @commands.has_role("Staff")
     @commands.guild_only()
     @commands.command(name='removeAllCaptains', help="Remove the captains role from everyone with it")
-    async def remove_captain(self, ctx):
+    async def remove_captain(self, ctx, removeNick="False"):
         with ctx.typing():
+            if removeNick.upper() in ["TRUE", "YES"]:
+                removeNick = True
+            else:
+                removeNick = False
             settings = self.settings[str(ctx.message.guild.id)]
             role = discord.utils.get(ctx.message.guild.roles, id=int(settings["CaptainRoleID"]))
             for member in ctx.message.guild.members:
                 if role in member.roles:
                     await member.remove_roles(role)
+                    if removeNick:
+                        await member.edit(nick=None)
+
             embed = await utils.embedder.create_embed("Removed Captain Role",
                                                       "Removed the Captain role from members")
+            await ctx.send(embed=embed)
+
+    @commands.has_role("Staff")
+    @commands.guild_only()
+    @commands.command(name='checkCaptain', help="Internal Debug command", aliases=["checkcaptain"])
+    async def check_captain(self, ctx):
+        with ctx.typing():
+            settings = self.settings[str(ctx.message.guild.id)]
+            captains = await self.battlefy.get_custom_field(settings["BattlefyTournamentID"],
+                                                            settings["BattlefyFieldID"])
+            if not captains:
+                return
+            teamNames = await self.battlefy.get_captains_team(settings["BattlefyTournamentID"],
+                                                              settings["BattlefyFieldID"])
+            for member in ctx.message.guild.members:
+                if str(member) in captains:
+                    captains.remove(str(member))
+
+            embed = await utils.create_embed("Captains not Found", "This is the list of people who will fail "
+                                                                   "to have the captain role assigned to them")
+            embed.add_field(name="No Players not found:", value=len(captains), inline=False)
+            if captains:  # If the list of invalid captains in not empty, we failed to assign all roles
+                # Following creates a code block in a str
+                captainNotAssigned = "```\n"
+                for x in captains:
+                    captainNotAssigned = captainNotAssigned + "- {} | {}\n".format(x, teamNames[x])
+                captainNotAssigned = captainNotAssigned + "```"
+                # Add field to embed
+                embed.add_field(name="List of captains that aren't found on the server:",
+                                value=captainNotAssigned, inline=False)
             await ctx.send(embed=embed)
 
     @commands.has_role("Staff")

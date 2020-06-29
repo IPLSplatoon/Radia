@@ -20,7 +20,8 @@ extensions = [
     "cogs.Roles",
     "cogs.other",
     "cogs.krakenmare",
-    "cogs.roleReact"
+    "cogs.roleReact",
+    "cogs.team"
 ]
 
 presence_strings = [
@@ -34,7 +35,10 @@ presence_strings = [
     "What is Low Ink?",
     "Ban Kraken Mare",
     "Icon by Ozei#3125",
-    "Wawa!"
+    "Wawa!",
+    "Stream @ Twitch.tv/inkfarer",
+    "According to all known laws of aviation",
+    "I kid you not Hoeen, he turns himself into a pickle."
 ]
 
 bot = commands.Bot("!")
@@ -47,6 +51,10 @@ async def on_command_error(ctx, error):
         await ctx.send("Missing data, you got got to enter something after the command!\n"
                        "You can use `<help` for help")
     elif isinstance(error, commands.CommandNotFound):
+        return
+    elif isinstance(error, commands.MissingRole):
+        return
+    elif isinstance(error, commands.TooManyArguments):
         return
     else:
         utils.errorCollector.collect_error(error, "on_command_error")

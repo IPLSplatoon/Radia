@@ -5,7 +5,6 @@ import utils
 from discord.ext import commands, tasks
 import discord
 import gSheetConnector
-import datetime
 import os
 from dotenv import load_dotenv
 import emoji

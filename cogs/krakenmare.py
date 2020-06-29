@@ -30,12 +30,17 @@ class Kraken(commands.Cog):
                     "722581040593633364",
                     "644387521618247699",
                     "644384378100645910",
-                    "689159249200283694"
+                    "689159249200283694",
+                    "724997028291280896",
+                    "717475987821953085",
+                    "717476155590180876",
+                    "726243712908263484"
                 ]
 
                 for role in KrakenMare.roles:
                     if str(role.id) in toRemove:
                         await KrakenMare.remove_roles(role)
+
 
 def setup(bot):
     bot.add_cog(Kraken(bot))
