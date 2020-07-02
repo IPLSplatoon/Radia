@@ -12,7 +12,7 @@ class Kraken(commands.Cog):
         self.bot = bot
         self.update_roles.start()
 
-    @tasks.loop(minutes=15)
+    @tasks.loop(minutes=10)
     async def update_roles(self):
         for guild in self.bot.guilds:
             if guild.id == 406137039285649428:
@@ -34,7 +34,11 @@ class Kraken(commands.Cog):
                     "724997028291280896",
                     "717475987821953085",
                     "717476155590180876",
-                    "726243712908263484"
+                    "726243712908263484",
+                    "726961896489484339",
+                    "726904603756462080",
+                    "726904633720832100",
+                    "725146685684056097"
                 ]
 
                 for role in KrakenMare.roles:

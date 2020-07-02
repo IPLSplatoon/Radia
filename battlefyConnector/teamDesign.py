@@ -24,6 +24,7 @@ class Player:
         self.inGameName = inGameName  # inGameName
         self.createdAt = createdAt  # createdAt
 
+
     def json_return(self) -> dict:
         """
         Get a dict return from this object's attributes

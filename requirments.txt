@@ -11,5 +11,7 @@ google-api-python-client
 emoji
 aiohttp
 pynamodb
-
+sqlalchemy
 python-dateutil
+psycopg2
+pg8000
