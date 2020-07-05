@@ -11,7 +11,7 @@ class Splatoon(commands.Cog):
         self.bot = bot
 
     @commands.command(name='generateSwiss', help="Generate a swiss map set", aliases=["generateswiss"])
-    async def generate_swiss(self, ctx, maps, rounds, bestOf,
+    async def generate_swiss(self, ctx, maps, rounds, bestOf, info=None,
                              modes='Splat Zones,Tower Control,Rainmaker,Clam Blitz'):
         with ctx.typing():
             modes = modes.split(",")
@@ -25,9 +25,9 @@ class Splatoon(commands.Cog):
                                                  "`Best Of` and/or `rounds` not given as numbers")
                 await ctx.send(embed=embed)
                 return
-            mapsList = await utils.generate_swiss(int(bestOf), int(rounds), maps, modes)
+            mapsList = await utils.generate_swiss(int(rounds), int(bestOf), maps, modes)
             if mapsList:
-                embed = await utils.create_embed("Swiss Map List")
+                embed = await utils.create_embed("Swiss Map List", info)
                 for x in range(len(mapsList)):
                     embed.add_field(name="Round {}".format(x+1), value="```\n{}```".format(mapsList[x]), inline=False)
                 await ctx.send(embed=embed)
@@ -36,7 +36,7 @@ class Splatoon(commands.Cog):
                 await ctx.send(embed=embed)
 
     @commands.command(name='generateTopCut', help="Generate a swiss map set", aliases=["generatetopcut"])
-    async def generate_top_cut(self, ctx, maps, rounds, bestOf,
+    async def generate_top_cut(self, ctx, maps, rounds, bestOf, info=None,
                              modes='Splat Zones,Tower Control,Rainmaker,Clam Blitz'):
         with ctx.typing():
             modes = modes.split(",")
@@ -52,7 +52,7 @@ class Splatoon(commands.Cog):
                 return
             mapList = await utils.generate_top_cut(int(rounds), int(bestOf), maps, modes)
             if mapList:
-                embed = await utils.create_embed("Top Cut Map List")
+                embed = await utils.create_embed("Top Cut Map List", info)
                 for x in range(len(mapList)):
                     embed.add_field(name="Round {}".format(x+1), value="```\n{}```".format(mapList[x]), inline=False)
                 await ctx.send(embed=embed)
