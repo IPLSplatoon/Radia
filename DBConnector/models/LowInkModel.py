@@ -22,7 +22,7 @@ class Team(Base):
     teamID = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, unique=True, nullable=False)
     battlefyID = sqlalchemy.Column(sqlalchemy.String(24), unique=True)
     teamName = sqlalchemy.Column(sqlalchemy.String(64), nullable=False)
-    teamURL = sqlalchemy.Column(sqlalchemy.String(255), nullable=True)
+    iconURL = sqlalchemy.Column(sqlalchemy.String(255), nullable=True)
     tournaments = relationship("TournamentTeam")
 
 
@@ -61,6 +61,7 @@ class TeamPlayer(Base):
     admin = sqlalchemy.Column(sqlalchemy.Boolean, default=False)
 
 
-engine = create_engine('postgresql://radia:QCvPhUEE6ik6Y#7O@test1.local:5432')
-Base.metadata.drop_all(engine)
-Base.metadata.create_all(engine)
+def buildTables(DBConnectStr: str):
+    engine = create_engine(DBConnectStr)
+    Base.metadata.drop_all(engine)
+    Base.metadata.create_all(engine)

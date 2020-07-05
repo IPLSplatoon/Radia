@@ -2,10 +2,10 @@ import datetime
 import dateutil.parser
 
 
-class Player:
+class PlayerObject:
     def __init__(self, ID: int = -1, battlefyPlayerID: str = "None", battlefyUserslug: str = "None",
-                 inGameName: str = "None", previousIGN: list = None, createdAt: str = "1970-01-01T00:00:00.000Z",
-                 admin: bool = False):
+                 inGameName: str = "None", previousIGN: list = [], discordID: str = None,
+                 createdAt: str = "1970-01-01T00:00:00.000Z", admin: bool = False):
         if previousIGN is None:
             previousIGN = []
         self.ID = ID
@@ -13,6 +13,7 @@ class Player:
         self.battlefyUserslug = battlefyUserslug
         self.inGameName = inGameName
         self.previousIGN = previousIGN
+        self.discordID = discordID
         self.createdAt = dateutil.parser.isoparse(createdAt)
         self.admin = admin
 
@@ -44,6 +45,9 @@ class Player:
 
     def setAdmin(self, admin: bool):
         self.admin = admin
+
+    def setDiscordID(self, discordID):
+        self.discordID = discordID
 
     def __str__(self):
         return "ID: {}\nPlayerID: {}\nUserSlug: {}\nIGN: {}\nPreviousIGN: {}\nCreated @: {}\nAdmin{}" \

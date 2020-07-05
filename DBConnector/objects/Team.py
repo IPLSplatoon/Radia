@@ -1,16 +1,17 @@
 import datetime
 import dateutil.parser
-from .player import Player
+from .player import PlayerObject
 
 
-class Team:
+class TeamObject:
     """
     Defines a team object
     """
     def __init__(self, ID: int = -1, battlefyID: str = "None", teamName: str = "None", teamIcon: str = "None",
-                 joinDate: str = "1970-01-01T00:00:00.000Z", captainDiscord: str = "Unknown",
-                 captainFC: str = "Unknown", players: list = None, manualPlayers: list = None,
-                 allowCheckin: bool = False, checkin: bool = False, bracket: int = -1):
+                 joinDate: datetime = dateutil.parser.isoparse("1970-01-01T00:00:00.000Z"),
+                 captainDiscord: str = "Unknown", captainFC: str = "Unknown",
+                 players: list = [],  manualPlayers: list = None, allowCheckin: bool = False,
+                 checkin: bool = False, bracket: int = -1):
         self.ID = ID
         self.battlefyID = battlefyID
         self.teamName = teamName
@@ -36,8 +37,13 @@ class Team:
     def setTeamIcon(self, teamIcon: str):
         self.teamIcon = teamIcon
 
-    def setJoinDate(self, joinDate: str):
-        self.joinDate = dateutil.parser.isoparse(joinDate)
+    def setJoinDate(self, joinDate: str = None, joinDateTime: datetime = None):
+        if joinDate:
+            self.joinDate = dateutil.parser.isoparse(joinDate)
+        elif joinDateTime:
+            self.joinDate = joinDateTime
+        else:
+            raise ValueError("Value not provided")
 
     def setCaptainDiscord(self, captainDiscord: str):
         self.captainDiscord = captainDiscord
@@ -45,8 +51,25 @@ class Team:
     def setCaptainFC(self, captainFC: str):
         self.captainFC = captainFC
 
-    def addPlayers(self, player: Player):
+    def addPlayers(self, player: PlayerObject):
         self.players.append(player)
 
     def addManualPlayer(self, manualPlayer: str):
         self.manualPlayers.append(manualPlayer)
+
+    def setAllowCheckin(self, allowCheckin: bool):
+        self.allowCheckin = allowCheckin
+
+    def setCheckin(self, checkin: bool):
+        self.checkin = checkin
+
+    def setBracket(self, bracket: int):
+        self.battlefyID = bracket
+
+    def gotPlayer(self, playerBattlefyID: str) -> bool:
+        if not self.players:
+            return False
+        for player in self.players:
+            if player.battlefyPlayerID == playerBattlefyID:
+                return True
+        return False
