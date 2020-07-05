@@ -9,7 +9,7 @@ import random
 all_modes = ['Splat Zones', 'Tower Control', 'Rainmaker', 'Clam Blitz']
 
 
-def get_bias_list(inputList: list, bias, modes=all_modes) -> list:
+async def get_bias_list(inputList: list, bias, modes=all_modes) -> list:
     if modes is None:
         modes = all_modes
     l_copy = inputList.copy()
@@ -21,7 +21,7 @@ def get_bias_list(inputList: list, bias, modes=all_modes) -> list:
     return l_copy
 
 
-def generate_swiss(bestOf: int, rounds: int, maps: list, modes: list = all_modes) -> list:
+async def generate_swiss(bestOf: int, rounds: int, maps: list, modes: list = all_modes) -> list:
     """
     Since swiss is play all 3, I implemented an algorithm inspired by the modern Tetris piece algorithm.
     All maps will appear once in a random order, once they've all appeared once, then it'll repeat the process.
@@ -42,7 +42,7 @@ def generate_swiss(bestOf: int, rounds: int, maps: list, modes: list = all_modes
     mode_bias_index = random.randint(0, 3)
     map_bias, map_index = random.choice(maps), 0
 
-    current_maps = get_bias_list(maps, map_bias).copy()
+    current_maps = (await get_bias_list(maps, map_bias)).copy()
 
     swissReturn = []
 
@@ -50,7 +50,7 @@ def generate_swiss(bestOf: int, rounds: int, maps: list, modes: list = all_modes
 
         roundSet = ""
 
-        round_modes = get_bias_list(modes, mode_bias_index).copy()
+        round_modes = (await get_bias_list(modes, mode_bias_index)).copy()
         mode_bias_index += 1
         if mode_bias_index >= len(modes):
             mode_bias_index = 0
@@ -62,13 +62,13 @@ def generate_swiss(bestOf: int, rounds: int, maps: list, modes: list = all_modes
             if map_index >= len(current_maps):
                 map_index = 0
                 map_bias = current_maps[-1]
-                current_maps = get_bias_list(maps, map_bias).copy()
+                current_maps = (await get_bias_list(maps, map_bias)).copy()
 
         swissReturn.append(roundSet)
     return swissReturn
 
 
-def generate_top_cut(rounds: int, best_of: int, maps: list, modes: list = all_modes) -> list:
+async def generate_top_cut(rounds: int, best_of: int, maps: list, modes: list = all_modes) -> list:
     """
     Each round will randomly choose individual maps from the map list to ensure repeats don't occur.
     For each round, the mode is selected randomly for the first game. The following games will follow a set
@@ -93,7 +93,7 @@ def generate_top_cut(rounds: int, best_of: int, maps: list, modes: list = all_mo
     topCutReturn = []
 
     for gameNum in range(rounds):
-        current_maps = get_bias_list(maps, map_bias).copy()
+        current_maps = (await get_bias_list(maps, map_bias)).copy()
 
         roundSet = ""
 
@@ -109,7 +109,7 @@ def generate_top_cut(rounds: int, best_of: int, maps: list, modes: list = all_mo
             if map_index >= len(current_maps):
                 map_index = 0
                 map_bias = current_maps[-1]
-                current_maps = get_bias_list(maps, map_bias).copy()
+                current_maps = (await get_bias_list(maps, map_bias)).copy()
 
             mode_index += 1
             if mode_index >= len(modes):
