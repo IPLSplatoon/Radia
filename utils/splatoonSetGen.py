@@ -21,42 +21,40 @@ async def get_bias_list(inputList: list, bias, modes=all_modes) -> list:
     return l_copy
 
 
-async def generate_swiss(bestOf: int, rounds: int, maps: list, modes: list = all_modes) -> list:
-    """
-    Since swiss is play all 3, I implemented an algorithm inspired by the modern Tetris piece algorithm.
+async def generate_swiss(info: str, rounds: int, maps: list, modes: list = all_modes) -> list:
+    '''
+    Since swiss is play all 3, I implimented an algorithm inspired by the modern tetris piece algorithm.
     All maps will appear once in a random order, once they've all appeared once, then it'll repeat the process.
-    Since its play all 3, with 4 modes to choose from, whatever mode didn't appear in a round will always appear in the
-    next round.
+    Since its play all 3, with 4 modes to choose from, whatever mode didn't appear in a round will always appear in the next round.
 
     Parameters
-    NumOfGames: int
-        The number of games per round
+    info: str
+        String will be placed at the start of the returned string. Intended for bracket titles and rules.
     rounds: int
         The number of rounds in this swiss bracket
     maps: list
         The list of maps that can appear in this bracket
     modes: list
         The list of modes that can appear in this bracket
-    """
+    '''
+
+    final_list = [info]
 
     mode_bias_index = random.randint(0, 3)
     map_bias, map_index = random.choice(maps), 0
 
     current_maps = (await get_bias_list(maps, map_bias)).copy()
-
-    swissReturn = []
-
-    for gameNum in range(rounds):
-
-        roundSet = ""
+    
+    for round in range(rounds):
+        round_str = "`Round " + str(round+1) + "`"
 
         round_modes = (await get_bias_list(modes, mode_bias_index)).copy()
         mode_bias_index += 1
         if mode_bias_index >= len(modes):
             mode_bias_index = 0
 
-        for game in range(bestOf):
-            roundSet += "{}: {} on {}\n".format(str(game + 1), round_modes[game], current_maps[map_index])
+        for game in range(3):
+            round_str += "\n" + str(game+1) + ": " + round_modes[game] + " on " + current_maps[map_index]
 
             map_index += 1
             if map_index >= len(current_maps):
@@ -64,16 +62,13 @@ async def generate_swiss(bestOf: int, rounds: int, maps: list, modes: list = all
                 map_bias = current_maps[-1]
                 current_maps = (await get_bias_list(maps, map_bias)).copy()
 
-        swissReturn.append(roundSet)
-    return swissReturn
+        final_list.append(round_str)
+
+    return final_list
 
 
-async def generate_top_cut(rounds: int, best_of: int, maps: list, modes: list = all_modes) -> list:
-    """
-    Each round will randomly choose individual maps from the map list to ensure repeats don't occur.
-    For each round, the mode is selected randomly for the first game. The following games will follow a set
-    mode order (SZ -> TC -> RM -> CB). The next round shouldn't share the first mode with the last round.
-
+async def generate_top_cut(info: str, rounds: int, best_of: int, maps: list, modes: list = all_modes) -> list:
+    '''
     Parameters
     info: str
         String will be placed at the start of the returned string. Intended for bracket titles and rules.
@@ -85,25 +80,22 @@ async def generate_top_cut(rounds: int, best_of: int, maps: list, modes: list = 
         The list of maps that can appear in this bracket
     modes: list
         The list of modes that can appear in this bracket
-    """
+    '''
 
-    map_bias, map_index = random.choice(maps), 0
+    final_list = [info]
+
+    map_index = 0
     mode_bias = -1
+    current_maps = (await get_bias_list(maps, random.choice(maps))).copy()
 
-    topCutReturn = []
+    for round in range(rounds):
+        round_str = "`Round " + str(round+1) + "`"
 
-    for gameNum in range(rounds):
-        current_maps = (await get_bias_list(maps, map_bias)).copy()
-
-        roundSet = ""
-
-        mode_index = random.randint(0, 3)
-        while mode_index == mode_bias:
-            mode_index = random.randint(0, 3)
-        first_mode_index = mode_index
+        mode_index, mode_list  = 0, modes.copy()
+        random.shuffle(mode_list)
 
         for game in range(best_of):
-            roundSet += "{}: {} on {}\n".format(str(game + 1), modes[mode_index], current_maps[map_index])
+            round_str += "\n" + str(game+1) + ": " + mode_list[mode_index] + " on " + current_maps[map_index]
 
             map_index += 1
             if map_index >= len(current_maps):
@@ -112,10 +104,10 @@ async def generate_top_cut(rounds: int, best_of: int, maps: list, modes: list = 
                 current_maps = (await get_bias_list(maps, map_bias)).copy()
 
             mode_index += 1
-            if mode_index >= len(modes):
+            if mode_index >= len(mode_list):
                 mode_index = 0
+                mode_list = (await get_bias_list(modes, mode_list[-1])).copy()
 
-        mode_bias = first_mode_index
-        topCutReturn.append(roundSet)
-
-    return topCutReturn
+        final_list.append(round_str)
+    
+    return final_list
