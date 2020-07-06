@@ -3,7 +3,7 @@ Contains utilities for parsing Battlefy data
 """
 from .battlefyConnector import BattlefyAIO
 from typing import Optional
-from .teamDesign import Player, Team
+from DBConnector import TeamObject, PlayerObject
 import dateutil.parser
 
 
@@ -82,16 +82,18 @@ class BattlefyUtils:
         teamList = []
         for teams in request:
             teamRoaster = []
+            manualPlayers = []
             for players in teams["players"]:
-                tempPlayer = Player()
-                tempPlayer.load(field_check("persistentPlayerID", players), field_check("userSlug", players),
-                                field_check("inGameName", players), dateutil.parser.isoparse(players["createdAt"]))
-                teamRoaster.append(tempPlayer)
-            captain = Player()
-            if "captain" in teams:
-                captain.load(teams["captain"]["persistentPlayerID"], teams["captain"]["userSlug"],
-                             teams["captain"]["inGameName"],
-                             dateutil.parser.isoparse(teams["captain"]["createdAt"]))
+                # This is how we tell players with account from players that are added by staff
+                if "userID" not in players:
+                    manualPlayers.append(field_check("inGameName", players))
+                else:
+                    tempPlayer = PlayerObject(battlefyPlayerID=field_check("persistentPlayerID", players),
+                                              battlefyUserslug=field_check("userSlug", players),
+                                              inGameName=field_check("inGameName", players),
+                                              createdAt=players["createdAt"])
+                    teamRoaster.append(tempPlayer)
+            createdAt = dateutil.parser.isoparse(teams["createdAt"])
             customFields = teams["customFields"]
             persistentTeam = teams["persistentTeam"]
             discord = "Unknown"
@@ -106,6 +108,8 @@ class BattlefyUtils:
             if not logo:
                 logo = "Unknown"
 
-            team = Team(teams["name"], teams["persistentTeamID"], discord, FCCode, captain, teamRoaster, logo)
+            team = TeamObject(battlefyID=teams["persistentTeamID"], teamName=teams["name"], teamIcon=logo,
+                              joinDate=createdAt, captainDiscord=discord, captainFC=FCCode, players=teamRoaster,
+                              manualPlayers=manualPlayers)
             teamList.append(team)
         return teamList
