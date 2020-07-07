@@ -1,7 +1,5 @@
 from .models.teamModel import TeamModel
 from .errors import MoreThenOneError, CheckInBlockedError
-import battlefyConnector
-from battlefyConnector import Team, Player
 from typing import Optional
 
 

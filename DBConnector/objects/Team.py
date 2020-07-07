@@ -73,3 +73,23 @@ class TeamObject:
             if player.battlefyPlayerID == playerBattlefyID:
                 return True
         return False
+
+    def __str__(self):
+        players = ""
+        for player in self.players:
+            player += "{}\n  \n".format(str(player))
+        return "ID: {}\n" \
+               "BattlefyID: {}\n" \
+               "teamName: {}\n" \
+               "teamIcon: {}\n" \
+               "joinDate: {}\n" \
+               "Captain Discord: {}\n" \
+               "Captain FC: {}\n" \
+               "Allow Checkin: {}\n" \
+               "Checkin: {}\n" \
+               "Bracket: {}\n" \
+               "Manual Players: {}\n" \
+               "Players:\n{}".format(self.ID, self.battlefyID, self.teamName, self.teamIcon,
+                                     self.joinDate.strftime("%d/%m/%Y, %H:%M:%S"), self.captainDiscord,
+                                     self.captainFC, self.allowCheckin, self.checkin, self.bracket,
+                                     self.manualPlayers, players)

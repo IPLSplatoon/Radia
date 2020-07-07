@@ -1,5 +1,4 @@
 from sqlalchemy.ext.declarative import declarative_base
-import sqlalchemy.dialects.postgresql as postgres  # For postgres specific data types
 from sqlalchemy.orm import relationship
 import sqlalchemy
 from sqlalchemy import create_engine
@@ -33,21 +32,23 @@ class TournamentTeam(Base):
     teamID = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("Team.teamID"))
     joinDate = sqlalchemy.Column(sqlalchemy.DateTime)
     captainDiscord = sqlalchemy.Column(sqlalchemy.String(37), nullable=False)
-    captainFC = sqlalchemy.Column(sqlalchemy.String(20), nullable=False)
+    captainFC = sqlalchemy.Column(sqlalchemy.String(40), nullable=False)
     bracket = sqlalchemy.Column(sqlalchemy.Integer, default=0)
     allowCheckin = sqlalchemy.Column(sqlalchemy.Boolean, default=False)
     checkin = sqlalchemy.Column(sqlalchemy.Boolean, default=False)
     manualPlayers = sqlalchemy.Column(sqlalchemy.ARRAY(sqlalchemy.String(32)))
     players = relationship("TeamPlayer")
+    tournament = relationship("Tournament")
+    team = relationship("Team")
 
 
 class Player(Base):
     __tablename__ = "Player"
     playerID = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, unique=True, nullable=False)
     battlefyID = sqlalchemy.Column(sqlalchemy.String(24), unique=True)
-    inGameName = sqlalchemy.Column(sqlalchemy.String(15), nullable=False)
-    battlefyUserslug = sqlalchemy.Column(sqlalchemy.String(30), nullable=False)
-    previousIGN = sqlalchemy.Column(sqlalchemy.ARRAY(sqlalchemy.String(15)))
+    inGameName = sqlalchemy.Column(sqlalchemy.String(30), nullable=False)
+    battlefyUserslug = sqlalchemy.Column(sqlalchemy.String(50), nullable=False)
+    previousIGN = sqlalchemy.Column(sqlalchemy.ARRAY(sqlalchemy.String(30)))
     discordID = sqlalchemy.Column(sqlalchemy.String(20))
     teams = relationship("TeamPlayer")
 
@@ -59,6 +60,8 @@ class TeamPlayer(Base):
     playerID = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("Player.playerID"))
     joinDate = sqlalchemy.Column(sqlalchemy.DateTime)
     admin = sqlalchemy.Column(sqlalchemy.Boolean, default=False)
+    Player = relationship("Player")
+    TournamentTeam = relationship("TournamentTeam")
 
 
 def buildTables(DBConnectStr: str):
