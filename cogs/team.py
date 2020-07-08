@@ -3,7 +3,7 @@ Cog deals with all check in a print of checked in captains/teams
 """
 import gSheetConnector
 import utils
-from discord.ext import commands
+from discord.ext import commands, tasks
 import discord
 from dotenv import load_dotenv
 import os
@@ -64,9 +64,15 @@ class Teams(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.sheets = gSheetConnector.SheetConnector("files/googleAuth.json", GOOGLE_SHEET_NAME)
+        self.settings = self.sheets.get_settings("Settings")
         self.enableCheckin = False
         self.database = DBConnector.DBConnect(DB_CONNECTION_STRING)
         self.battlefy = BattlefyUtils()
+        self.update_settings.start()
+
+    @tasks.loop(hours=2)
+    async def update_settings(self):
+        self.settings = self.sheets.get_settings("Settings")
 
     async def getUsername(self, mention: str, guildID: int) -> Optional[str]:
         if mentionExpression.match(mention):
@@ -83,10 +89,9 @@ class Teams(commands.Cog):
         :return: str
             the activeTournament, discordField, FCField
         """
-        settings = self.sheets.get_settings("Settings")
-        if discordGuildID not in settings:
+        if discordGuildID not in self.settings:
             return None
-        settings = settings[discordGuildID]
+        settings = self.settings[discordGuildID]
         activeTournament = settings["BattlefyTournamentID"]
         discordField = settings["BattlefyTournamentID"]
         FCField = settings["BattlefyFCID"]
@@ -127,6 +132,13 @@ class Teams(commands.Cog):
             if role.id == roleID:
                 return True
         return False
+
+    @commands.has_role("Staff")
+    @commands.guild_only()
+    @commands.command(name='updateSettings', hidden=True)
+    async def manual_update_settings(self, ctx):
+        with ctx.typing():
+            await self.update_settings
 
     @commands.has_role("Staff")
     @commands.guild_only()
@@ -389,7 +401,8 @@ class Teams(commands.Cog):
             if checkinReturn is None:
                 await ctx.send(embed=await utils.create_embed("Staff Checkin Error", "Query found no teams"))
             elif checkinReturn is False:
-                await ctx.send(embed=await utils.create_embed("Staff Checkin Error", "Query found *more then one* team"))
+                await ctx.send(embed=await utils.create_embed("Staff Checkin Error",
+                                                              "Query found *more then one* team"))
             elif checkinReturn:
                 team = teams[0]
                 embed = await utils.create_embed("Staff Checkin", "Checkin Successful!")
@@ -400,8 +413,6 @@ class Teams(commands.Cog):
                 if team.teamIcon != "Unknown":
                     embed.set_thumbnail(url=team.teamIcon)
                 await ctx.send(embed=embed)
-
-
 
 
 def setup(bot):
