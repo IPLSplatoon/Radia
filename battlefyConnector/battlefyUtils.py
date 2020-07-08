@@ -122,7 +122,7 @@ class BattlefyUtils:
             if not logo:
                 logo = "Unknown"
 
-            team = TeamObject(battlefyID=teams["persistentTeamID"], teamName=teams["name"], teamIcon=logo[:255],
+            team = TeamObject(battlefyID=teams["persistentTeamID"], teamName=(teams["name"])[:64], teamIcon=logo[:255],
                               joinDate=createdAt, captainDiscord=discord[:37], captainFC=FCCode[:40],
                               players=teamRoaster, manualPlayers=manualPlayers)
             teamList.append(team)
