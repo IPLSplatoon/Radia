@@ -198,6 +198,8 @@ class DBConnect:
             queryReturn = await self.__get_TournamentTeam(tournamentID, teamID=teamID)
         else:
             return None
+        if not queryReturn.all():
+            return None
         if len(queryReturn.all()) > 1:  # More then one team found
             return False
         queryReturn.update({TournamentTeam.checkin: checkin})
