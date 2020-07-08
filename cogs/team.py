@@ -231,6 +231,46 @@ class Teams(commands.Cog):
                                                  "Checkin are not enabled at the moment")
                 await ctx.send(embed=embed)
 
+    @commands.has_role("Staff")
+    @commands.guild_only()
+    @commands.command(name='checkinList', help="Get the list of teams checked in/out", aliases=["checkinlist"])
+    async def checkin_list(self, ctx, bracket="All"):
+        with ctx.typing():
+            activeTournament, discordField, FCField = await self.get_details(str(ctx.message.guild.id))
+            query = await self.database.get_all_teams(activeTournament)
+            teams = []
+            if bracket.upper() in ["TOP", "ALPHA", "A"]:
+                for team in query:
+                    if team.allowCheckin and team.bracket == 1:
+                        teams.append(team)
+            elif bracket.upper() in ["MID", "BETA", "B", "MIDDLE"]:
+                for team in query:
+                    if team.allowCheckin and team.bracket == 2:
+                        teams.append(team)
+            elif bracket.upper() in ["BOTTOM", "GAMMA", "G"]:
+                for team in query:
+                    if team.allowCheckin and team.bracket == 3:
+                        teams.append(team)
+            else:
+                for team in query:
+                    if team.allowCheckin:
+                        teams.append(team)
+            if not teams:
+                await ctx.send(embed=await utils.create_embed("Checkin List", "No teams to list"))
+                return
+            checkoutList = "```\n"
+            checkinList = "```\n"
+            for team in teams:
+                if team.checkin:
+                    checkinList += "- {}\n".format(team.teamName)
+                else:
+                    checkoutList += "- {}\n".format(team.teamName)
+            checkoutList += "```"
+            checkinList += "```"
+            embed = await utils.create_embed("Checkin List", "List of teams checked in/out")
+            embed.add_field(name="Teams **YET** to Checkin:", value=checkoutList, inline=False)
+            embed.add_field(name="Teams Checked in:", value=checkoutList, inline=False)
+
 
 def setup(bot):
     bot.add_cog(Teams(bot))

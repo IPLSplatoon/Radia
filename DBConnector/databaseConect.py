@@ -230,3 +230,24 @@ class DBConnect:
                                              allowCheckin=team.allowCheckin, checkin=team.checkin,
                                              bracket=team.bracket))
         return returnTeamList
+
+    async def get_all_teams(self, tournamentID: str):
+        query = self.session.query(TournamentTeam).join(Tournament)\
+            .filter(Tournament.battlefyID == tournamentID)
+        returnTeamList = []
+        for team in query.all():
+            teamPlayers = []
+            for entry in team.players:
+                teamPlayers.append(PlayerObject(ID=entry.Player.playerID, battlefyPlayerID=entry.Player.battlefyID,
+                                                battlefyUserslug=entry.Player.battlefyUserslug,
+                                                inGameName=entry.Player.inGameName,
+                                                previousIGN=entry.Player.previousIGN,
+                                                discordID=entry.Player.discordID, createdAt=entry.joinDate.isoformat(),
+                                                admin=entry.admin))
+            returnTeamList.append(TeamObject(ID=team.ID, battlefyID=team.team.battlefyID, teamName=team.team.teamName,
+                                             teamIcon=team.team.iconURL, joinDate=team.joinDate,
+                                             captainDiscord=team.captainDiscord, captainFC=team.captainFC,
+                                             players=teamPlayers, manualPlayers=team.manualPlayers,
+                                             allowCheckin=team.allowCheckin, checkin=team.checkin,
+                                             bracket=team.bracket))
+        return returnTeamList
