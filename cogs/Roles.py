@@ -155,14 +155,23 @@ class Roles(commands.Cog):
                       aliases=["dethrone", "removechampions"])
     async def dethrone(self, ctx):
         with ctx.typing():
-            removeRole = discord.utils.get(ctx.message.guild.roles, name="Low Ink Current Champions")
-            giveRole = discord.utils.get(ctx.message.guild.roles, name="Past Low Ink Winner")
+            removeRole1 = discord.utils.get(ctx.message.guild.roles, name="Low Ink Current Champions")
+            removeRole2 = discord.utils.get(ctx.message.guild.roles, name="Beta Bracket Champions")
+            removeRole3 = discord.utils.get(ctx.message.guild.roles, name="Gamma Bracket Champions")
             userList = []
             for member in ctx.message.guild.members:
-                if removeRole in member.roles:
-                    await member.remove_roles(removeRole)
-                    await member.add_roles(giveRole)
+                if removeRole1 in member.roles:
+                    await member.remove_roles(removeRole1, reason="Remove champion role")
                     userList.append(member)
+                    pass
+                if removeRole2 in member.roles:
+                    await member.remove_roles(removeRole2, reason="Remove champion role")
+                    userList.append(member)
+                    pass
+                if removeRole3 in member.roles:
+                    await member.remove_roles(removeRole3, reason="Remove champion role")
+                    userList.append(member)
+                    pass
             replyList = "```\n"
             if userList:
                 for people in userList:
@@ -185,7 +194,7 @@ class Roles(commands.Cog):
     @commands.has_role("Staff")
     @commands.guild_only()
     @commands.command(name='addChampions', help="Add the Champion role to the mentioned user",
-                      aliases=["coronate", "addchampions"])
+                      aliases=["coronate", "addchampions", "crown"])
     async def coronate(self, ctx, mention):
         with ctx.typing():
             pastRole = discord.utils.get(ctx.message.guild.roles, name="Past Low Ink Winner")
@@ -201,7 +210,8 @@ class Roles(commands.Cog):
 
     @commands.has_role("Staff")
     @commands.guild_only()
-    @commands.command(name='removeAllCaptains', help="Remove the captains role from everyone with it")
+    @commands.command(name='removeAllCaptains', help="Remove the captains role from everyone with it",
+                      aliases=["removeallcaptains"])
     async def remove_captain(self, ctx, removeNick="False"):
         with ctx.typing():
             if removeNick.upper() in ["TRUE", "YES"]:
@@ -218,6 +228,31 @@ class Roles(commands.Cog):
 
             embed = await utils.embedder.create_embed("Removed Captain Role",
                                                       "Removed the Captain role from members")
+            await ctx.send(embed=embed)
+
+    @commands.has_role("Staff")
+    @commands.guild_only()
+    @commands.command(name='removeAllBrackets', help="Remove the bracket role from everyone with it",
+                      aliases=["removeallbrackets", "removebracket"])
+    async def remove_bracket(self, ctx):
+        with ctx.typing():
+            settings = self.settings[str(ctx.message.guild.id)]
+            alpha = discord.utils.get(ctx.message.guild.roles, name="Alpha")
+            beta = discord.utils.get(ctx.message.guild.roles, name="Beta")
+            gamma = discord.utils.get(ctx.message.guild.roles, name="Gamma")
+            for member in ctx.message.guild.members:
+                if alpha in member.roles:
+                    await member.remove_roles(alpha, reason="Remove bracket role")
+                    pass
+                if beta in member.roles:
+                    await member.remove_roles(beta, reason="Remove bracket role")
+                    pass
+                if gamma in member.roles:
+                    await member.remove_roles(gamma, reason="Remove bracket role")
+                    pass
+
+            embed = await utils.embedder.create_embed("Removed Bracket Role",
+                                                      "Removed the Bracket role from members")
             await ctx.send(embed=embed)
 
     @commands.has_role("Staff")
@@ -249,18 +284,6 @@ class Roles(commands.Cog):
                 embed.add_field(name="List of captains that aren't found on the server:",
                                 value=captainNotAssigned, inline=False)
             await ctx.send(embed=embed)
-
-    @commands.has_role("Staff")
-    @commands.guild_only()
-    @commands.command(name='debug', help="Internal Debug command", hidden=True)
-    async def debug(self, ctx):
-        with ctx.typing():
-            with open("debug.txt", "w", encoding="utf-8") as file:
-                file.write("Guild Members\n")
-                for member in ctx.message.guild.members:
-                    username = "{}#{}".format(member.name, member.discriminator)
-                    file.write("{} | {}\n".format(username, member.id))
-            await ctx.send("Debug saved to server")
 
 
 def setup(bot):
