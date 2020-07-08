@@ -59,19 +59,20 @@ class Roles(commands.Cog):
                 captainCount = copy.deepcopy(len(captains))
                 # Gets the role object relating to the server's captain role
                 role = discord.utils.get(guild.roles, id=int(settings["CaptainRoleID"]))
-                # Remove captain role from all member it
-                for member in guild.members:
-                    if role in member.roles:
-                        await member.remove_roles(role)
-                        await member.edit(nick=None)  # We remove their nickname as well
-                # Assign the captain role to current signed up captains
+                # Go Through all members of the guild
                 for member in guild.members:
                     username = str(member)
-                    if username in captains:
-                        await member.add_roles(role, reason="Add captain role")
+                    if username in captains:  # if the user is in the list of captains
+                        if role not in member.roles:  # Check and assign them the captain role
+                            await member.add_roles(role, reason="Add captain role")
                         nickname = (teamNames[username])[:32]  # Truncates team made to be 32 char long
-                        await member.edit(nick=nickname)
-                        captains.remove(username)
+                        if member.display_name != username:  # If the user's nick isn't their team name
+                            await member.edit(nick=nickname, reason="Give team name")  # set nick as team name
+                        captains.remove(username)  # remove user for list of captains
+                    else:  # not in the list of captains
+                        if role in member.roles:  # if the user has the captain role
+                            await member.remove_roles(role, reason="No Longer a captain")  # remove the captain role
+                            await member.edit(nick=None, reason="RM team name")  # We remove their nickname as well
                 # From here we get the channel in guild we want to post update to and send an update embed
                 if channelID == 0:
                     channelID = int(settings["BotChannelID"])
