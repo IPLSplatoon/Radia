@@ -2,6 +2,7 @@
 Contains utilities for parsing Battlefy data
 """
 from .battlefyConnector import BattlefyAIO
+from .models.tournament import Tournament
 from typing import Optional
 from DBConnector import TeamObject, PlayerObject
 import dateutil.parser
@@ -63,6 +64,19 @@ class BattlefyUtils:
                         returnDict[fields["value"]] = teams["name"]
                         pass
         return returnDict
+
+    async def get_tournament(self, tournamentID: str) -> Optional[Tournament]:
+        """
+        Get a tournament's details
+        :param tournamentID: str
+            Battlefy ID of the tournament
+        :return: Tournament
+        Tournament object with the data
+        """
+        request = await self.battlefy.getTournament(tournamentID)
+        if not request:  # Check if the return has data
+            return None
+        return Tournament(startTime=dateutil.parser.isoparse(request["startTime"]))
 
     async def get_list_of_teams(self, tournamentID: str, DiscordFieldID: str, FCFieldID: str) -> Optional[list]:
         """

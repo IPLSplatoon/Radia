@@ -50,6 +50,6 @@ class PlayerObject:
         self.discordID = discordID
 
     def __str__(self):
-        return "ID: {}\nPlayerID: {}\nUserSlug: {}\nIGN: {}\nPreviousIGN: {}\nCreated @: {}\nAdmin: {}" \
-               "".format(self.ID, self.battlefyPlayerID, self.battlefyUserslug, self.inGameName,
+        return "PlayerID: {}\nUserSlug: {}\nIGN: {}\nPreviousIGN: {}\nCreated @: {}\nAdmin: {}" \
+               "".format(self.battlefyPlayerID, self.battlefyUserslug, self.inGameName,
                          self.previousIGN, self.createdAt, self.admin)

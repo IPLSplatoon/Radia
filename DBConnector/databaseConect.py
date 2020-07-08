@@ -14,7 +14,7 @@ class DBConnect:
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.session.close()
 
-    def __getPlayer(self, battlefyID: str = None, playerID: str = None) -> Optional[Player]:
+    async def __getPlayer(self, battlefyID: str = None, playerID: str = None) -> Optional[Player]:
         if battlefyID:
             playerQuery = self.session.query(Player).filter(Player.battlefyID == battlefyID).one()
             if playerQuery:
@@ -25,7 +25,7 @@ class DBConnect:
                 return playerQuery
         return None
 
-    def __updatePlayer(self, player: PlayerObject) -> PlayerObject:
+    async def __updatePlayer(self, player: PlayerObject) -> PlayerObject:
         playerQuery = self.session.query(Player).filter(Player.battlefyID == player.battlefyPlayerID)
         if not playerQuery.all():
             # If item isn't in database, we add it
@@ -58,7 +58,7 @@ class DBConnect:
             self.session.commit()
         return player
 
-    def __updateTeams(self, team: TeamObject) -> TeamObject:
+    async def __updateTeams(self, team: TeamObject) -> TeamObject:
         teamQuery = self.session.query(Team).filter(Team.battlefyID == team.battlefyID)
         if not teamQuery.all():
             newTeam = Team(battlefyID=team.battlefyID, teamName=team.teamName, iconURL=team.teamIcon)
@@ -73,7 +73,7 @@ class DBConnect:
             self.session.commit()
         return team
 
-    def __addTeamPlayers(self, teamID: int, playerID: int, joinDate: datetime, admin: bool) -> bool:
+    async def __addTeamPlayers(self, teamID: int, playerID: int, joinDate: datetime, admin: bool) -> bool:
         teamPlayerQuery = self.session.query(TeamPlayer).filter(TeamPlayer.tournamentTeamID == teamID). \
             filter(TeamPlayer.playerID == playerID)
         if not teamPlayerQuery.all():
@@ -84,7 +84,7 @@ class DBConnect:
             return True
         return False
 
-    def addTournament(self, battlefyID: str, date: datetime, guildID: str, roleID: str) -> bool:
+    async def addTournament(self, battlefyID: str, date: datetime, guildID: str, roleID: str) -> bool:
         tournamentQuery = self.session.query(Tournament).filter(Tournament.battlefyID == battlefyID)
         if not tournamentQuery.all():  # if tournaments doesn't exist in DB
             newTournament = Tournament(battlefyID=battlefyID, date=date, guildID=guildID, roleID=roleID)
@@ -95,8 +95,8 @@ class DBConnect:
         else:
             return False
 
-    def updateTournamentTeam(self, team: TeamObject, tournamentBattlefyID: str):
-        team = self.__updateTeams(team)  # Add/Update the team entry itself
+    async def updateTournamentTeam(self, team: TeamObject, tournamentBattlefyID: str):
+        team = await self.__updateTeams(team)  # Add/Update the team entry itself
         tournament = self.session.query(Tournament).filter(Tournament.battlefyID == tournamentBattlefyID).all()[0]
         tournamentTeamQuery = self.session.query(TournamentTeam). \
             filter(TournamentTeam.tournamentID == tournament.tournamentID). \
@@ -121,9 +121,10 @@ class DBConnect:
             team.setID(tournamentReturn.ID)
         newPlayerList = []  # This list stores the players are they added/updated
         for player in team.players:  # for all the players we have
-            newPlayerList.append(self.__updatePlayer(player))  # Add/update there DB entry and add to the list we made
+            # Add/update there DB entry and add to the list we made
+            newPlayerList.append(await self.__updatePlayer(player))
         for player in newPlayerList:  # This loop creates the link between the team and player for the tournament
-            self.__addTeamPlayers(tournamentReturn.ID, player.ID, player.createdAt, player.admin)
+            await self.__addTeamPlayers(tournamentReturn.ID, player.ID, player.createdAt, player.admin)
         # Here we getting all the players we have linked to the team for this tournament
         teamPlayers = self.session.query(TeamPlayer).filter(TeamPlayer.tournamentTeamID == tournamentReturn.ID)
         # Go through the list of linked players to see if we have any that aren't meant to be there now (i.e. deleted)
@@ -134,8 +135,8 @@ class DBConnect:
                     self.session.delete(player)
                     self.session.commit()
 
-    def __get_TournamentTeam(self, tournamentID: str, teamName: str = None,
-                             captainDiscordUsername: str = None, teamID: str = None):
+    async def __get_TournamentTeam(self, tournamentID: str, teamName: str = None,
+                                   captainDiscordUsername: str = None, teamID: str = None):
         if teamName:
             return self.session.query(TournamentTeam).join(Team).join(Tournament). \
                 filter(Team.teamName == teamName).filter(Tournament.battlefyID == tournamentID)
@@ -144,21 +145,21 @@ class DBConnect:
                 filter(TournamentTeam.captainDiscord == captainDiscordUsername). \
                 filter(Tournament.battlefyID == tournamentID)
         elif teamID:
-            return self.session.query(TournamentTeam).join(Tournament). \
-                filter(TournamentTeam.teamID == teamID). \
+            return self.session.query(TournamentTeam).join(Team).join(Tournament). \
+                filter(Team.battlefyID == teamID). \
                 filter(Tournament.battlefyID == tournamentID)
         else:
             return None
 
-    def set_bracket(self, bracket: int, tournamentID: str, teamName: str = None,
-                    captainDiscordUsername: str = None, teamID: str = None) -> Optional[bool]:
+    async def set_bracket(self, bracket: int, tournamentID: str, teamName: str = None,
+                          captainDiscordUsername: str = None, teamID: str = None) -> Optional[bool]:
         # This queries for the TournamentTeam with the teamName and tournamentID matching
         if teamName:
-            queryReturn = self.__get_TournamentTeam(tournamentID, teamName=teamName)
+            queryReturn = await self.__get_TournamentTeam(tournamentID, teamName=teamName)
         elif captainDiscordUsername:
-            queryReturn = self.__get_TournamentTeam(tournamentID, captainDiscordUsername=captainDiscordUsername)
+            queryReturn = await self.__get_TournamentTeam(tournamentID, captainDiscordUsername=captainDiscordUsername)
         elif teamID:
-            queryReturn = self.__get_TournamentTeam(tournamentID, teamID=teamID)
+            queryReturn = await self.__get_TournamentTeam(tournamentID, teamID=teamID)
         else:
             return None
         if queryReturn.all() is False:  # No team found
@@ -168,15 +169,15 @@ class DBConnect:
         queryReturn.update({TournamentTeam.bracket: bracket})
         return True
 
-    def set_allow_checkin(self, allowCheckin: bool, tournamentID: str, teamName: str = None,
-                          captainDiscordUsername: str = None, teamID: str = None) -> Optional[bool]:
+    async def set_allow_checkin(self, allowCheckin: bool, tournamentID: str, teamName: str = None,
+                                captainDiscordUsername: str = None, teamID: str = None) -> Optional[bool]:
         # This queries for the TournamentTeam with the teamName and tournamentID matching
         if teamName:
-            queryReturn = self.__get_TournamentTeam(tournamentID, teamName=teamName)
+            queryReturn = await self.__get_TournamentTeam(tournamentID, teamName=teamName)
         elif captainDiscordUsername:
-            queryReturn = self.__get_TournamentTeam(tournamentID, captainDiscordUsername=captainDiscordUsername)
+            queryReturn = await self.__get_TournamentTeam(tournamentID, captainDiscordUsername=captainDiscordUsername)
         elif teamID:
-            queryReturn = self.__get_TournamentTeam(tournamentID, teamID=teamID)
+            queryReturn = await self.__get_TournamentTeam(tournamentID, teamID=teamID)
         else:
             return None
         if queryReturn.all() is False:  # No team found
@@ -186,21 +187,46 @@ class DBConnect:
         queryReturn.update({TournamentTeam.allowCheckin: allowCheckin})
         return True
 
-    def set_checkin(self, checkin: bool, tournamentID: str, teamName: str = None,
-                    captainDiscordUsername: str = None, teamID: str = None) -> Optional[bool]:
+    async def set_checkin(self, checkin: bool, tournamentID: str, teamName: str = None,
+                          captainDiscordUsername: str = None, teamID: str = None) -> Optional[bool]:
         # This queries for the TournamentTeam with the teamName and tournamentID matching
         if teamName:
-            queryReturn = self.__get_TournamentTeam(tournamentID, teamName=teamName)
+            queryReturn = await self.__get_TournamentTeam(tournamentID, teamName=teamName)
         elif captainDiscordUsername:
-            queryReturn = self.__get_TournamentTeam(tournamentID, captainDiscordUsername=captainDiscordUsername)
+            queryReturn = await self.__get_TournamentTeam(tournamentID, captainDiscordUsername=captainDiscordUsername)
         elif teamID:
-            queryReturn = self.__get_TournamentTeam(tournamentID, teamID=teamID)
+            queryReturn = await self.__get_TournamentTeam(tournamentID, teamID=teamID)
         else:
-            return None
-        if queryReturn.all() is False:  # No team found
             return None
         if len(queryReturn.all()) > 1:  # More then one team found
             return False
         queryReturn.update({TournamentTeam.checkin: checkin})
         return True
 
+    async def get_teams(self, tournamentID: str, teamName: str = None,
+                        captainDiscordUsername: str = None, teamID: str = None) -> Optional[list]:
+        if teamName:
+            queryReturn = await self.__get_TournamentTeam(tournamentID, teamName=teamName)
+        elif captainDiscordUsername:
+            queryReturn = await self.__get_TournamentTeam(tournamentID, captainDiscordUsername=captainDiscordUsername)
+        elif teamID:
+            queryReturn = await self.__get_TournamentTeam(tournamentID, teamID=teamID)
+        else:
+            return None
+        returnTeamList = []
+        for team in queryReturn.all():
+            teamPlayers = []
+            for entry in team.players:
+                teamPlayers.append(PlayerObject(ID=entry.Player.playerID, battlefyPlayerID=entry.Player.battlefyID,
+                                                battlefyUserslug=entry.Player.battlefyUserslug,
+                                                inGameName=entry.Player.inGameName,
+                                                previousIGN=entry.Player.previousIGN,
+                                                discordID=entry.Player.discordID, createdAt=entry.joinDate.isoformat(),
+                                                admin=entry.admin))
+            returnTeamList.append(TeamObject(ID=team.ID, battlefyID=team.team.battlefyID, teamName=team.team.teamName,
+                                             teamIcon=team.team.iconURL, joinDate=team.joinDate,
+                                             captainDiscord=team.captainDiscord, captainFC=team.captainFC,
+                                             players=teamPlayers, manualPlayers=team.manualPlayers,
+                                             allowCheckin=team.allowCheckin, checkin=team.checkin,
+                                             bracket=team.bracket))
+        return returnTeamList

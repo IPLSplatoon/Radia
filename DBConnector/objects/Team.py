@@ -77,7 +77,7 @@ class TeamObject:
     def __str__(self):
         players = ""
         for player in self.players:
-            player += "{}\n  \n".format(str(player))
+            players += "{}\n------------\n".format(str(player))
         return "ID: {}\n" \
                "BattlefyID: {}\n" \
                "teamName: {}\n" \
@@ -89,7 +89,8 @@ class TeamObject:
                "Checkin: {}\n" \
                "Bracket: {}\n" \
                "Manual Players: {}\n" \
-               "Players:\n{}".format(self.ID, self.battlefyID, self.teamName, self.teamIcon,
-                                     self.joinDate.strftime("%d/%m/%Y, %H:%M:%S"), self.captainDiscord,
-                                     self.captainFC, self.allowCheckin, self.checkin, self.bracket,
-                                     self.manualPlayers, players)
+               "Players:\n==================\n" \
+               "{}".format(self.ID, self.battlefyID, self.teamName, self.teamIcon,
+                           self.joinDate.strftime("%d/%m/%Y, %H:%M:%S"), self.captainDiscord,
+                           self.captainFC, self.allowCheckin, self.checkin, self.bracket,
+                           self.manualPlayers, players)
