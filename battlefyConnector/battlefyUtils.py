@@ -100,11 +100,11 @@ class BattlefyUtils:
             for players in teams["players"]:
                 # This is how we tell players with account from players that are added by staff
                 if "userID" not in players:
-                    manualPlayers.append(field_check("inGameName", players))
+                    manualPlayers.append(field_check("inGameName", players)[:30])
                 else:
                     tempPlayer = PlayerObject(battlefyPlayerID=field_check("persistentPlayerID", players),
-                                              battlefyUserslug=field_check("userSlug", players),
-                                              inGameName=field_check("inGameName", players),
+                                              battlefyUserslug=field_check("userSlug", players)[:50],
+                                              inGameName=field_check("inGameName", players)[:30],
                                               createdAt=players["createdAt"])
                     teamRoaster.append(tempPlayer)
             createdAt = dateutil.parser.isoparse(teams["createdAt"])
@@ -122,8 +122,8 @@ class BattlefyUtils:
             if not logo:
                 logo = "Unknown"
 
-            team = TeamObject(battlefyID=teams["persistentTeamID"], teamName=teams["name"], teamIcon=logo,
-                              joinDate=createdAt, captainDiscord=discord, captainFC=FCCode, players=teamRoaster,
-                              manualPlayers=manualPlayers)
+            team = TeamObject(battlefyID=teams["persistentTeamID"], teamName=teams["name"], teamIcon=logo[:255],
+                              joinDate=createdAt, captainDiscord=discord[:37], captainFC=FCCode[:40],
+                              players=teamRoaster, manualPlayers=manualPlayers)
             teamList.append(team)
         return teamList
