@@ -233,7 +233,7 @@ class Teams(commands.Cog):
                                                             captainDiscordUsername=str(ctx.message.author))
                     if reply:
                         embed = await utils.create_embed("{} is Checked in!".format(team.teamName),
-                                                         "You Team has been checked in!",
+                                                         "Your team has been checked in!",
                                                          "https://battlefy.com/teams/{}".format(team.battlefyID))
                         if team.teamIcon != "Unknown":
                             embed.set_thumbnail(url=team.teamIcon)
