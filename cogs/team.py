@@ -162,19 +162,19 @@ class Teams(commands.Cog):
     async def add_tournament(self, ctx, tournamentID, captainRoleID):
         with ctx.typing():
             if not captainRoleID.isdigit():
-                await ctx.send(embed=utils.create_embed("Add Tournament Error", "Invalid Captain Role ID"))
+                await ctx.send(embed=await utils.create_embed("Add Tournament Error", "Invalid Captain Role ID"))
                 return
             if not await self.check_role(ctx.message.guild.id, int(captainRoleID)):
-                await ctx.send(embed=utils.create_embed("Add Tournament Error", "Invalid Captain Role ID"))
+                await ctx.send(embed=await utils.create_embed("Add Tournament Error", "Invalid Captain Role ID"))
                 return
             tournament = await self.battlefy.get_tournament(tournamentID)
             response = await self.database.addTournament(tournamentID, tournament.startTime,
                                                          str(ctx.message.guild.id), captainRoleID)
             if response:
-                await ctx.send(embed=utils.create_embed("Added Tournament",
+                await ctx.send(embed=await utils.create_embed("Added Tournament",
                                                         "Tournament with ID {} added".format(tournamentID)))
             else:
-                await ctx.send(embed=utils.create_embed("Add Tournament Error",
+                await ctx.send(embed=await utils.create_embed("Add Tournament Error",
                                                         "Unable to add to DB, may already exits"))
 
     @commands.has_role("Staff")
