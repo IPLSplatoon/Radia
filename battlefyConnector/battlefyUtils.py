@@ -2,8 +2,9 @@
 Contains utilities for parsing Battlefy data
 """
 from .battlefyConnector import BattlefyAIO
+from .models.tournament import Tournament
 from typing import Optional
-from .teamDesign import Player, Team
+from DBConnector import TeamObject, PlayerObject
 import dateutil.parser
 
 
@@ -64,6 +65,19 @@ class BattlefyUtils:
                         pass
         return returnDict
 
+    async def get_tournament(self, tournamentID: str) -> Optional[Tournament]:
+        """
+        Get a tournament's details
+        :param tournamentID: str
+            Battlefy ID of the tournament
+        :return: Tournament
+        Tournament object with the data
+        """
+        request = await self.battlefy.getTournament(tournamentID)
+        if not request:  # Check if the return has data
+            return None
+        return Tournament(startTime=dateutil.parser.isoparse(request["startTime"]))
+
     async def get_list_of_teams(self, tournamentID: str, DiscordFieldID: str, FCFieldID: str) -> Optional[list]:
         """
         Get a list of teams fully registered on battlefy
@@ -82,16 +96,18 @@ class BattlefyUtils:
         teamList = []
         for teams in request:
             teamRoaster = []
+            manualPlayers = []
             for players in teams["players"]:
-                tempPlayer = Player()
-                tempPlayer.load(field_check("persistentPlayerID", players), field_check("userSlug", players),
-                                field_check("inGameName", players), dateutil.parser.isoparse(players["createdAt"]))
-                teamRoaster.append(tempPlayer)
-            captain = Player()
-            if "captain" in teams:
-                captain.load(teams["captain"]["persistentPlayerID"], teams["captain"]["userSlug"],
-                             teams["captain"]["inGameName"],
-                             dateutil.parser.isoparse(teams["captain"]["createdAt"]))
+                # This is how we tell players with account from players that are added by staff
+                if "userID" not in players:
+                    manualPlayers.append(field_check("inGameName", players)[:30])
+                else:
+                    tempPlayer = PlayerObject(battlefyPlayerID=field_check("persistentPlayerID", players),
+                                              battlefyUserslug=field_check("userSlug", players)[:50],
+                                              inGameName=field_check("inGameName", players)[:30],
+                                              createdAt=players["createdAt"])
+                    teamRoaster.append(tempPlayer)
+            createdAt = dateutil.parser.isoparse(teams["createdAt"])
             customFields = teams["customFields"]
             persistentTeam = teams["persistentTeam"]
             discord = "Unknown"
@@ -106,6 +122,8 @@ class BattlefyUtils:
             if not logo:
                 logo = "Unknown"
 
-            team = Team(teams["name"], teams["persistentTeamID"], discord, FCCode, captain, teamRoaster, logo)
+            team = TeamObject(battlefyID=teams["persistentTeamID"], teamName=(teams["name"])[:64], teamIcon=logo[:255],
+                              joinDate=createdAt, captainDiscord=discord[:37], captainFC=FCCode[:40],
+                              players=teamRoaster, manualPlayers=manualPlayers)
             teamList.append(team)
         return teamList

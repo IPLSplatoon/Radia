@@ -3,33 +3,179 @@ Cog deals with all check in a print of checked in captains/teams
 """
 import gSheetConnector
 import utils
-from discord.ext import commands
+from discord.ext import commands, tasks
 import discord
 from dotenv import load_dotenv
 import os
 import DBConnector
-from battlefyConnector import Team
+from battlefyConnector import BattlefyUtils
+import re
+from typing import Optional
 
 load_dotenv("files/.env")
 GOOGLE_SHEET_NAME = os.environ.get("google_sheet_name")
+DB_CONNECTION_STRING = os.environ.get("DB_String")
+mentionExpression = re.compile("<@![0-9]{10,}>")
+
+# Get the bracket from the numerical value
+bracketValueDict = {
+    -1: "N/A",
+    1: "Alpha",
+    2: "Beta",
+    3: "Gamma"
+}
+
+
+async def team_embed(team: DBConnector.TeamObject) -> discord.embeds:
+    """
+    Create a discord embed with team's information
+    :param team: DBConnector.TeamObject
+        Team you want an embed for
+    :return: discord.embeds
+        Returns a discord embed object
+    """
+    embed = await utils.embedder.create_embed(team.teamName, "Team Info on: {}".format(team.teamName),
+                                              "https://battlefy.com/teams/{}".format(team.battlefyID))
+    embed.add_field(name="Captain Discord:", value=team.captainDiscord, inline=True)
+    embed.add_field(name="Captain FC:", value=team.captainFC, inline=True)
+    embed.add_field(name="Join Date:", value=team.joinDate.strftime("%d/%m/%Y, %H:%M"), inline=True)
+    embed.add_field(name="Bracket:", value=bracketValueDict.get(team.bracket, "Unknown"), inline=True)
+    if team.allowCheckin:
+        embed.add_field(name="Checkin:", value=team.checkin, inline=True)
+    else:
+        embed.add_field(name="Checkin:", value="Disabled (*{}*)".format(team.checkin), inline=True)
+    embed.add_field(name="Sys ID: ", value="`{}`".format(team.ID), inline=True)
+    if team.teamIcon != "Unknown":
+        embed.set_thumbnail(url=team.teamIcon)
+    if team.manualPlayers:
+        players = "```\n"
+        for player in team.manualPlayers:
+            players += "- {}\n".format(player)
+        players += "```"
+        embed.add_field(name="Staff added Players:", value=players, inline=False)
+    playerCount = 1
+    for player in team.players:
+        embed.add_field(name="Player {}:".format(playerCount), value="```\n{}\n```".format(str(player)), inline=False)
+        playerCount += 1
+    return embed
 
 
 class Teams(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.sheets = gSheetConnector.SheetConnector("files/googleAuth.json", GOOGLE_SHEET_NAME)
+        self.settings = self.sheets.get_settings("Settings")
         self.enableCheckin = False
-        settings = self.sheets.get_settings("Settings")
-        settings = settings["406137039285649428"]
-        self.database = DBConnector.TeamDB(settings["BattlefyTournamentID"], settings["BattlefyFieldID"],
-                                           settings["BattlefyFCID"])
+        self.database = DBConnector.DBConnect(DB_CONNECTION_STRING)
+        self.battlefy = BattlefyUtils()
+        self.update_settings.start()
+
+    @tasks.loop(hours=2)
+    async def update_settings(self):
+        self.settings = self.sheets.get_settings("Settings")
+
+    async def getUsername(self, guildID: int, mention: str) -> Optional[str]:
+        if mentionExpression.match(mention):
+            memberID = int(mention[3:][:-1])
+            member = await self.get_member(guildID, memberID)
+            return "{}#{}".format(member.name, member.discriminator)
+        return None
+
+    async def get_details(self, discordGuildID: str):
+        """
+        Get settings from google sheets for a guild
+        :param discordGuildID:
+            the id of the discord guild
+        :return: str
+            the activeTournament, discordField, FCField
+        """
+        if discordGuildID not in self.settings:
+            return None
+        settings = self.settings[discordGuildID]
+        activeTournament = settings["BattlefyTournamentID"]
+        discordField = settings["BattlefyTournamentID"]
+        FCField = settings["BattlefyFCID"]
+        return activeTournament, discordField, FCField
+
+    async def get_member(self, guildID: int, memberID: int) -> discord.member:
+        """
+        Get members object
+        :param guildID: int
+            guildID the member is in
+        :param memberID: int
+            the Discord ID of the member you're trying to find
+        :return: discord.member
+            the member object you're trying to find
+        """
+        guild = self.bot.get_guild(guildID)
+        if guild is None:
+            return None
+        for member in guild.members:
+            if member.id == memberID:
+                return member
+        return None
+
+    async def check_role(self, guildID: int, roleID: int) -> bool:
+        """
+        Check if a guild has a role
+        :param guildID: int
+            guildID the role is in
+        :param roleID: int
+            the ID of the role you're checking
+        :return: bool
+            whether the role exists of not
+        """
+        guild = self.bot.get_guild(guildID)
+        if guild is None:
+            return False
+        for role in guild.roles:
+            if role.id == roleID:
+                return True
+        return False
+
+    @commands.has_role("Staff")
+    @commands.guild_only()
+    @commands.command(name='updateSettings', hidden=True)
+    async def manual_update_settings(self, ctx):
+        with ctx.typing():
+            await self.update_settings
 
     @commands.has_role("Staff")
     @commands.guild_only()
     @commands.command(name='loadTeams', hidden=True)
     async def load_teams(self, ctx):
-        if await self.database.add_teams():
-            await ctx.send(embed=await utils.create_embed("Load teams", "Teams now loaded into DB"))
+        with ctx.typing():
+            activeTournament, discordField, FCField = await self.get_details(str(ctx.message.guild.id))
+            teams = await self.battlefy.get_list_of_teams(activeTournament, discordField, FCField)
+            if teams:
+                for team in teams:
+                    await self.database.updateTournamentTeam(team, activeTournament)
+                embed = await utils.create_embed("Add Teams", "Teams added to database for active tournament")
+                embed.add_field(name="Team Count:", value=len(teams), inline=True)
+                await ctx.send(embed=embed)
+            else:
+                await ctx.send(embed=utils.create_embed("Add Teams Error", "No teams to add"))
+
+    @commands.has_role("Staff")
+    @commands.guild_only()
+    @commands.command(name='addTournament', hidden=True)
+    async def add_tournament(self, ctx, tournamentID, captainRoleID):
+        with ctx.typing():
+            if not captainRoleID.isdigit():
+                await ctx.send(embed=utils.create_embed("Add Tournament Error", "Invalid Captain Role ID"))
+                return
+            if not await self.check_role(ctx.message.guild.id, int(captainRoleID)):
+                await ctx.send(embed=utils.create_embed("Add Tournament Error", "Invalid Captain Role ID"))
+                return
+            tournament = await self.battlefy.get_tournament(tournamentID)
+            response = await self.database.addTournament(tournamentID, tournament.startTime,
+                                                         str(ctx.message.guild.id), captainRoleID)
+            if response:
+                await ctx.send(embed=utils.create_embed("Added Tournament",
+                                                        "Tournament with ID {} added".format(tournamentID)))
+            else:
+                await ctx.send(embed=utils.create_embed("Add Tournament Error",
+                                                        "Unable to add to DB, may already exits"))
 
     @commands.has_role("Staff")
     @commands.guild_only()
@@ -42,51 +188,6 @@ class Teams(commands.Cog):
             self.enableCheckin = True
             await ctx.send(embed=await utils.create_embed("Enable/Disable Checkin", "Checkin Enabled!"))
 
-    async def get_member(self, guildID: int, memberID: int) -> discord.member:
-        guild = self.bot.get_guild(guildID)
-        if guild is None:
-            return None
-        for member in guild.members:
-            if member.id == memberID:
-                return member
-        return None
-
-    async def team_embed(self, team: Team) -> discord.embeds:
-        """
-        Create a discord embed with team's information
-        :param team: Team
-            Team you want an embed for
-        :return: discord.embeds
-            Returns a discord embed object
-        """
-        embed = await utils.embedder.create_embed(team.teamName, "Team Info on: {}".format(team.teamName),
-                                                  "https://battlefy.com/teams/{}".format(team.teamID))
-        embed.add_field(name="Team Captain:", value=team.captain.inGameName, inline=True)
-        embed.add_field(name="Captain Discord:", value=team.captainDiscord, inline=True)
-        if self.enableCheckin:
-            if team.allowCheckin:
-                embed.add_field(name="Day 2 Checkin:", value=team.checkin, inline=True)
-            else:
-                embed.add_field(name="Day 2 Checkin:", value="**Disabled** (*{}*)".format(team.checkin), inline=True)
-        else:
-            embed.add_field(name="Day 2 Checkin:", value="N/A (*{}*)".format(team.checkin), inline=True)
-        embed.add_field(name="Captain FC:", value=team.captainFC, inline=False)
-        embed.add_field(name="Team ID:", value="`{}`".format(team.teamID), inline=False)
-        if team.teamIconURL != "Unknown":
-            embed.set_thumbnail(url=team.teamIconURL)
-        playerCount = 1
-        for player in team.players:
-            playerstr = "```\n" \
-                        "In Game Name: {}\n" \
-                        "Battlefy Name: {}\n" \
-                        "Added @: {}\n" \
-                        "ID: {}\n" \
-                        "```".format(player.inGameName, player.battlefyUsername,
-                                     player.createdAt.strftime("%d/%m/%Y %H:%M:%S"), player.persistentPlayerID)
-            embed.add_field(name="Player {}:".format(playerCount), value=playerstr, inline=False)
-            playerCount = playerCount + 1
-        return embed
-
     @commands.has_role("Staff")
     @commands.command(name='team', help="Get info on a team(s)\n"
                                         "<query>: The team you want to find\n"
@@ -94,21 +195,24 @@ class Teams(commands.Cog):
                       aliases=["teams"])
     async def get_teams(self, ctx, query, queryType="mention"):
         with ctx.typing():
+            activeTournament, discordField, FCField = await self.get_details(str(ctx.message.guild.id))
             if queryType.upper() in ["ID", "TEAMID"]:
-                teams = await self.database.get_teams(teamID=query)
+                teams = await self.database.get_teams(activeTournament, teamID=query)
             elif queryType.upper() in ["NAME", "TEAMNAME"]:
-                teams = await self.database.get_teams(teamName=query)
+                teams = await self.database.get_teams(activeTournament, teamName=query)
             else:
-                memberID = int(query[3:][:-1])
-                member = await self.get_member(ctx.message.guild.id, memberID)
-                username = "{}#{}".format(member.name, member.discriminator)
-                teams = await self.database.get_teams(discordUsername=username)
+                username = await self.getUsername(ctx.message.guild.id, query)
+                if not username:
+                    await ctx.send(embed=await utils.create_embed("Team Overview Error",
+                                                                  "Invalid Mention"))
+                    return
+                teams = await self.database.get_teams(activeTournament, captainDiscordUsername=username)
             if teams is None:
                 embed = await utils.create_embed("Team Overview Error", "Didn't find any team under you name query!")
                 await ctx.send(embed=embed)
                 return
             for team in teams:
-                embed = await self.team_embed(team)
+                embed = await team_embed(team)
                 await ctx.send(embed=embed)
 
     @commands.has_role("Captains")
@@ -116,35 +220,158 @@ class Teams(commands.Cog):
     async def checkin(self, ctx):
         with ctx.typing():
             if self.enableCheckin:
-                try:
-                    checkin = await self.database.update_team_checkin(True, discordUsername=str(ctx.message.author))
-                    if checkin:
-                        embed = await utils.create_embed("Team Checkin Complete", "Your team has now be checked in!")
+                activeTournament, discordField, FCField = await self.get_details(str(ctx.message.guild.id))
+                team = await self.database.get_teams(activeTournament,
+                                                     captainDiscordUsername=str(ctx.message.author))
+                if not team:
+                    await ctx.send(embed=await utils.create_embed("Team Checkin Error!",
+                                                                  "Unable to find your team, head to helpdesk!"))
+                    return
+                team = team[0]
+                if team.allowCheckin:
+                    reply = await self.database.set_checkin(True, activeTournament,
+                                                            captainDiscordUsername=str(ctx.message.author))
+                    if reply:
+                        embed = await utils.create_embed("{} is Checked in!".format(team.teamName),
+                                                         "Your team has been checked in!",
+                                                         "https://battlefy.com/teams/{}".format(team.battlefyID))
+                        if team.teamIcon != "Unknown":
+                            embed.set_thumbnail(url=team.teamIcon)
                         await ctx.send(embed=embed)
-                except DBConnector.errors.CheckInBlockedError:
-                    embed = await utils.create_embed("Team Checkin Disabled",
-                                                     "Your team has been blocked for checking in!")
-                    await ctx.send(embed=embed)
+                        return
+                    else:
+                        embed = await utils.create_embed("Team Checkin Error!",
+                                                         "We where unable to check your team `{}` in".format(
+                                                             team.teamName),
+                                                         "https://battlefy.com/teams/{}".format(team.battlefyID))
+                        await ctx.send(embed=embed)
+                        return
+                else:
+                    await ctx.send(embed=await utils.create_embed("Team Checkin Error!",
+                                                                  "Your teams `{}` isn't enabled to checkin!\n"
+                                                                  "Head to helpdesk if this is an error".format(
+                                                                      team.teamName)))
             else:
-                embed = await utils.create_embed("Team Checkin Closed", "Checkin/out are not enabled at the minute")
+                embed = await utils.create_embed("Team Checkin Closed",
+                                                 "Checkin are not enabled at the moment")
                 await ctx.send(embed=embed)
 
-    @commands.has_role("Captains")
-    @commands.command(name='checkout', help="Checkout your team!")
-    async def checkout(self, ctx):
+    @commands.has_role("Staff")
+    @commands.guild_only()
+    @commands.command(name='checkinList', help="Get the list of teams checked in/out", aliases=["checkinlist"])
+    async def checkin_list(self, ctx, bracket="All"):
         with ctx.typing():
-            if self.enableCheckin:
-                try:
-                    checkin = await self.database.update_team_checkin(False, discordUsername=str(ctx.message.author))
-                    if checkin:
-                        embed = await utils.create_embed("Team Checkout Complete", "Your team has now be checked out!")
-                        await ctx.send(embed=embed)
-                except DBConnector.errors.CheckInBlockedError:
-                    embed = await utils.create_embed("Team Checkin Disabled",
-                                                     "Your team has been blocked for checking in!")
-                    await ctx.send(embed=embed)
+            activeTournament, discordField, FCField = await self.get_details(str(ctx.message.guild.id))
+            query = await self.database.get_all_teams(activeTournament)
+            teams = []
+            if bracket.upper() in ["TOP", "ALPHA", "A"]:
+                for team in query:
+                    if team.allowCheckin and team.bracket == 1:
+                        teams.append(team)
+            elif bracket.upper() in ["MID", "BETA", "B", "MIDDLE"]:
+                for team in query:
+                    if team.allowCheckin and team.bracket == 2:
+                        teams.append(team)
+            elif bracket.upper() in ["BOTTOM", "GAMMA", "G"]:
+                for team in query:
+                    if team.allowCheckin and team.bracket == 3:
+                        teams.append(team)
+            elif bracket.upper() in ["ALL"]:
+                for team in query:
+                    if team.allowCheckin:
+                        teams.append(team)
             else:
-                embed = await utils.create_embed("Team Checkin Closed", "Checkin/out are not enabled at the minute")
+                await ctx.send(embed=await utils.create_embed("Checkin List Error", "Invalid Bracket"))
+                return
+            if not teams:
+                await ctx.send(embed=await utils.create_embed("Checkin List", "No teams to list"))
+                return
+            checkoutList = "```\n"
+            checkinList = "```\n"
+            for team in teams:
+                if team.checkin:
+                    checkinList += "- {}\n".format(team.teamName)
+                else:
+                    checkoutList += "- {}\n".format(team.teamName)
+            checkoutList += "```"
+            checkinList += "```"
+            embed = await utils.create_embed("Checkin List for {}".format(bracket), "List of teams checked in/out")
+            embed.add_field(name="Teams **YET** to Checkin:", value=checkoutList, inline=False)
+            embed.add_field(name="Teams Checked in:", value=checkinList, inline=False)
+            await ctx.send(embed=embed)
+
+    @commands.has_role("Staff")
+    @commands.command(name='assignBracket', help="Enable checkin & bracket for a team.\n"
+                                                 "<bracket>: Bracket the team should go into\n"
+                                                 "<query>: The team you want to find\n"
+                                                 "<queryType>: What to find a team by. Can be ID, teamName or a mention",
+                      aliases=["assignbracket"])
+    async def assign_bracket(self, ctx, bracket, query, queryType="mention"):
+        with ctx.typing():
+            if bracket.upper() in ["TOP", "ALPHA", "A"]:
+                assignRole = discord.utils.get(ctx.message.guild.roles, id=717475987821953085)
+                bracketInt = 1
+            elif bracket.upper() in ["MID", "BETA", "B", "MIDDLE"]:
+                assignRole = discord.utils.get(ctx.message.guild.roles, id=717476155590180876)
+                bracketInt = 2
+            elif bracket.upper() in ["BOTTOM", "GAMMA", "G"]:
+                assignRole = discord.utils.get(ctx.message.guild.roles, id=726243712908263484)
+                bracketInt = 3
+            else:
+                await ctx.send(embed=await utils.create_embed("Team Bracket Assignment Error", "Invalid Bracket given"))
+                return
+            activeTournament, discordField, FCField = await self.get_details(str(ctx.message.guild.id))
+            if queryType.upper() in ["ID", "TEAMID"]:
+                teams = await self.database.get_teams(activeTournament, teamID=query)
+            elif queryType.upper() in ["NAME", "TEAMNAME"]:
+                teams = await self.database.get_teams(activeTournament, teamName=query)
+            else:
+                username = await self.getUsername(ctx.message.guild.id, query)
+                if not username:
+                    await ctx.send(embed=await utils.create_embed("Team Bracket Assignment Error",
+                                                                  "Invalid Mention"))
+                    return
+                teams = await self.database.get_teams(activeTournament, captainDiscordUsername=username)
+            if len(teams) > 1 or not teams:
+                await ctx.send(embed=await utils.create_embed("Team Bracket Assignment Error",
+                                                              "Query returns more/less then one team"))
+                return
+            team = teams[0]
+            username = team.captainDiscord
+            user = None
+            for member in ctx.message.guild.members:
+                if str(member) == username:
+                    user = member
+                    break
+            if user is None:
+                embed = await utils.create_embed("Team Bracket Assignment Error",
+                                                 "Captain Member not found in Guild!")
+                await ctx.send(embed=embed)
+                return
+            await user.add_roles(assignRole, reason="Bracket Assignment by {}".format(str(ctx.message.author)))
+            if queryType.upper() in ["ID", "TEAMID"]:
+                checkinStatus = await self.database.set_allow_checkin(True, activeTournament, teamID=query)
+                bracketStatus = await self.database.set_bracket(bracketInt, activeTournament, teamID=query)
+            elif queryType.upper() in ["NAME", "TEAMNAME"]:
+                checkinStatus = await self.database.set_allow_checkin(True, activeTournament, teamName=query)
+                bracketStatus = await self.database.set_bracket(bracketInt, activeTournament, teamName=query)
+            else:
+                checkinStatus = await self.database.set_allow_checkin(True, activeTournament,
+                                                                      captainDiscordUsername=username)
+                bracketStatus = await self.database.set_bracket(bracketInt, activeTournament,
+                                                                captainDiscordUsername=username)
+            if checkinStatus and bracketStatus:
+                embed = await utils.create_embed("Team Bracket Assignment", "Bracket Assignment Complete")
+                if team.teamIcon != "Unknown":
+                    embed.set_thumbnail(url=team.teamIcon)
+                embed.add_field(name="Team: ", value=team.teamName, inline=False)
+                embed.add_field(name="Bracket: ", value=bracket, inline=True)
+                embed.add_field(name="Member: ", value="{}".format(str(user)), inline=True)
+                embed.add_field(name="Sys ID:", value="`{}`".format(team.ID), inline=True)
+                await ctx.send(embed=embed)
+            else:
+                embed = await utils.create_embed("Team Bracket Assignment Error",
+                                                 "Unable to assign Bracket/Allow Checkin")
                 await ctx.send(embed=embed)
 
     @commands.has_role("Staff")
@@ -153,203 +380,91 @@ class Teams(commands.Cog):
                                                    "<query>: The team you want to find\n"
                                                    "<queryType>: What to find a team by. Can be ID, teamname or a "
                                                    "mention",
-                      aliases=["checkinoverride"])
+                      aliases=["checkinoverride", "staffcheckin", "staffCheckin"])
     async def staff_checkin(self, ctx, checkin, query, queryType="mention"):
         with ctx.typing():
+            activeTournament, discordField, FCField = await self.get_details(str(ctx.message.guild.id))
             if checkin.upper() in ["YES", "TRUE", "YEP"]:
                 checkinStatus = True
             else:
                 checkinStatus = False
-            try:
-                if queryType.upper() in ["ID", "TEAMID"]:
-                    checkin = await self.database.update_team_checkin(checkinStatus, teamID=query)
-                elif queryType.upper() in ["NAME", "TEAMNAME"]:
-                    checkin = await self.database.update_team_checkin(checkinStatus, teamName=query)
-                else:
-                    memberID = int(query[3:][:-1])
-                    member = await self.get_member(ctx.message.guild.id, memberID)
-                    username = "{}#{}".format(member.name, member.discriminator)
-                    checkin = await self.database.update_team_checkin(checkinStatus, discordUsername=username)
-                if checkin:
-                    embed = await utils.create_embed("Team Checkin update Complete",
-                                                     "Team with following attributes has been update")
-                    embed.add_field(name="Checked in status: ", value=checkinStatus, inline=False)
-                    embed.add_field(name="{}: ".format(queryType), value="`{}`".format(str(query)), inline=False)
-                    await ctx.send(embed=embed)
-                else:
-                    embed = await utils.create_embed("Team Checkin Error", "Unable to find team with query provided!")
-                    await ctx.send(embed=embed)
-            except DBConnector.errors.MoreThenOneError:
-                embed = await utils.create_embed("Team Checkin Error", "More then one team returned via Query")
-                await ctx.send(embed=embed)
-            except DBConnector.errors.CheckInBlockedError:
-                embed = await utils.create_embed("Team Checkin Disabled", "The team been disabled from checking in.")
-                await ctx.send(embed=embed)
-
-    @commands.has_role("Staff")
-    @commands.command(name='checkinList', help="List all checked in teams", aliases=["checkinlist"])
-    async def checkin_list(self, ctx):
-        with ctx.typing():
-            checkedInTeams = await self.database.get_teams(checkIN=True)
-            if checkedInTeams is None:
-                embed = await utils.create_embed("List of teams checked in!", "No teams checked in!")
-                await ctx.send(embed=embed)
-                return
-            checkedInList = "```\n"
-            for team in checkedInTeams:
-                checkedInList = checkedInList + "- {}\n".format(team.teamName)
-            checkedInList = checkedInList + "```"
-            if len(checkedInList) < 2048:
-                embed = await utils.create_embed("List of teams checked in!", checkedInList)
-                await ctx.send(embed=embed)
+            if queryType.upper() in ["ID", "TEAMID"]:
+                teams = await self.database.get_teams(activeTournament, teamID=query)
+                checkinReturn = await self.database.set_checkin(checkinStatus, activeTournament, teamID=query)
+            elif queryType.upper() in ["NAME", "TEAMNAME"]:
+                teams = await self.database.get_teams(activeTournament, teamName=query)
+                checkinReturn = await self.database.set_checkin(checkinStatus, activeTournament, teamName=query)
             else:
-                embed = await utils.create_embed("Listing Error", "Too long to post on discord, check console")
-                print(checkedInList)
-                await ctx.send(embed=embed)
-
-    @commands.has_role("Staff")
-    @commands.command(name='checkoutList', help="List all teams yet to checkin",
-                      aliases=["checkoutlist", "yetCheckin", "yetcheckin"])
-    async def checkout_list(self, ctx):
-        with ctx.typing():
-            checkoutTeams = await self.database.get_teams(checkIN=False)
-            if checkoutTeams is None:
-                embed = await utils.create_embed("List of teams yet to checkin!", "No teams in list!")
-                await ctx.send(embed=embed)
-                return
-            enabledCheckoutTeams = []
-            for team in checkoutTeams:
-                if team.allowCheckin:
-                    enabledCheckoutTeams.append(team)
-            if enabledCheckoutTeams is False:
-                embed = await utils.create_embed("List of teams yet to checkin!", "No teams in list!")
-                await ctx.send(embed=embed)
-                return
-            checkedOutList = "```\n"
-            for team in enabledCheckoutTeams:
-                checkedOutList = checkedOutList + "- {}\n".format(team.teamName)
-            checkedOutList = checkedOutList + "```"
-            if len(checkedOutList) < 2048:
-                embed = await utils.create_embed("List of teams yet to checkin!", checkedOutList)
-                await ctx.send(embed=embed)
-            else:
-                embed = await utils.create_embed("Listing Error", "Too long to post on discord, check console")
-                print(checkedOutList)
-                await ctx.send(embed=embed)
-
-    @commands.has_role("Staff")
-    @commands.command(name='allowCheckin', help="Enable checkin for a team.\n"
-                                                "<allowCheckin>: Allow a team to check in Yes/No\n"
-                                                "<query>: The team you want to find\n"
-                                                "<queryType>: What to find a team by. Can be ID, teamName or a mention",
-                      aliases=["allowcheckin"])
-    async def staff_allow_checkin(self, ctx, allowCheckin, query, queryType="mention"):
-        with ctx.typing():
-            if allowCheckin.upper() in ["YES", "TRUE", "YEP"]:
-                allowCheckinStatus = True
-            else:
-                allowCheckinStatus = False
-            try:
-                if queryType.upper() in ["ID", "TEAMID"]:
-                    checkin = await self.database.update_allow_checkin(allowCheckinStatus, teamID=query)
-                elif queryType.upper() in ["NAME", "TEAMNAME"]:
-                    checkin = await self.database.update_allow_checkin(allowCheckinStatus, teamName=query)
-                else:
-                    memberID = int(query[3:][:-1])
-                    member = await self.get_member(ctx.message.guild.id, memberID)
-                    username = "{}#{}".format(member.name, member.discriminator)
-                    checkin = await self.database.update_allow_checkin(allowCheckinStatus, discordUsername=username)
-                if checkin:
-                    embed = await utils.create_embed("Team Allow Checkin",
-                                                     "Team with following attributes has been update")
-                    embed.add_field(name="Allow Checkin: ", value=allowCheckinStatus, inline=False)
-                    embed.add_field(name="{}: ".format(queryType), value="`{}`".format(str(query)), inline=False)
-                    await ctx.send(embed=embed)
-                else:
-                    embed = await utils.create_embed("Team Allow Checkin Error",
-                                                     "Unable to find team with query provided!")
-                    await ctx.send(embed=embed)
-            except DBConnector.errors.MoreThenOneError:
-                embed = await utils.create_embed("Team Allow Checkin Error",
-                                                 "More then one team returned via Query")
-                await ctx.send(embed=embed)
-
-    @commands.has_role("Staff")
-    @commands.command(name='assignBracket', help="Enable checkin for a team.\n"
-                                                "<bracket>: Bracket the team should go into\n"
-                                                "<query>: The team you want to find\n"
-                                                "<queryType>: What to find a team by. Can be ID, teamName or a mention",
-                      aliases=["assignbracket"])
-    async def assign_bracket(self, ctx, bracket, query, queryType="mention"):
-        with ctx.typing():
-            if bracket.upper() in ["TOP", "ALPHA", "A"]:
-                assignRole = discord.utils.get(ctx.message.guild.roles, id=717475987821953085)
-            elif bracket.upper() in ["MID", "BETA", "B", "MIDDLE"]:
-                assignRole = discord.utils.get(ctx.message.guild.roles, id=717476155590180876)
-            elif bracket.upper() in ["BOTTOM", "GAMMA", "G"]:
-                assignRole = discord.utils.get(ctx.message.guild.roles, id=726243712908263484)
-            else:
-                embed = await utils.create_embed("Team Bracket Assignment Error",
-                                                 "Invalid Bracket given")
-                await ctx.send(embed=embed)
-                return
-            try:
-                if queryType.upper() in ["ID", "TEAMID"]:
-                    teams = await self.database.get_teams(teamID=query)
-                elif queryType.upper() in ["NAME", "TEAMNAME"]:
-                    teams = await self.database.get_teams(teamName=query)
-                else:
-                    memberID = int(query[3:][:-1])
-                    member = await self.get_member(ctx.message.guild.id, memberID)
-                    username = "{}#{}".format(member.name, member.discriminator)
-                    teams = await self.database.get_teams(discordUsername=username)
-                if teams is None:
-                    embed = await utils.create_embed("Team Bracket Assignment Error",
-                                                     "Didn't find any team under you name query!")
-                    await ctx.send(embed=embed)
+                username = await self.getUsername(ctx.message.guild.id, query)
+                if not username:
+                    await ctx.send(embed=await utils.create_embed("Staff Checkin Error",
+                                                                  "Invalid Mention"))
                     return
-                if len(teams) > 1:
-                    embed = await utils.create_embed("Team Bracket Assignment Error",
-                                                     "More then one team found from query")
-                    await ctx.send(embed=embed)
-                    return
-                team = teams[0]  # get first team from list of teams =
-                username = team.captainDiscord
-                user = None
-                for member in ctx.message.guild.members:
-                    if str(member) == username:
-                        user = member
-                        break
-                if user is None:
-                    embed = await utils.create_embed("Team Bracket Assignment Error",
-                                                     "Captain Member not found in Guild!")
-                    await ctx.send(embed=embed)
-                    return
-                await user.add_roles(assignRole, reason="Bracket Assignment by {}".format(str(ctx.message.author)))
+                teams = await self.database.get_teams(activeTournament, captainDiscordUsername=username)
+                checkinReturn = await self.database.set_checkin(checkinStatus, activeTournament,
+                                                                captainDiscordUsername=username)
+            if checkinReturn is None:
+                await ctx.send(embed=await utils.create_embed("Staff Checkin Error", "Query found no teams"))
+            elif checkinReturn is False:
+                await ctx.send(embed=await utils.create_embed("Staff Checkin Error",
+                                                              "Query found *more then one* team"))
+            elif checkinReturn:
+                team = teams[0]
+                embed = await utils.create_embed("Staff Checkin", "Checkin Successful!")
+                embed.add_field(name="Team Name", value=team.teamName, inline=True)
+                embed.add_field(name="Bracket", value=bracketValueDict.get(team.bracket, "Unknown"), inline=True)
+                embed.add_field(name="Sys ID:", value="`{}`".format(team.ID), inline=True)
+                embed.add_field(name="Battlefy ID:", value="`{}`".format(team.battlefyID), inline=False)
+                if team.teamIcon != "Unknown":
+                    embed.set_thumbnail(url=team.teamIcon)
+                await ctx.send(embed=embed)
 
-                if queryType.upper() in ["ID", "TEAMID"]:
-                    await self.database.update_allow_checkin(True, teamID=query)
-                elif queryType.upper() in ["NAME", "TEAMNAME"]:
-                    await self.database.update_allow_checkin(True, teamName=query)
-                else:
-                    memberID = int(query[3:][:-1])
-                    member = await self.get_member(ctx.message.guild.id, memberID)
-                    username = "{}#{}".format(member.name, member.discriminator)
-                    await self.database.update_allow_checkin(True, discordUsername=username)
-                embed = await utils.create_embed("Team Bracket Assignment",
-                                                 "Bracket Assignment Complete")
-                if team.teamIconURL != "Unknown":
-                    embed.set_thumbnail(url=team.teamIconURL)
-                embed.add_field(name="Team: ", value=team.teamName, inline=False)
-                embed.add_field(name="Bracket: ", value=bracket, inline=True)
-                embed.add_field(name="Member: ", value="`{}`".format(str(user)), inline=True)
-                embed.add_field(name="Member ID: ", value="`{}`".format(user.id), inline=False)
-                await ctx.send(embed=embed)
-            except DBConnector.errors.MoreThenOneError:
-                embed = await utils.create_embed("Team Bracket Assignment Error",
-                                                 "Checkin allow set errored out")
-                await ctx.send(embed=embed)
+    @commands.has_role("Staff")
+    @commands.command(name='unassignBracket', help="Remove team from bracket and disable checkin\n"
+                                                 "<query>: The team you want to find\n"
+                                                 "<queryType>: What to find a team by. Can be ID, teamName or a mention",
+                      aliases=["unassignbracket"])
+    async def assign_bracket(self, ctx, query, queryType="mention"):
+        with ctx.typing():
+            activeTournament, discordField, FCField = await self.get_details(str(ctx.message.guild.id))
+            if queryType.upper() in ["ID", "TEAMID"]:
+                teams = await self.database.get_teams(activeTournament, teamID=query)
+            elif queryType.upper() in ["NAME", "TEAMNAME"]:
+                teams = await self.database.get_teams(activeTournament, teamName=query)
+            else:
+                username = await self.getUsername(ctx.message.guild.id, query)
+                if not username:
+                    await ctx.send(embed=await utils.create_embed("Remove Team From Bracket Error",
+                                                                  "Invalid Mention"))
+                    return
+                teams = await self.database.get_teams(activeTournament, captainDiscordUsername=username)
+            if len(teams) > 1 or not teams:
+                await ctx.send(embed=await utils.create_embed("Remove Team From Bracket Error",
+                                                              "Query returns more/less then one team"))
                 return
+            team = teams[0]
+            if queryType.upper() in ["ID", "TEAMID"]:
+                checkinStatus = await self.database.set_allow_checkin(False, activeTournament, teamID=query)
+                bracketStatus = await self.database.set_bracket(-1, activeTournament, teamID=query)
+            elif queryType.upper() in ["NAME", "TEAMNAME"]:
+                checkinStatus = await self.database.set_allow_checkin(False, activeTournament, teamName=query)
+                bracketStatus = await self.database.set_bracket(-1, activeTournament, teamName=query)
+            else:
+                checkinStatus = await self.database.set_allow_checkin(False, activeTournament,
+                                                                      captainDiscordUsername=username)
+                bracketStatus = await self.database.set_bracket(-1, activeTournament,
+                                                                captainDiscordUsername=username)
+            if checkinStatus and bracketStatus:
+                embed = await utils.create_embed("Remove Team From Bracket", "Bracket Assignment Complete")
+                if team.teamIcon != "Unknown":
+                    embed.set_thumbnail(url=team.teamIcon)
+                embed.add_field(name="Team: ", value=team.teamName, inline=True)
+                embed.add_field(name="Sys ID:", value="`{}`".format(team.ID), inline=True)
+                await ctx.send(embed=embed)
+            else:
+                embed = await utils.create_embed("Remove Team From Bracket Error",
+                                                 "Unable to remove Bracket/Allow Checkin")
+                await ctx.send(embed=embed)
 
 
 def setup(bot):
