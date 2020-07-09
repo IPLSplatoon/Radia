@@ -93,7 +93,7 @@ class Teams(commands.Cog):
             return None
         settings = self.settings[discordGuildID]
         activeTournament = settings["BattlefyTournamentID"]
-        discordField = settings["BattlefyTournamentID"]
+        discordField = settings["BattlefyFieldID"]
         FCField = settings["BattlefyFCID"]
         return activeTournament, discordField, FCField
 
