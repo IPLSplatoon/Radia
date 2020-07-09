@@ -12,7 +12,7 @@ class Splatoon(commands.Cog):
 
     @commands.command(name='generateSwiss', help="Generate a Swiss map set\n"
                                                  "<maps>: List of maps you want to have."
-                                                 "Maps must be placed within speech marks & use commas to split maps."
+                                                 "Maps must be placed within speech marks & use commas to split maps.\n"
                                                  "<rounds>: Number of rounds to generate\n"
                                                  "<bestOf>: Number of games per round.\n"
                                                  "[Embed Title]: Optional title for the embed\n"
@@ -44,7 +44,7 @@ class Splatoon(commands.Cog):
 
     @commands.command(name='generateTopCut', help="Generate a Top Cut map set\n"
                                                   "<maps>: List of maps you want to have.\n"
-                                                  "Maps must be placed within speech marks & use commas to split maps."
+                                                  "Maps must be placed within speech marks & use commas to split maps.\n"
                                                   "<rounds>: Number of rounds to generate\n"
                                                   "<bestOf>: Number of games per round.\n"
                                                   "[Embed Title]: Option title for the embed\n"
