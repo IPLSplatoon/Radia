@@ -15,7 +15,7 @@ from typing import Optional
 load_dotenv("files/.env")
 GOOGLE_SHEET_NAME = os.environ.get("google_sheet_name")
 DB_CONNECTION_STRING = os.environ.get("DB_String")
-mentionExpression = re.compile("<@[0-9]{10,}>")
+mentionExpression = re.compile("<@![0-9]{10,}>")
 
 # Get the bracket from the numerical value
 bracketValueDict = {
@@ -41,10 +41,10 @@ async def team_embed(team: DBConnector.TeamObject) -> discord.embeds:
     embed.add_field(name="Join Date:", value=team.joinDate.strftime("%d/%m/%Y, %H:%M"), inline=True)
     embed.add_field(name="Bracket:", value=bracketValueDict.get(team.bracket, "Unknown"), inline=True)
     if team.allowCheckin:
-        embed.add_field(name="Checkin:", value=team.captainFC, inline=True)
+        embed.add_field(name="Checkin:", value=team.checkin, inline=True)
     else:
-        embed.add_field(name="Checkin:", value="Disabled (*{}*)".format(team.captainFC), inline=True)
-    embed.add_field(name="SysID: ", value="`{}`".format(team.ID), inline=True)
+        embed.add_field(name="Checkin:", value="Disabled (*{}*)".format(team.checkin), inline=True)
+    embed.add_field(name="Sys ID: ", value="`{}`".format(team.ID), inline=True)
     if team.teamIcon != "Unknown":
         embed.set_thumbnail(url=team.teamIcon)
     if team.manualPlayers:
@@ -55,7 +55,7 @@ async def team_embed(team: DBConnector.TeamObject) -> discord.embeds:
         embed.add_field(name="Staff added Players:", value=players, inline=False)
     playerCount = 1
     for player in team.players:
-        embed.add_field(name="Player {}:".format(player), value=str(player), inline=False)
+        embed.add_field(name="Player {}:".format(playerCount), value="```\n{}\n```".format(str(player)), inline=False)
         playerCount += 1
     return embed
 
@@ -74,7 +74,7 @@ class Teams(commands.Cog):
     async def update_settings(self):
         self.settings = self.sheets.get_settings("Settings")
 
-    async def getUsername(self, mention: str, guildID: int) -> Optional[str]:
+    async def getUsername(self, guildID: int, mention: str) -> Optional[str]:
         if mentionExpression.match(mention):
             memberID = int(mention[3:][:-1])
             member = await self.get_member(guildID, memberID)
@@ -276,10 +276,13 @@ class Teams(commands.Cog):
                 for team in query:
                     if team.allowCheckin and team.bracket == 3:
                         teams.append(team)
-            else:
+            elif bracket.upper() in ["ALL"]:
                 for team in query:
                     if team.allowCheckin:
                         teams.append(team)
+            else:
+                await ctx.send(embed=await utils.create_embed("Checkin List Error", "Invalid Bracket"))
+                return
             if not teams:
                 await ctx.send(embed=await utils.create_embed("Checkin List", "No teams to list"))
                 return
@@ -292,13 +295,13 @@ class Teams(commands.Cog):
                     checkoutList += "- {}\n".format(team.teamName)
             checkoutList += "```"
             checkinList += "```"
-            embed = await utils.create_embed("Checkin List", "List of teams checked in/out")
+            embed = await utils.create_embed("Checkin List for {}".format(bracket), "List of teams checked in/out")
             embed.add_field(name="Teams **YET** to Checkin:", value=checkoutList, inline=False)
-            embed.add_field(name="Teams Checked in:", value=checkoutList, inline=False)
+            embed.add_field(name="Teams Checked in:", value=checkinList, inline=False)
             await ctx.send(embed=embed)
 
     @commands.has_role("Staff")
-    @commands.command(name='assignBracket', help="Enable checkin for a team.\n"
+    @commands.command(name='assignBracket', help="Enable checkin & bracket for a team.\n"
                                                  "<bracket>: Bracket the team should go into\n"
                                                  "<query>: The team you want to find\n"
                                                  "<queryType>: What to find a team by. Can be ID, teamName or a mention",
@@ -325,7 +328,7 @@ class Teams(commands.Cog):
             else:
                 username = await self.getUsername(ctx.message.guild.id, query)
                 if not username:
-                    await ctx.send(embed=await utils.create_embed("Team Overview Error",
+                    await ctx.send(embed=await utils.create_embed("Team Bracket Assignment Error",
                                                                   "Invalid Mention"))
                     return
                 teams = await self.database.get_teams(activeTournament, captainDiscordUsername=username)
@@ -353,8 +356,10 @@ class Teams(commands.Cog):
                 checkinStatus = await self.database.set_allow_checkin(True, activeTournament, teamName=query)
                 bracketStatus = await self.database.set_bracket(bracketInt, activeTournament, teamName=query)
             else:
-                checkinStatus = await self.database.set_allow_checkin(True, activeTournament, captainDiscordUsername=username)
-                bracketStatus = await self.database.set_bracket(bracketInt, activeTournament, captainDiscordUsername=username)
+                checkinStatus = await self.database.set_allow_checkin(True, activeTournament,
+                                                                      captainDiscordUsername=username)
+                bracketStatus = await self.database.set_bracket(bracketInt, activeTournament,
+                                                                captainDiscordUsername=username)
             if checkinStatus and bracketStatus:
                 embed = await utils.create_embed("Team Bracket Assignment", "Bracket Assignment Complete")
                 if team.teamIcon != "Unknown":
@@ -362,7 +367,7 @@ class Teams(commands.Cog):
                 embed.add_field(name="Team: ", value=team.teamName, inline=False)
                 embed.add_field(name="Bracket: ", value=bracket, inline=True)
                 embed.add_field(name="Member: ", value="{}".format(str(user)), inline=True)
-                embed.add_field(name="Sys ID:", value="`{}`".format(team.teamID), inline=False)
+                embed.add_field(name="Sys ID:", value="`{}`".format(team.ID), inline=True)
                 await ctx.send(embed=embed)
             else:
                 embed = await utils.create_embed("Team Bracket Assignment Error",
@@ -385,10 +390,10 @@ class Teams(commands.Cog):
                 checkinStatus = False
             if queryType.upper() in ["ID", "TEAMID"]:
                 teams = await self.database.get_teams(activeTournament, teamID=query)
-                checkinReturn = self.database.set_checkin(checkinStatus, activeTournament, teamID=query)
+                checkinReturn = await self.database.set_checkin(checkinStatus, activeTournament, teamID=query)
             elif queryType.upper() in ["NAME", "TEAMNAME"]:
                 teams = await self.database.get_teams(activeTournament, teamName=query)
-                checkinReturn = self.database.set_checkin(checkinStatus, activeTournament, teamName=query)
+                checkinReturn = await self.database.set_checkin(checkinStatus, activeTournament, teamName=query)
             else:
                 username = await self.getUsername(ctx.message.guild.id, query)
                 if not username:
@@ -396,8 +401,8 @@ class Teams(commands.Cog):
                                                                   "Invalid Mention"))
                     return
                 teams = await self.database.get_teams(activeTournament, captainDiscordUsername=username)
-                checkinReturn = self.database.set_checkin(checkinStatus, activeTournament,
-                                                          captainDiscordUsername=username)
+                checkinReturn = await self.database.set_checkin(checkinStatus, activeTournament,
+                                                                captainDiscordUsername=username)
             if checkinReturn is None:
                 await ctx.send(embed=await utils.create_embed("Staff Checkin Error", "Query found no teams"))
             elif checkinReturn is False:
@@ -412,6 +417,53 @@ class Teams(commands.Cog):
                 embed.add_field(name="Battlefy ID:", value="`{}`".format(team.battlefyID), inline=False)
                 if team.teamIcon != "Unknown":
                     embed.set_thumbnail(url=team.teamIcon)
+                await ctx.send(embed=embed)
+
+    @commands.has_role("Staff")
+    @commands.command(name='unassignBracket', help="Remove team from bracket and disable checkin\n"
+                                                 "<query>: The team you want to find\n"
+                                                 "<queryType>: What to find a team by. Can be ID, teamName or a mention",
+                      aliases=["unassignbracket"])
+    async def assign_bracket(self, ctx, query, queryType="mention"):
+        with ctx.typing():
+            activeTournament, discordField, FCField = await self.get_details(str(ctx.message.guild.id))
+            if queryType.upper() in ["ID", "TEAMID"]:
+                teams = await self.database.get_teams(activeTournament, teamID=query)
+            elif queryType.upper() in ["NAME", "TEAMNAME"]:
+                teams = await self.database.get_teams(activeTournament, teamName=query)
+            else:
+                username = await self.getUsername(ctx.message.guild.id, query)
+                if not username:
+                    await ctx.send(embed=await utils.create_embed("Remove Team From Bracket Error",
+                                                                  "Invalid Mention"))
+                    return
+                teams = await self.database.get_teams(activeTournament, captainDiscordUsername=username)
+            if len(teams) > 1 or not teams:
+                await ctx.send(embed=await utils.create_embed("Remove Team From Bracket Error",
+                                                              "Query returns more/less then one team"))
+                return
+            team = teams[0]
+            if queryType.upper() in ["ID", "TEAMID"]:
+                checkinStatus = await self.database.set_allow_checkin(False, activeTournament, teamID=query)
+                bracketStatus = await self.database.set_bracket(-1, activeTournament, teamID=query)
+            elif queryType.upper() in ["NAME", "TEAMNAME"]:
+                checkinStatus = await self.database.set_allow_checkin(False, activeTournament, teamName=query)
+                bracketStatus = await self.database.set_bracket(-1, activeTournament, teamName=query)
+            else:
+                checkinStatus = await self.database.set_allow_checkin(False, activeTournament,
+                                                                      captainDiscordUsername=username)
+                bracketStatus = await self.database.set_bracket(-1, activeTournament,
+                                                                captainDiscordUsername=username)
+            if checkinStatus and bracketStatus:
+                embed = await utils.create_embed("Remove Team From Bracket", "Bracket Assignment Complete")
+                if team.teamIcon != "Unknown":
+                    embed.set_thumbnail(url=team.teamIcon)
+                embed.add_field(name="Team: ", value=team.teamName, inline=True)
+                embed.add_field(name="Sys ID:", value="`{}`".format(team.ID), inline=True)
+                await ctx.send(embed=embed)
+            else:
+                embed = await utils.create_embed("Remove Team From Bracket Error",
+                                                 "Unable to remove Bracket/Allow Checkin")
                 await ctx.send(embed=embed)
 
 

@@ -50,6 +50,11 @@ class PlayerObject:
         self.discordID = discordID
 
     def __str__(self):
-        return "PlayerID: {}\nUserSlug: {}\nIGN: {}\nPreviousIGN: {}\nCreated @: {}\nAdmin: {}" \
-               "".format(self.battlefyPlayerID, self.battlefyUserslug, self.inGameName,
-                         self.previousIGN, self.createdAt, self.admin)
+        if self.previousIGN:
+            return "UserSlug: {}\nIGN: {}\nPreviousIGN: {}\nCreated @: {}\nAdmin: {}" \
+                   "".format(self.battlefyUserslug, self.inGameName, self.previousIGN,
+                             self.createdAt.strftime("%d/%m/%Y, %H:%M"), self.admin)
+        else:
+            return "UserSlug: {}\nIGN: {}\nCreated @: {}\nAdmin: {}" \
+                   "".format(self.battlefyUserslug, self.inGameName,
+                             self.createdAt.strftime("%d/%m/%Y, %H:%M"), self.admin)

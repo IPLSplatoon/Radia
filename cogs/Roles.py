@@ -257,7 +257,8 @@ class Roles(commands.Cog):
 
     @commands.has_role("Staff")
     @commands.guild_only()
-    @commands.command(name='checkCaptain', help="Internal Debug command", aliases=["checkcaptain"])
+    @commands.command(name='checkCaptain', help="get list of captains that can't have roles assigned",
+                      aliases=["checkcaptain"])
     async def check_captain(self, ctx):
         with ctx.typing():
             settings = self.settings[str(ctx.message.guild.id)]

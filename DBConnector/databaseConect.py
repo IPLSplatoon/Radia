@@ -166,7 +166,10 @@ class DBConnect:
             return None
         if len(queryReturn.all()) > 1:  # More then one team found
             return False
-        queryReturn.update({TournamentTeam.bracket: bracket})
+        team = (queryReturn.all())[0]
+        self.session.query(TournamentTeam).filter(TournamentTeam.ID == team.ID).\
+            update({TournamentTeam.bracket: bracket})
+        self.session.commit()
         return True
 
     async def set_allow_checkin(self, allowCheckin: bool, tournamentID: str, teamName: str = None,
@@ -184,7 +187,10 @@ class DBConnect:
             return None
         if len(queryReturn.all()) > 1:  # More then one team found
             return False
-        queryReturn.update({TournamentTeam.allowCheckin: allowCheckin})
+        team = (queryReturn.all())[0]
+        self.session.query(TournamentTeam).filter(TournamentTeam.ID == team.ID).\
+            update({TournamentTeam.allowCheckin: allowCheckin})
+        self.session.commit()
         return True
 
     async def set_checkin(self, checkin: bool, tournamentID: str, teamName: str = None,
@@ -202,7 +208,10 @@ class DBConnect:
             return None
         if len(queryReturn.all()) > 1:  # More then one team found
             return False
-        queryReturn.update({TournamentTeam.checkin: checkin})
+        team = (queryReturn.all())[0]
+        self.session.query(TournamentTeam).filter(TournamentTeam.ID == team.ID).\
+            update({TournamentTeam.checkin: checkin})
+        self.session.commit()
         return True
 
     async def get_teams(self, tournamentID: str, teamName: str = None,
