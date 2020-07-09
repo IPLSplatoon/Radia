@@ -1,3 +1,7 @@
+"""
+This is the player object used to display data on embeds
+and is used to store data coming in from battlefy
+"""
 import datetime
 import dateutil.parser
 

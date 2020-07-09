@@ -42,7 +42,7 @@ class Other(commands.Cog):
                       pass_context=True, hidden=True)
     async def bracket(self, ctx):
         embed = await utils.embedder.create_embed("Bracket", "Bracket @ Battlefy.com/low-ink",
-                                                  "https://battlefy.com/low-ink/low-ink-june-2020/5ed6c6f60c8581672c929a67/info?infoTab=details")
+                                                  "https://battlefy.com/low-ink/low-ink-july-2020/5ef7f72a30e2163628b0d351/info?infoTab=details")
         await ctx.send(embed=embed)
 
 

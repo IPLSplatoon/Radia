@@ -1,3 +1,7 @@
+"""
+This is the team object used to display data on embeds
+and is used to store data coming in from battlefy
+"""
 import datetime
 import dateutil.parser
 from .player import PlayerObject
