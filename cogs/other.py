@@ -4,7 +4,9 @@ Deals with random commands
 import utils
 from discord.ext import commands
 import numpy
+import git
 
+repo = git.Repo(search_parent_directories=True)
 petPicNumber = 65
 
 
@@ -15,7 +17,7 @@ class Other(commands.Cog):
     @commands.command(name='stats', help="Gets the stats for the bot")
     async def stats(self, ctx):
         embed = await utils.embedder.create_embed("Radia Status")
-        embed.add_field(name="Version:", value="Alpha 1.0", inline=True)
+        embed.add_field(name="Version:", value="Alpha 1.5", inline=True)
         embed.add_field(name="Latency:", value="{}ms".format(round(self.bot.latency * 1000, 2)), inline=True)
         embed.add_field(name="Contributors:", value="4", inline=False)
         embed.add_field(name="Powered by Turnip Bot Stack",
