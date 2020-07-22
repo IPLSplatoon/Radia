@@ -15,3 +15,5 @@ sqlalchemy
 python-dateutil
 psycopg2
 pg8000
+aiocontextvars
+gitpython

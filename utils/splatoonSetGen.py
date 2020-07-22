@@ -9,7 +9,14 @@ import random
 all_modes = ['Splat Zones', 'Tower Control', 'Rainmaker', 'Clam Blitz']
 
 
-async def get_bias_list(inputList: list, bias, modes=all_modes) -> list:
+async def get_bias_list(inputList: list, bias, modes: list=all_modes) -> list:
+    """
+    Get the bias list
+    :param inputList: list
+    :param bias: int
+    :param modes: list
+    :return: list
+    """
     if modes is None:
         modes = all_modes
     l_copy = inputList.copy()

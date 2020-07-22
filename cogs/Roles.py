@@ -66,7 +66,7 @@ class Roles(commands.Cog):
                         if role not in member.roles:  # Check and assign them the captain role
                             await member.add_roles(role, reason="Add captain role")
                         nickname = (teamNames[username])[:32]  # Truncates team made to be 32 char long
-                        if member.display_name != username:  # If the user's nick isn't their team name
+                        if member.display_name != nickname:  # If the user's nick isn't their team name
                             await member.edit(nick=nickname, reason="Give team name")  # set nick as team name
                         captains.remove(username)  # remove user for list of captains
                     else:  # not in the list of captains
@@ -258,7 +258,7 @@ class Roles(commands.Cog):
     @commands.has_role("Staff")
     @commands.guild_only()
     @commands.command(name='checkCaptain', help="get list of captains that can't have roles assigned",
-                      aliases=["checkcaptain"])
+                      aliases=["checkcaptain", "checkCaptains", "checkcaptains"])
     async def check_captain(self, ctx):
         with ctx.typing():
             settings = self.settings[str(ctx.message.guild.id)]

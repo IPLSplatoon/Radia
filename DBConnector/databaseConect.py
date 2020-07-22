@@ -7,14 +7,30 @@ from datetime import datetime
 
 class DBConnect:
     def __init__(self, databaseString: str):
+        """
+        Default Constructor
+        :param databaseString: str
+            The string used to connect to the DB in the SQLalchemy format
+        """
         self.engine = create_engine(databaseString)
         self.DBSession = sessionmaker(bind=self.engine)
         self.session = self.DBSession()
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        """
+        Exit Function
+        """
         self.session.close()
 
-    async def __getPlayer(self, battlefyID: str = None, playerID: str = None) -> Optional[Player]:
+    async def __getPlayer(self, battlefyID: str = None, playerID: int = None) -> Optional[Player]:
+        """
+        Get a player query object
+        :param battlefyID: str
+            Battlefy ID of the Player
+        :param playerID: int
+            playerID of the Player
+        :return: Optional[Player]
+        """
         if battlefyID:
             playerQuery = self.session.query(Player).filter(Player.battlefyID == battlefyID).one()
             if playerQuery:
@@ -26,6 +42,11 @@ class DBConnect:
         return None
 
     async def __updatePlayer(self, player: PlayerObject) -> PlayerObject:
+        """
+        Updates player
+        :param player: PlayerObject
+        :return: PlayerObject
+        """
         playerQuery = self.session.query(Player).filter(Player.battlefyID == player.battlefyPlayerID)
         if not playerQuery.all():
             # If item isn't in database, we add it
@@ -59,6 +80,12 @@ class DBConnect:
         return player
 
     async def __updateTeams(self, team: TeamObject) -> TeamObject:
+        """
+        Update/Add teams to the DB
+        :param team: TeamObject
+            teamObject to load
+        :return: TeamObject
+        """
         teamQuery = self.session.query(Team).filter(Team.battlefyID == team.battlefyID)
         if not teamQuery.all():
             newTeam = Team(battlefyID=team.battlefyID, teamName=team.teamName, iconURL=team.teamIcon)
@@ -74,6 +101,15 @@ class DBConnect:
         return team
 
     async def __addTeamPlayers(self, teamID: int, playerID: int, joinDate: datetime, admin: bool) -> bool:
+        """
+        Create a team-player link
+        :param teamID: int
+        :param playerID: int
+        :param joinDate: datetime
+        :param admin: bool
+        :return: bool
+            If add was successful or not
+        """
         teamPlayerQuery = self.session.query(TeamPlayer).filter(TeamPlayer.tournamentTeamID == teamID). \
             filter(TeamPlayer.playerID == playerID)
         if not teamPlayerQuery.all():
@@ -85,6 +121,15 @@ class DBConnect:
         return False
 
     async def addTournament(self, battlefyID: str, date: datetime, guildID: str, roleID: str) -> bool:
+        """
+        Add tournament to DB
+        :param battlefyID: str
+        :param date: datetime
+        :param guildID: str
+        :param roleID: str
+        :return: bool
+            If add was successful or not
+        """
         tournamentQuery = self.session.query(Tournament).filter(Tournament.battlefyID == battlefyID)
         if not tournamentQuery.all():  # if tournaments doesn't exist in DB
             newTournament = Tournament(battlefyID=battlefyID, date=date, guildID=guildID, roleID=roleID)
@@ -96,6 +141,14 @@ class DBConnect:
             return False
 
     async def updateTournamentTeam(self, team: TeamObject, tournamentBattlefyID: str):
+        """
+        Add a Team to a tournament
+        :param team: TeamObject
+            Team to add
+        :param tournamentBattlefyID: str
+            The battlefyID of the tournament
+        :return:
+        """
         team = await self.__updateTeams(team)  # Add/Update the team entry itself
         tournament = self.session.query(Tournament).filter(Tournament.battlefyID == tournamentBattlefyID).all()[0]
         tournamentTeamQuery = self.session.query(TournamentTeam). \
@@ -137,6 +190,15 @@ class DBConnect:
 
     async def __get_TournamentTeam(self, tournamentID: str, teamName: str = None,
                                    captainDiscordUsername: str = None, teamID: str = None):
+        """
+        Get a Tournament Team query response
+        :param tournamentID: str
+            Must be provided
+        :param teamName: str
+        :param captainDiscordUsername: str
+        :param teamID: str
+        :return: sqlalchemy.query()
+        """
         if teamName:
             return self.session.query(TournamentTeam).join(Team).join(Tournament). \
                 filter(Team.teamName == teamName).filter(Tournament.battlefyID == tournamentID)
@@ -153,6 +215,16 @@ class DBConnect:
 
     async def set_bracket(self, bracket: int, tournamentID: str, teamName: str = None,
                           captainDiscordUsername: str = None, teamID: str = None) -> Optional[bool]:
+        """
+        Set a bracket for a tournament-team
+        :param bracket: int
+        :param tournamentID: str
+        :param teamName: str
+        :param captainDiscordUsername: str
+        :param teamID: str
+        :return: bool
+            If successful or not
+        """
         # This queries for the TournamentTeam with the teamName and tournamentID matching
         if teamName:
             queryReturn = await self.__get_TournamentTeam(tournamentID, teamName=teamName)
@@ -174,6 +246,16 @@ class DBConnect:
 
     async def set_allow_checkin(self, allowCheckin: bool, tournamentID: str, teamName: str = None,
                                 captainDiscordUsername: str = None, teamID: str = None) -> Optional[bool]:
+        """
+        Set the allow_checkin field for a tournament-team
+        :param allowCheckin: bool
+        :param tournamentID: str
+        :param teamName: str
+        :param captainDiscordUsername: str
+        :param teamID: str
+        :return: bool
+            If successful or not
+        """
         # This queries for the TournamentTeam with the teamName and tournamentID matching
         if teamName:
             queryReturn = await self.__get_TournamentTeam(tournamentID, teamName=teamName)
@@ -195,6 +277,16 @@ class DBConnect:
 
     async def set_checkin(self, checkin: bool, tournamentID: str, teamName: str = None,
                           captainDiscordUsername: str = None, teamID: str = None) -> Optional[bool]:
+        """
+        Set checkin for a tournament-team
+        :param checkin: bool
+        :param tournamentID: str
+        :param teamName: str
+        :param captainDiscordUsername: str
+        :param teamID: str
+        :return: bool
+            If successful or not
+        """
         # This queries for the TournamentTeam with the teamName and tournamentID matching
         if teamName:
             queryReturn = await self.__get_TournamentTeam(tournamentID, teamName=teamName)
@@ -216,6 +308,15 @@ class DBConnect:
 
     async def get_teams(self, tournamentID: str, teamName: str = None,
                         captainDiscordUsername: str = None, teamID: str = None) -> Optional[list]:
+        """
+        Get a list of teams matching query
+        :param tournamentID: str
+        :param teamName: str
+        :param captainDiscordUsername: str
+        :param teamID: str
+        :return: list
+            List of TeamObjects from query
+        """
         if teamName:
             queryReturn = await self.__get_TournamentTeam(tournamentID, teamName=teamName)
         elif captainDiscordUsername:
@@ -243,6 +344,12 @@ class DBConnect:
         return returnTeamList
 
     async def get_all_teams(self, tournamentID: str):
+        """
+        Get all the teams in a tournament
+        :param tournamentID: int
+        :return: list
+            List of TeamObjects
+        """
         query = self.session.query(TournamentTeam).join(Tournament)\
             .filter(Tournament.battlefyID == tournamentID)
         returnTeamList = []

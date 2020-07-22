@@ -15,7 +15,7 @@ from typing import Optional
 load_dotenv("files/.env")
 GOOGLE_SHEET_NAME = os.environ.get("google_sheet_name")
 DB_CONNECTION_STRING = os.environ.get("DB_String")
-mentionExpression = re.compile("<@![0-9]{10,}>")
+mentionExpression = re.compile("<@![0-9]{10,}>")  # Regular Expression to check if mention is valid
 
 # Get the bracket from the numerical value
 bracketValueDict = {
@@ -52,7 +52,7 @@ async def team_embed(team: DBConnector.TeamObject) -> discord.embeds:
         for player in team.manualPlayers:
             players += "- {}\n".format(player)
         players += "```"
-        embed.add_field(name="Staff added Players:", value=players, inline=False)
+        embed.add_field(name="Staff Added Players:", value=players, inline=False)
     playerCount = 1
     for player in team.players:
         embed.add_field(name="Player {}:".format(playerCount), value="```\n{}\n```".format(str(player)), inline=False)
@@ -172,10 +172,10 @@ class Teams(commands.Cog):
                                                          str(ctx.message.guild.id), captainRoleID)
             if response:
                 await ctx.send(embed=await utils.create_embed("Added Tournament",
-                                                        "Tournament with ID {} added".format(tournamentID)))
+                                                              "Tournament with ID {} added".format(tournamentID)))
             else:
                 await ctx.send(embed=await utils.create_embed("Add Tournament Error",
-                                                        "Unable to add to DB, may already exits"))
+                                                              "Unable to add to DB, may already exits"))
 
     @commands.has_role("Staff")
     @commands.guild_only()
@@ -204,7 +204,7 @@ class Teams(commands.Cog):
                 username = await self.getUsername(ctx.message.guild.id, query)
                 if not username:
                     await ctx.send(embed=await utils.create_embed("Team Overview Error",
-                                                                  "Invalid Mention"))
+                                                                  "Invalid mention"))
                     return
                 teams = await self.database.get_teams(activeTournament, captainDiscordUsername=username)
             if teams is None:
@@ -225,14 +225,14 @@ class Teams(commands.Cog):
                                                      captainDiscordUsername=str(ctx.message.author))
                 if not team:
                     await ctx.send(embed=await utils.create_embed("Team Checkin Error!",
-                                                                  "Unable to find your team, head to helpdesk!"))
+                                                                  "Unable to find your team you're in!"))
                     return
                 team = team[0]
                 if team.allowCheckin:
                     reply = await self.database.set_checkin(True, activeTournament,
                                                             captainDiscordUsername=str(ctx.message.author))
                     if reply:
-                        embed = await utils.create_embed("{} is Checked in!".format(team.teamName),
+                        embed = await utils.create_embed("{} is Checked In!".format(team.teamName),
                                                          "Your team has been checked in!",
                                                          "https://battlefy.com/teams/{}".format(team.battlefyID))
                         if team.teamIcon != "Unknown":
@@ -248,8 +248,7 @@ class Teams(commands.Cog):
                         return
                 else:
                     await ctx.send(embed=await utils.create_embed("Team Checkin Error!",
-                                                                  "Your teams `{}` isn't enabled to checkin!\n"
-                                                                  "Head to helpdesk if this is an error".format(
+                                                                  "Your teams `{}` isn't enabled to checkin!".format(
                                                                       team.teamName)))
             else:
                 embed = await utils.create_embed("Team Checkin Closed",
@@ -297,7 +296,7 @@ class Teams(commands.Cog):
             checkinList += "```"
             embed = await utils.create_embed("Checkin List for {}".format(bracket), "List of teams checked in/out")
             embed.add_field(name="Teams **YET** to Checkin:", value=checkoutList, inline=False)
-            embed.add_field(name="Teams Checked in:", value=checkinList, inline=False)
+            embed.add_field(name="Teams Checked In:", value=checkinList, inline=False)
             await ctx.send(embed=embed)
 
     @commands.has_role("Staff")
@@ -318,7 +317,7 @@ class Teams(commands.Cog):
                 assignRole = discord.utils.get(ctx.message.guild.roles, id=726243712908263484)
                 bracketInt = 3
             else:
-                await ctx.send(embed=await utils.create_embed("Team Bracket Assignment Error", "Invalid Bracket given"))
+                await ctx.send(embed=await utils.create_embed("Team Bracket Assignment Error", "Invalid bracket given"))
                 return
             activeTournament, discordField, FCField = await self.get_details(str(ctx.message.guild.id))
             if queryType.upper() in ["ID", "TEAMID"]:
@@ -329,7 +328,7 @@ class Teams(commands.Cog):
                 username = await self.getUsername(ctx.message.guild.id, query)
                 if not username:
                     await ctx.send(embed=await utils.create_embed("Team Bracket Assignment Error",
-                                                                  "Invalid Mention"))
+                                                                  "Invalid mention"))
                     return
                 teams = await self.database.get_teams(activeTournament, captainDiscordUsername=username)
             if len(teams) > 1 or not teams:
@@ -345,7 +344,7 @@ class Teams(commands.Cog):
                     break
             if user is None:
                 embed = await utils.create_embed("Team Bracket Assignment Error",
-                                                 "Captain Member not found in Guild!")
+                                                 "Captain member not found in Guild!")
                 await ctx.send(embed=embed)
                 return
             await user.add_roles(assignRole, reason="Bracket Assignment by {}".format(str(ctx.message.author)))
@@ -371,7 +370,7 @@ class Teams(commands.Cog):
                 await ctx.send(embed=embed)
             else:
                 embed = await utils.create_embed("Team Bracket Assignment Error",
-                                                 "Unable to assign Bracket/Allow Checkin")
+                                                 "Unable to assign bracket/allow checkin")
                 await ctx.send(embed=embed)
 
     @commands.has_role("Staff")
@@ -398,7 +397,7 @@ class Teams(commands.Cog):
                 username = await self.getUsername(ctx.message.guild.id, query)
                 if not username:
                     await ctx.send(embed=await utils.create_embed("Staff Checkin Error",
-                                                                  "Invalid Mention"))
+                                                                  "Invalid mention"))
                     return
                 teams = await self.database.get_teams(activeTournament, captainDiscordUsername=username)
                 checkinReturn = await self.database.set_checkin(checkinStatus, activeTournament,
@@ -407,7 +406,7 @@ class Teams(commands.Cog):
                 await ctx.send(embed=await utils.create_embed("Staff Checkin Error", "Query found no teams"))
             elif checkinReturn is False:
                 await ctx.send(embed=await utils.create_embed("Staff Checkin Error",
-                                                              "Query found *more then one* team"))
+                                                              "Query found **more then one** team"))
             elif checkinReturn:
                 team = teams[0]
                 embed = await utils.create_embed("Staff Checkin", "Checkin Successful!")
@@ -421,8 +420,8 @@ class Teams(commands.Cog):
 
     @commands.has_role("Staff")
     @commands.command(name='unassignBracket', help="Remove team from bracket and disable checkin\n"
-                                                 "<query>: The team you want to find\n"
-                                                 "<queryType>: What to find a team by. Can be ID, teamName or a mention",
+                                                   "<query>: The team you want to find\n"
+                                                   "<queryType>: What to find a team by. Can be ID, teamName or a mention",
                       aliases=["unassignbracket"])
     async def assign_bracket(self, ctx, query, queryType="mention"):
         with ctx.typing():
@@ -435,7 +434,7 @@ class Teams(commands.Cog):
                 username = await self.getUsername(ctx.message.guild.id, query)
                 if not username:
                     await ctx.send(embed=await utils.create_embed("Remove Team From Bracket Error",
-                                                                  "Invalid Mention"))
+                                                                  "Invalid mention"))
                     return
                 teams = await self.database.get_teams(activeTournament, captainDiscordUsername=username)
             if len(teams) > 1 or not teams:
@@ -463,7 +462,7 @@ class Teams(commands.Cog):
                 await ctx.send(embed=embed)
             else:
                 embed = await utils.create_embed("Remove Team From Bracket Error",
-                                                 "Unable to remove Bracket/Allow Checkin")
+                                                 "Unable to remove bracket/allow checkin")
                 await ctx.send(embed=embed)
 
 
