@@ -304,7 +304,7 @@ class Teams(commands.Cog):
                                                  "<bracket>: Bracket the team should go into\n"
                                                  "<query>: The team you want to find\n"
                                                  "<queryType>: What to find a team by. Can be ID, teamName or a mention",
-                      aliases=["assignbracket"])
+                      aliases=["assignbracket", "ab"])
     async def assign_bracket(self, ctx, bracket, query, queryType="mention"):
         with ctx.typing():
             if bracket.upper() in ["TOP", "ALPHA", "A"]:
@@ -423,7 +423,7 @@ class Teams(commands.Cog):
                                                    "<query>: The team you want to find\n"
                                                    "<queryType>: What to find a team by. Can be ID, teamName or a mention",
                       aliases=["unassignbracket"])
-    async def assign_bracket(self, ctx, query, queryType="mention"):
+    async def unassign_bracket(self, ctx, query, queryType="mention"):
         with ctx.typing():
             activeTournament, discordField, FCField = await self.get_details(str(ctx.message.guild.id))
             if queryType.upper() in ["ID", "TEAMID"]:

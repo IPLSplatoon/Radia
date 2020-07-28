@@ -7,7 +7,7 @@ import numpy
 import git
 
 repo = git.Repo(search_parent_directories=True)
-petPicNumber = 65
+petPicNumber = 83
 
 
 class Other(commands.Cog):

@@ -286,6 +286,29 @@ class Roles(commands.Cog):
                                 value=captainNotAssigned, inline=False)
             await ctx.send(embed=embed)
 
+    @commands.has_role("Staff")
+    @commands.guild_only()
+    @commands.command(name='removeVCAccess', help="Removes the vc access role from everyone who has it",
+                      aliases=["removevcaccess"])
+    async def removeVCAccess(self, ctx):
+        with ctx.typing():
+            removeList = []
+            VCrole = discord.utils.get(ctx.guild.roles, id=724997028291280896)
+            captainRole = discord.utils.get(ctx.guild.roles, id=406171863698505739)
+            for member in ctx.guild.members:
+                if captainRole in member.roles:
+                    if VCrole in member.roles:
+                        await member.remove_roles(VCrole, reason="Remove VC access")
+                        removeList.append(str(member))
+            if not removeList:
+                await ctx.send(embed=await utils.create_embed("Remove VC Access", "No one has the role to remove!"))
+            else:
+                embed = await utils.create_embed("Remove VC Access",
+                                                 "Here's the list of people who had access removed.")
+                embed.add_field(name="Username", value=await utils.embedder.list_to_code_block(removeList),
+                                inline=False)
+                await ctx.send(embed=embed)
+
 
 def setup(bot):
     bot.add_cog(Roles(bot))
