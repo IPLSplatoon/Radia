@@ -1,78 +1,76 @@
 """
 This Cog Deals directly with all Splatoon related Commands.
 """
-import utils
 from discord.ext import commands
 import discord
+import time
+import utils
 
 
 class Splatoon(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name='generateSwiss', help="Generate a Swiss map set\n"
-                                                 "<maps>: List of maps you want to have."
-                                                 "Maps must be placed within speech marks & use commas to split maps.\n"
-                                                 "<rounds>: Number of rounds to generate\n"
-                                                 "<bestOf>: Number of games per round.\n"
-                                                 "[Embed Title]: Optional title for the embed\n"
-                                                 "[info]: Optional Info for the embed\n"
-                                                 "[Maps]: Optional, limit modes used.", aliases=["generateswiss"])
-    async def generate_swiss(self, ctx, maps, rounds, bestOf, embedTitle="Swiss Map List", info=None,
-                             modes='Splat Zones,Tower Control,Rainmaker,Clam Blitz'):
-        with ctx.typing():
-            modes = modes.split(",")
-            maps = maps.split(",")
-            if not modes or not maps:  # Check that the split has worked correctly
-                embed = await utils.create_embed("Generate Swiss Error", "Unable to split Modes/Maps")
-                await ctx.send(embed=embed)
-                return
-            if not rounds.isdigit() or not bestOf.isdigit():  # check rounds and bestOf are given as numbers
-                embed = await utils.create_embed("Generate Swiss Error",
-                                                 "`Best Of` and/or `rounds` not given as numbers")
-                await ctx.send(embed=embed)
-                return
-            mapsList = await utils.generate_swiss(int(rounds), int(bestOf), maps, modes)
-            if mapsList:
-                embed = await utils.create_embed(embedTitle, info)
-                for x in range(len(mapsList)):
-                    embed.add_field(name="Round {}".format(x + 1), value="```\n{}```".format(mapsList[x]), inline=False)
-                await ctx.send(embed=embed)
-            else:
-                embed = await utils.create_embed("Generate Swiss Error", "Unable generate set")
-                await ctx.send(embed=embed)
+    @commands.command(name="generateMapList", help="Generate a Map List\n"
+                                                   "<sz>: List of splat zones maps, seperated by commas.\n"
+                                                   "<tc>: List of tower control maps, seperated by commas.\n"
+                                                   "<rm>: List of rainmaker maps, seperated by commas.\n"
+                                                   "<cb>: List of clam blitz maps, seperated by commas.\n"
+                                                   "(Remainder) <brackets>: List each bracket as such \"(num rounds),(num games)\"")
+    async def generate_maps_comm(ctx, sz:str, tc:str, rm:str, cb:str, *brackets):
+        #attempt to create a map pool from the user inputs
+        built_map_pool = utils.build_map_pool(sz,tc,rm,cb)
+        if type(built_map_pool) is str:
+            await ctx.send(built_map_pool)
+            return
 
-    @commands.command(name='generateTopCut', help="Generate a Top Cut map set\n"
-                                                  "<maps>: List of maps you want to have.\n"
-                                                  "Maps must be placed within speech marks & use commas to split maps.\n"
-                                                  "<rounds>: Number of rounds to generate\n"
-                                                  "<bestOf>: Number of games per round.\n"
-                                                  "[Embed Title]: Option title for the embed\n"
-                                                  "[info]: Option Info for the embed\n"
-                                                  "[Maps]: Options, limit maps used.", aliases=["generatetopcut"])
-    async def generate_top_cut(self, ctx, maps, rounds, bestOf, embedTitle="Top Cut Map List", info=None,
-                               modes='Splat Zones,Tower Control,Rainmaker,Clam Blitz'):
-        with ctx.typing():
-            modes = modes.split(",")
-            maps = maps.split(",")
-            if not modes or not maps:  # Check that the split has worked correctly
-                embed = await utils.create_embed("Generate Top Cut Error", "Unable to split Modes/Maps")
-                await ctx.send(embed=embed)
-                return
-            if not rounds.isdigit() or not bestOf.isdigit():  # check rounds and bestOf are given as numbers
-                embed = await utils.create_embed("Generate Top Cut Error",
-                                                 "`Best Of` and/or `rounds` not given as numbers")
-                await ctx.send(embed=embed)
-                return
-            mapList = await utils.generate_top_cut(int(rounds), int(bestOf), maps, modes)
-            if mapList:
-                embed = await utils.create_embed(embedTitle, info)
-                for x in range(len(mapList)):
-                    embed.add_field(name="Round {}".format(x + 1), value="```\n{}```".format(mapList[x]), inline=False)
-                await ctx.send(embed=embed)
-            else:
-                embed = await utils.create_embed("Generate Top Cut Error", "Unable generate set")
-                await ctx.send(embed=embed)
+        #attempt to create a bracket list from the user inputs
+        built_brackets = utils.build_brackets(brackets)
+        if type(built_brackets) is str:
+            await ctx.send(built_brackets)
+            return
+
+        #Generate a seed
+        seed = time.time()
+
+        #Generate map list
+        map_list = utils.generate_maps(built_map_pool, built_brackets, seed)
+
+        #Generate embed
+        embed = utils.get_map_list_embed(map_list)
+
+        #TODO: Vincent, save the built_map_pool, seed, and built_brackets variables into the database. Thats all the info needed to regenerate a map list.
+
+        await ctx.send(embed=embed)
+
+    @commands.command(name='setCurrentMapList')
+    async def set_current_map_list(ctx):
+        #TODO: This command should save the latest generated map list so it won't be overwritten
+        return
+
+
+    @commands.command(name="currentMapList")
+    async def current_map_list(ctx):
+        map_pool = [] #TODO: Get the saved map pool from the database
+        brackets = [] #TODO: Get the bracket data from the database
+        seed = 0 #TODO: Get the saved map seed from the database
+
+        map_list = utils.generate_maps(map_pool, brackets, seed)
+
+        embed = utils.get_map_list_embed(map_list)
+        await ctx.send(embed=embed)
+
+    @commands.command(name="currentMapListJson")
+    async def current_map_list_json(ctx):
+        map_pool = []#TODO: Get the saved map pool from the database
+        brackets = [] #TODO: Get the bracket data from the database
+        seed = 0 #TODO: Get the saved map seed from the database
+
+        map_list = utils.generate_maps(map_pool, brackets, seed)
+
+        json = utils.get_map_list_json(map_list)
+        await ctx.send("```json\n{0}```".format(json))
+        #TODO: Maybe make this upload a file instead
 
 
 def setup(bot):

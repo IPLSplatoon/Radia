@@ -1,119 +1,127 @@
-"""
-Low Ink Set Generator
+#Map generation created by .jpg for IPL and Radia. Final implimention assisted by Vincent Lee.
+#Lets hope it doesn't suck this time.
 
-Initial Design and Implementation by .jpg
-Integrated by Vincent Lee
-"""
 import random
+import discord
+import discord.ext
 
-all_modes = ['Splat Zones', 'Tower Control', 'Rainmaker', 'Clam Blitz']
+def build_map_pool(sz: str, tc: str, rm: str, cb: str):
+    '''
+    Convert multiple strings into a useable list for the map generator.
+    Returns a list if inputs are ok, otherwise, it'll return a string describing a problem.
+    '''
+    pool = []
+    pool.append(sz.split(','))
+    pool.append(tc.split(','))
+    pool.append(rm.split(','))
+    pool.append(cb.split(','))
 
+    for i in pool:
+        if len(i) <= 6:
+            return 'One or more of your map pools seems to contain a small amount of maps. Please add more maps and/or confirm that you are seperating each map with a comma.'
 
-async def get_bias_list(inputList: list, bias, modes: list=all_modes) -> list:
-    """
-    Get the bias list
-    :param inputList: list
-    :param bias: int
-    :param modes: list
-    :return: list
-    """
-    if modes is None:
-        modes = all_modes
-    l_copy = inputList.copy()
-    random.shuffle(l_copy)
-    if type(bias) == str:
-        l_copy.remove(bias)
-    elif type(bias) == int:
-        l_copy.remove(modes[bias])
-    return l_copy
+    return pool
 
+def build_brackets(brackets:list):
+    '''
+    Convert a list of strings into a useable list for the map generator.
+    Returns a list if inputs are ok, otherwise it'll return a string describing the problem.
+    '''
+    if len(brackets) <= 0:
+        return 'There is no bracket data. Please add bracket data to generate a map list.'
 
-async def generate_swiss(rounds: int, bestOf: int, maps: list, modes: list = all_modes) -> list:
-    """
-    Since swiss is play all 3, I implimented an algorithm inspired by the modern tetris piece algorithm.
-    All maps will appear once in a random order, once they've all appeared once, then it'll repeat the process.
-    Since its play all 3, with 4 modes to choose from, whatever mode didn't appear in a round will always appear in the next round.
+    new_brackets = []
+    for bracket in brackets:
+        bracket_info = bracket.split(',')
+        try:
+            new_brackets.append((int(bracket_info[0]), int(bracket_info[1])))
+        except ValueError:
+            return 'One of the brackets could not interpret your input. Please confirm that you are entering bracket info correctly.'
+    return new_brackets
 
-    Parameters
-    info: str
-        String will be placed at the start of the returned string. Intended for bracket titles and rules.
-    rounds: int
-        The number of rounds in this swiss bracket
-    maps: list
-        The list of maps that can appear in this bracket
-    modes: list
-        The list of modes that can appear in this bracket
-    """
+def generate_maps(map_pool: list, brackets: list, seed: int) -> list:
+    '''
+    map_pool: A 2d list of strings containing the maps. First list being for zones, then tc, rm, and cb. [[sz maps],[tc maps],[rm maps],[cb maps]]
+    brackets: A 2d list containing data for each bracket to generate. [[rounds,best of], [""]]
+    seed: Seed used for randomization
 
-    final_list = []
+    returns: A 3d list containing bracket and map data formatted as such: [ bracket [ round [ game ] ] ]
+    '''
+    modes = ("Splat Zones", "Tower Control", "Rainmaker", "Clam Blitz")
 
-    mode_bias_index = random.randint(0, 3)
-    map_bias, map_index = random.choice(maps), 0
+    new_random = random.Random(seed)
+    final_list, recent_modes = [], []
+    recent_maps = [ [],[],[],[] ] #Store the recently used maps for each mode
+    current_mode = new_random.choice(modes)
 
-    current_maps = (await get_bias_list(maps, map_bias)).copy()
+    for bracket in brackets:
+        bracket_list = []
 
-    for setRound in range(rounds):
-        round_str = ""
+        for round in range(bracket[0]):
+            round_recent_maps = [] #ensure the same map (even if its a different mode) does not appear within the same round
+            round_list = []
+            pool_index = modes.index(current_mode)
 
-        round_modes = (await get_bias_list(modes, mode_bias_index)).copy()
-        mode_bias_index += 1
-        if mode_bias_index >= len(modes):
-            mode_bias_index = 0
+            for game in range(bracket[1]):
 
-        for game in range(bestOf):
-            round_str += "{}: {} on {}\n".format(game+1, round_modes[game], current_maps[map_index])
+                while True:
+                    try:
+                        #choose a random map from a list containing maps in the pool minus the maps that have been used
+                        current_map = new_random.choice( list(set(map_pool[pool_index]) - set(recent_maps[pool_index]) - set(round_recent_maps)) )
+                    except IndexError:
+                        #if no maps are available, remove the oldest element from the recently used maps and try again
+                        del recent_maps[pool_index][len(recent_maps[pool_index])-1:]
+                        continue
+                    break
+                
+                recent_maps[pool_index].insert(0, current_map)
+                round_recent_maps.insert(0, current_map)
+                recent_modes.insert(0, current_mode)
+                round_list.append((current_map, current_mode))
 
-            map_index += 1
-            if map_index >= len(current_maps):
-                map_index = 0
-                map_bias = current_maps[-1]
-                current_maps = (await get_bias_list(maps, map_bias)).copy()
+                del recent_modes[3:] #delete the oldest element from the recently used modes
+                current_mode = new_random.choice( list(set(modes) - set(recent_modes)) ) #choose a mode by taking a list of all modes minus recently used modes.
 
-        final_list.append(round_str)
-
+            bracket_list.append(round_list)
+        
+        recent_modes = []
+        final_list.append(bracket_list)
+    
     return final_list
 
+def get_map_list_json(map_list: list) -> str:
+    json = '{'
+    for bracket in map_list:
+        json += "\"Bracket " + str(map_list.index(bracket) + 1) + "\":{"
 
-async def generate_top_cut(rounds: int, best_of: int, maps: list, modes: list = all_modes) -> list:
-    """
-    Parameters
-    info: str
-        String will be placed at the start of the returned string. Intended for bracket titles and rules.
-    rounds: int
-        The number of rounds in this swiss bracket
-    best_of: int
-        The number of games in a round
-    maps: list
-        The list of maps that can appear in this bracket
-    modes: list
-        The list of modes that can appear in this bracket
-    """
+        for round in bracket:
+            json += "\"Round " + str(bracket.index(round) + 1) + "\":["
 
-    map_index = 0
-    mode_bias = -1
-    current_maps = (await get_bias_list(maps, random.choice(maps))).copy()
-    final_list = []
+            for game in round:
+                json += "[\"{0}\", \"{1}\"]".format(game[0].strip(), game[1].strip())
+                if round.index(game) < len(round)-1:
+                    json += ","
 
-    for setRound in range(rounds):
-        round_str = ""
+            json += "]"
+            if bracket.index(round) < len(bracket)-1:
+                json += ","
 
-        mode_index, mode_list = 0, modes.copy()
-        random.shuffle(mode_list)
+        json += "}"
+        if map_list.index(bracket) < len(map_list)-1:
+            json += ","
 
-        for game in range(best_of):
-            round_str += "{}: {} on {}\n".format(game+1, mode_list[mode_index], current_maps[map_index])
+    json += "}"
+    return json
 
-            map_index += 1
-            if map_index >= len(current_maps):
-                map_index = 0
-                map_bias = current_maps[-1]
-                current_maps = (await get_bias_list(maps, map_bias)).copy()
-
-            mode_index += 1
-            if mode_index >= len(mode_list):
-                mode_index = 0
-                mode_list = (await get_bias_list(modes, mode_list[-1])).copy()
-
-        final_list.append(round_str)
-
-    return final_list
+def get_map_list_embed(map_list: list) -> discord.Embed:
+    embed = discord.Embed(title='Maps')
+    for bracket in map_list:
+        field_title = "Bracket " + str(map_list.index(bracket) + 1)
+        field_content = ''
+        for round in bracket:
+            field_content += "`Round " + str(bracket.index(round) + 1) + "`\n```"
+            for game in round:
+                field_content += str(round.index(game) + 1) + ":  " + game[1] + " on " + game[0].strip() + ".\n"
+            field_content += "```\n"
+        embed.add_field(name=field_title, value=field_content, inline=False)
+    return embed
