@@ -11,6 +11,7 @@ class Splatoon(commands.Cog):
         self.bot = bot
         self.mapGen = MapToolkit("files/mapDB.pickle")
 
+    @commands.has_role("Staff")
     @commands.command(name="setMapList", help="Set map list\n"
                                               "<sz>: List of splat zones maps, seperated by commas.\n"
                                               "<tc>: List of tower control maps, seperated by commas.\n"
@@ -26,6 +27,7 @@ class Splatoon(commands.Cog):
                                await embedder.create_embed("Set Map Error",
                                                            "Not Enough maps provided for one/more modes"))
 
+    @commands.has_role("Staff")
     @commands.command(name="setBracket", help="Set the bracket\n"
                                               "<bracket>: Bracket and best of in the format\n"
                                               "\"Bracket count, best of, Bracket count, best of...........\"\n"
@@ -38,6 +40,7 @@ class Splatoon(commands.Cog):
             else:
                 await ctx.send(embed=await embedder.create_embed("Set Bracket Error", "Bracket not in pairs!"))
 
+    @commands.has_role("Staff")
     @commands.command(name="generateSet", help="Generate a set\n"
                                                "<seed>: Seed to generate bracket with\n")
     async def generate_set(self, ctx, seed):
@@ -49,6 +52,7 @@ class Splatoon(commands.Cog):
                 await ctx.send(embed=await embedder.create_embed("Generate Set Error",
                                                                  "Bracket/Set data blank and/or generator is locked"))
 
+    @commands.has_role("Staff")
     @commands.command(name="getSet", help="Get an already existing set\n"
                                           "<seed>: Seed to generate bracket with\n")
     async def get_set(self, ctx):
@@ -59,11 +63,13 @@ class Splatoon(commands.Cog):
             else:
                 await ctx.send(embed=await embedder.create_embed("Get Set Error", "Set data doesn't exist"))
 
+    @commands.has_role("Staff")
     @commands.command(name="getSettings", help="Get settings in storage\n")
     async def get_settings(self, ctx):
         with ctx.typing():
             await ctx.send(embed=await self.mapGen.getSettings())
 
+    @commands.has_role("Staff")
     @commands.command(name="toggleLock", help="Toggle Lock for det Generator\n")
     async def toggle_lock(self, ctx):
         with ctx.typing():
@@ -75,6 +81,7 @@ class Splatoon(commands.Cog):
                 embed.add_field(name="Lock State:", value="**Off**", inline=False)
             await ctx.send(embed=embed)
 
+    @commands.has_role("Staff")
     @commands.command(name="getJSON", help="Get set in JSON format")
     async def get_JSON(self, ctx):
         with ctx.typing():
