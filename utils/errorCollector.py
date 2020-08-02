@@ -1,7 +1,6 @@
 import sentry_sdk
 from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
 from sentry_sdk.integrations.aiohttp import AioHttpIntegration
-from sentry_sdk.integrations.tornado import TornadoIntegration
 from dotenv import load_dotenv
 import os
 import datetime
@@ -12,7 +11,7 @@ load_dotenv("files/.env")
 SystemEnvironment = os.environ.get("system_environment")
 
 sentry_sdk.init(dsn="https://0070913733224711b3a9a3207b8ef7ab@o83253.ingest.sentry.io/5283135",
-                integrations=[SqlalchemyIntegration(), AioHttpIntegration(), TornadoIntegration()],
+                integrations=[SqlalchemyIntegration(), AioHttpIntegration()],
                 release="radia@{}".format(repo.head.object.hexsha),
                 environment=SystemEnvironment)
 
