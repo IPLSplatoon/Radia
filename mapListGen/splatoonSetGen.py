@@ -1,34 +1,55 @@
-#Map generation created by .jpg for IPL and Radia. Final implimention assisted by Vincent Lee.
-#Lets hope it doesn't suck this time.
+"""
+Map generation created by .jpg and Radia. Final implementation assisted by Vincent Lee.
+Lets hope it doesn't suck this time.
+
+"""
 
 import random
 import discord
 import discord.ext
+from .errors import NotEnoughMapsException, InvalidInputException, InvalidFormatException
+
 
 def build_map_pool(sz: str, tc: str, rm: str, cb: str):
-    '''
+    """
     Convert multiple strings into a useable list for the map generator.
     Returns a list if inputs are ok, otherwise, it'll return a string describing a problem.
-    '''
-    pool = []
-    pool.append(sz.split(','))
-    pool.append(tc.split(','))
-    pool.append(rm.split(','))
-    pool.append(cb.split(','))
+    :param sz:
+    :param tc:
+    :param rm:
+    :param cb:
+    :return:
+    """
+    pool = [sz.split(','), tc.split(','), rm.split(','), cb.split(',')]
 
     for i in pool:
         if len(i) <= 6:
-            return 'One or more of your map pools seems to contain a small amount of maps. Please add more maps and/or confirm that you are seperating each map with a comma.'
+            raise NotEnoughMapsException("Needs to be 8 or more maps")
 
     return pool
 
-def build_brackets(brackets:list):
-    '''
+
+def build_brackets_from_string(brackets: str):
+    bracketList = brackets.split(",")
+    returnList = []
+    if (len(bracketList) % 2) != 0:
+        raise ValueError
+    bracketCount = 0
+    bestOfCount = 1
+    for x in range(int(len(bracketList)/2)):
+        returnList.append([int(bracketList[bracketCount]), int(bracketList[bestOfCount])])
+        bracketCount += 2
+        bestOfCount += 2
+    return returnList
+
+
+def build_brackets(brackets: list):
+    """
     Convert a list of strings into a useable list for the map generator.
     Returns a list if inputs are ok, otherwise it'll return a string describing the problem.
-    '''
+    """
     if len(brackets) <= 0:
-        return 'There is no bracket data. Please add bracket data to generate a map list.'
+        raise InvalidInputException
 
     new_brackets = []
     for bracket in brackets:
@@ -36,17 +57,18 @@ def build_brackets(brackets:list):
         try:
             new_brackets.append((int(bracket_info[0]), int(bracket_info[1])))
         except ValueError:
-            return 'One of the brackets could not interpret your input. Please confirm that you are entering bracket info correctly.'
+            raise InvalidFormatException
     return new_brackets
 
+
 def generate_maps(map_pool: list, brackets: list, seed: int) -> list:
-    '''
+    """
     map_pool: A 2d list of strings containing the maps. First list being for zones, then tc, rm, and cb. [[sz maps],[tc maps],[rm maps],[cb maps]]
     brackets: A 2d list containing data for each bracket to generate. [[rounds,best of], [""]]
     seed: Seed used for randomization
 
     returns: A 3d list containing bracket and map data formatted as such: [ bracket [ round [ game ] ] ]
-    '''
+    """
     modes = ("Splat Zones", "Tower Control", "Rainmaker", "Clam Blitz")
 
     new_random = random.Random(seed)
@@ -73,7 +95,7 @@ def generate_maps(map_pool: list, brackets: list, seed: int) -> list:
                         del recent_maps[pool_index][len(recent_maps[pool_index])-1:]
                         continue
                     break
-                
+
                 recent_maps[pool_index].insert(0, current_map)
                 round_recent_maps.insert(0, current_map)
                 recent_modes.insert(0, current_mode)
@@ -83,35 +105,28 @@ def generate_maps(map_pool: list, brackets: list, seed: int) -> list:
                 current_mode = new_random.choice( list(set(modes) - set(recent_modes)) ) #choose a mode by taking a list of all modes minus recently used modes.
 
             bracket_list.append(round_list)
-        
+
         recent_modes = []
         final_list.append(bracket_list)
-    
+
     return final_list
 
-def get_map_list_json(map_list: list) -> str:
-    json = '{'
-    for bracket in map_list:
-        json += "\"Bracket " + str(map_list.index(bracket) + 1) + "\":{"
 
-        for round in bracket:
-            json += "\"Round " + str(bracket.index(round) + 1) + "\":["
+def get_map_list_dict(map_list: list) -> dict:
+    map_dict = {}
+    for brackets in map_list:
+        bracketHold = []
+        for rounds in brackets:
+            roundHold = []
+            for games in rounds:
+                roundHold.append({
+                    "map": games[0].strip(),
+                    "mode": games[1].strip()
+                })
+            bracketHold.append(roundHold)
+        map_dict["{}".format(map_list.index(brackets))] = bracketHold
+    return map_dict
 
-            for game in round:
-                json += "[\"{0}\", \"{1}\"]".format(game[0].strip(), game[1].strip())
-                if round.index(game) < len(round)-1:
-                    json += ","
-
-            json += "]"
-            if bracket.index(round) < len(bracket)-1:
-                json += ","
-
-        json += "}"
-        if map_list.index(bracket) < len(map_list)-1:
-            json += ","
-
-    json += "}"
-    return json
 
 def get_map_list_embed(map_list: list) -> discord.Embed:
     embed = discord.Embed(title='Maps')

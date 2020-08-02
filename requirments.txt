@@ -17,3 +17,4 @@ psycopg2
 pg8000
 aiocontextvars
 gitpython
+boto3

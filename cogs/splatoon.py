@@ -2,75 +2,89 @@
 This Cog Deals directly with all Splatoon related Commands.
 """
 from discord.ext import commands
-import discord
-import time
-import utils
+from mapListGen import MapToolkit
+from utils import embedder
 
 
 class Splatoon(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.mapGen = MapToolkit("files/mapDB.pickle")
 
-    @commands.command(name="generateMapList", help="Generate a Map List\n"
-                                                   "<sz>: List of splat zones maps, seperated by commas.\n"
-                                                   "<tc>: List of tower control maps, seperated by commas.\n"
-                                                   "<rm>: List of rainmaker maps, seperated by commas.\n"
-                                                   "<cb>: List of clam blitz maps, seperated by commas.\n"
-                                                   "(Remainder) <brackets>: List each bracket as such \"(num rounds),(num games)\"")
-    async def generate_maps_comm(ctx, sz:str, tc:str, rm:str, cb:str, *brackets):
-        #attempt to create a map pool from the user inputs
-        built_map_pool = utils.build_map_pool(sz,tc,rm,cb)
-        if type(built_map_pool) is str:
-            await ctx.send(built_map_pool)
-            return
+    @commands.command(name="setMapList", help="Set map list\n"
+                                              "<sz>: List of splat zones maps, seperated by commas.\n"
+                                              "<tc>: List of tower control maps, seperated by commas.\n"
+                                              "<rm>: List of rainmaker maps, seperated by commas.\n"
+                                              "<cb>: List of clam blitz maps, seperated by commas.\n")
+    async def set_map_list(self, ctx, sz, tc, rm, cb):
+        with ctx.typing():
+            response = await self.mapGen.setMaps(sz, tc, rm, cb)
+            if response:
+                await ctx.send(embed=await embedder.create_embed("Set Map", "Maps set"))
+            else:
+                await ctx.send(embed=
+                               await embedder.create_embed("Set Map Error",
+                                                           "Not Enough maps provided for one/more modes"))
 
-        #attempt to create a bracket list from the user inputs
-        built_brackets = utils.build_brackets(brackets)
-        if type(built_brackets) is str:
-            await ctx.send(built_brackets)
-            return
+    @commands.command(name="setBracket", help="Set the bracket\n"
+                                              "<bracket>: Bracket and best of in the format\n"
+                                              "\"Bracket count, best of, Bracket count, best of...........\"\n"
+                                              "Separating each with commas")
+    async def set_brackets(self, ctx, bracket):
+        with ctx.typing():
+            response = await self.mapGen.setBrackets(bracket)
+            if response:
+                await ctx.send(embed=await embedder.create_embed("Set Bracket", "Bracket format set"))
+            else:
+                await ctx.send(embed=await embedder.create_embed("Set Bracket Error", "Bracket not in pairs!"))
 
-        #Generate a seed
-        seed = time.time()
+    @commands.command(name="generateSet", help="Generate a set\n"
+                                               "<seed>: Seed to generate bracket with\n")
+    async def generate_set(self, ctx, seed):
+        with ctx.typing():
+            response = await self.mapGen.generateBracket(seed)
+            if response:
+                await ctx.send(embed=response)
+            else:
+                await ctx.send(embed=await embedder.create_embed("Generate Set Error",
+                                                                 "Bracket/Set data blank and/or generator is locked"))
 
-        #Generate map list
-        map_list = utils.generate_maps(built_map_pool, built_brackets, seed)
+    @commands.command(name="getSet", help="Get an already existing set\n"
+                                          "<seed>: Seed to generate bracket with\n")
+    async def get_set(self, ctx):
+        with ctx.typing():
+            response = await self.mapGen.getBracket()
+            if response:
+                await ctx.send(embed=response)
+            else:
+                await ctx.send(embed=await embedder.create_embed("Get Set Error", "Set data doesn't exist"))
 
-        #Generate embed
-        embed = utils.get_map_list_embed(map_list)
+    @commands.command(name="getSettings", help="Get settings in storage\n")
+    async def get_settings(self, ctx):
+        with ctx.typing():
+            await ctx.send(embed=await self.mapGen.getSettings())
 
-        #TODO: Vincent, save the built_map_pool, seed, and built_brackets variables into the database. Thats all the info needed to regenerate a map list.
+    @commands.command(name="toggleLock", help="Toggle Lock for det Generator\n")
+    async def toggle_lock(self, ctx):
+        with ctx.typing():
+            response = await self.mapGen.toggleLock()
+            embed = await embedder.create_embed("Toggle Lock")
+            if response:
+                embed.add_field(name="Lock State:", value="**On**", inline=False)
+            else:
+                embed.add_field(name="Lock State:", value="**Off**", inline=False)
+            await ctx.send(embed=embed)
 
-        await ctx.send(embed=embed)
-
-    @commands.command(name='setCurrentMapList')
-    async def set_current_map_list(ctx):
-        #TODO: This command should save the latest generated map list so it won't be overwritten
-        return
-
-
-    @commands.command(name="currentMapList")
-    async def current_map_list(ctx):
-        map_pool = [] #TODO: Get the saved map pool from the database
-        brackets = [] #TODO: Get the bracket data from the database
-        seed = 0 #TODO: Get the saved map seed from the database
-
-        map_list = utils.generate_maps(map_pool, brackets, seed)
-
-        embed = utils.get_map_list_embed(map_list)
-        await ctx.send(embed=embed)
-
-    @commands.command(name="currentMapListJson")
-    async def current_map_list_json(ctx):
-        map_pool = []#TODO: Get the saved map pool from the database
-        brackets = [] #TODO: Get the bracket data from the database
-        seed = 0 #TODO: Get the saved map seed from the database
-
-        map_list = utils.generate_maps(map_pool, brackets, seed)
-
-        json = utils.get_map_list_json(map_list)
-        await ctx.send("```json\n{0}```".format(json))
-        #TODO: Maybe make this upload a file instead
+    @commands.command(name="getJSON", help="Get set in JSON format")
+    async def get_JSON(self, ctx):
+        with ctx.typing():
+            response = await self.mapGen.uploadJSON()
+            if response is None:
+                await ctx.send(embed=await embedder.create_embed("Get Set Error", "Set data doesn't exist"))
+            else:
+                embed = await embedder.create_embed("JSON Download", "JSON Uploaded", response)
+                embed.add_field(name="Link:", value="`{}`".format(response), inline=False)
+                await ctx.send(embed=embed)
 
 
 def setup(bot):
