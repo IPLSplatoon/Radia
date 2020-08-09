@@ -82,10 +82,10 @@ def generate_maps(map_pool: list, brackets: list, seed: int) -> list:
         for round in range(bracket[0]):
             round_recent_maps = [] #ensure the same map (even if its a different mode) does not appear within the same round
             round_list = []
-            pool_index = modes.index(current_mode)
 
             for game in range(bracket[1]):
-
+                pool_index = modes.index(current_mode)
+                
                 while True:
                     try:
                         #choose a random map from a list containing maps in the pool minus the maps that have been used
