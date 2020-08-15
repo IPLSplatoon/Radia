@@ -1,0 +1,13 @@
+*
+
+!LICENSE
+!requirements.txt
+!config.yml
+!bot.py
+!battlefyConnector
+!cogs
+!DBConnector
+!gSheetConnector
+!utils
+
+**/__pycache__
