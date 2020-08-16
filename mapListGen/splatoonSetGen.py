@@ -66,34 +66,32 @@ def generate_maps(map_pool: list, brackets: list, seed: int) -> list:
     map_pool: A 2d list of strings containing the maps. First list being for zones, then tc, rm, and cb. [[sz maps],[tc maps],[rm maps],[cb maps]]
     brackets: A 2d list containing data for each bracket to generate. [[rounds,best of], [""]]
     seed: Seed used for randomization
-
     returns: A 3d list containing bracket and map data formatted as such: [ bracket [ round [ game ] ] ]
     """
-    modes = ["Splat Zones", "Tower Control", "Rainmaker", "Clam Blitz"]
+    modes = ("Splat Zones", "Tower Control", "Rainmaker", "Clam Blitz")
 
     new_random = random.Random(seed)
     final_list, recent_modes = [], []
-    recent_maps = [[], [], [], []]  # Store the recently used maps for each mode
+    recent_maps = [ [],[],[],[] ] #Store the recently used maps for each mode
     current_mode = new_random.choice(modes)
 
     for bracket in brackets:
         bracket_list = []
+        round_recent_maps = []
 
         for round in range(bracket[0]):
-            round_recent_maps = []  # ensure the same map (even if its a different mode) does not appear within the same round
             round_list = []
 
             for game in range(bracket[1]):
                 pool_index = modes.index(current_mode)
-                
+
                 while True:
                     try:
-                        # choose a random map from a list containing maps in the pool minus the maps that have been used
-                        current_map = new_random.choice(
-                            list(set(map_pool[pool_index]) - set(recent_maps[pool_index]) - set(round_recent_maps)))
+                        #choose a random map from a list containing maps in the pool minus the maps that have been used
+                        current_map = new_random.choice( list(set(map_pool[pool_index]) - set(recent_maps[pool_index]) - set(round_recent_maps)) )
                     except IndexError:
-                        # if no maps are available, remove the oldest element from the recently used maps and try again
-                        del recent_maps[pool_index][len(recent_maps[pool_index]) - 1:]
+                        #if no maps are available, remove the oldest element from the recently used maps and try again
+                        del recent_maps[pool_index][len(recent_maps[pool_index])-1:]
                         continue
                     break
 
@@ -102,10 +100,10 @@ def generate_maps(map_pool: list, brackets: list, seed: int) -> list:
                 recent_modes.insert(0, current_mode)
                 round_list.append((current_map, current_mode))
 
-                del recent_modes[3:]  # delete the oldest element from the recently used modes
-                current_mode = new_random.choice(list(set(modes) - set(
-                    recent_modes)))  # choose a mode by taking a list of all modes minus recently used modes.
+                del recent_modes[3:] #delete the oldest element from the recently used modes
+                current_mode = new_random.choice( list(set(modes) - set(recent_modes)) ) #choose a mode by taking a list of all modes minus recently used modes.
 
+            del round_recent_maps[3:]
             bracket_list.append(round_list)
 
         recent_modes = []
