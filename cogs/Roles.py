@@ -101,7 +101,7 @@ class Roles(commands.Cog):
             else:
                 return False
         except discord.DiscordException as E:
-            utils.errorCollector.collect_error(E, "Assign Captain")
+            utils.error.collector(E, "Assign Captain")
 
     @commands.has_role("Staff")  # Limits to only staff being able to use command
     @commands.guild_only()

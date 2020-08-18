@@ -58,7 +58,7 @@ async def on_command_error(ctx, error):
     elif isinstance(error, commands.TooManyArguments):
         return
     else:
-        utils.errorCollector.collect_error(error, "on_command_error")
+        utils.error.collector(error, "on_command_error")
 
 
 # When the bot is loaded

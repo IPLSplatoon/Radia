@@ -55,7 +55,7 @@ class Information(commands.Cog):
                 else:
                     await ctx.send("Rule requested is not a valid category! >.<")
         except discord.DiscordException as E:
-            utils.errorCollector.collect_error(E, "Rule Response")
+            utils.error.collector(E, "Rule Response")
 
     @commands.has_role("Staff")  # Limits to only staff being able to use command
     @commands.guild_only()
@@ -79,7 +79,7 @@ class Information(commands.Cog):
                 else:
                     await ctx.send("What Is requested is not a valid category! >.<")
         except discord.DiscordException as E:
-            utils.errorCollector.collect_error(E, "Canned Response")
+            utils.error.collector(E, "Canned Response")
 
 
 def setup(bot):

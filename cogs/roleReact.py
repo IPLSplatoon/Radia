@@ -103,7 +103,7 @@ class RoleReact(commands.Cog):
                 await ctx.send(embed=embed)
                 return
             except discord.DiscordException as e:  # Catch errors
-                utils.errorCollector.collect_error(e, "Add react role")
+                utils.error.collector(e, "Add react role")
 
     @commands.has_role("Staff")
     @commands.guild_only()
@@ -123,7 +123,7 @@ class RoleReact(commands.Cog):
                         if emoteType == 2:
                             await message.clear_reaction(emote[1:][:-1])
                     except discord.DiscordException as e:
-                        utils.errorCollector.collect_error(e, "Role reaction removal")
+                        utils.error.collector(e, "Role reaction removal")
                     embed = await utils.create_embed("Reaction Role Removed",
                                                      "You can delete your command and this message and the reactions now")
                     await ctx.send(embed=embed)
