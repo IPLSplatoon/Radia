@@ -1,18 +1,12 @@
 """
 This cog configures, loads and runs Reaction based role requests
 """
+
 import utils
 from discord.ext import commands, tasks
 import discord
-import gSheetConnector
-import os
-from dotenv import load_dotenv
 import emoji
 import re
-
-load_dotenv("files/.env")
-GOOGLE_SHEET_NAME = os.environ.get("google_sheet_name")
-
 
 def emoji_check(emojiChar: str):
     """
@@ -42,7 +36,6 @@ def emoji_check(emojiChar: str):
 class RoleReact(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.sheets = gSheetConnector.SheetConnector("files/googleAuth.json", GOOGLE_SHEET_NAME)
         self.roleDB = utils.RoleReactList("files/roleDB.p")
 
     @commands.has_role("Staff")
