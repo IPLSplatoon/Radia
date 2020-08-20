@@ -1,6 +1,6 @@
 """
 Deals with collecting and handling errors.
-If a 'sentry_env' field is found in the .env file, this handler will automatically attach to Sentry.
+If a 'system_environment' field is found in the .env file, this handler will automatically attach to Sentry.
 """
 import datetime
 from . import env

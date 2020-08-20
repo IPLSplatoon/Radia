@@ -1,3 +1,6 @@
+"""
+Utils file to handle all the environment variables in one place.
+"""
 import os
 from dotenv import load_dotenv
 
