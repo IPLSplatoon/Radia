@@ -2,13 +2,8 @@
 Deals with collecting and handling errors.
 If a 'sentry_env' field is found in the .env file, this handler will automatically attach to Sentry.
 """
-import os
 import datetime
-
-from dotenv import load_dotenv
-load_dotenv("files/.env")
-SENTRY_ENV = os.environ.get("sentry_env")
-
+from . import env
 
 class ErrorCollector:
 
@@ -53,4 +48,4 @@ class ErrorCollector:
         if self.env:
             self.sentry_sdk.capture_exception(error)
 
-error = ErrorCollector(SENTRY_ENV)
+error = ErrorCollector(env.system_environment)

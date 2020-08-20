@@ -2,36 +2,28 @@
 Contains all commands that give information to users
 """
 
-import gSheetConnector
 import utils
 from discord.ext import commands, tasks
 import discord
-from dotenv import load_dotenv
-import os
-
-load_dotenv("files/.env")
-GOOGLE_SHEET_NAME = os.environ.get("google_sheet_name")
-
 
 class Information(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.sheets = gSheetConnector.SheetConnector("files/googleAuth.json", GOOGLE_SHEET_NAME)
-        self.rules = self.sheets.get_responses("Rules")
-        self.canned = self.sheets.get_responses("Canned Responses")
+        self.rules = utils.env.gsheet.get_responses("Rules")
+        self.canned = utils.env.gsheet.get_responses("Canned Responses")
         self.updates.start()
 
     @tasks.loop(hours=24)
     async def updates(self):
-        self.rules = self.sheets.get_responses("Rules")
-        self.canned = self.sheets.get_responses("Canned Responses")
+        self.rules = utils.env.gsheet.get_responses("Rules")
+        self.canned = utils.env.gsheet.get_responses("Canned Responses")
 
     @commands.has_role("Staff")  # Limits to only staff being able to use command
     @commands.guild_only()
     @commands.command(name='refresh', help="Refresh information")
     async def refresh(self, ctx):
-        self.rules = self.sheets.get_responses("Rules")
-        self.canned = self.sheets.get_responses("Canned Responses")
+        self.rules = utils.env.gsheet.get_responses("Rules")
+        self.canned = utils.env.gsheet.get_responses("Canned Responses")
         embed = await utils.embedder.create_embed("Refresh", "Responses are now refreshed")
         await ctx.send(embed=embed)
 

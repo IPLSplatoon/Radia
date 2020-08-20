@@ -1,33 +1,25 @@
 """
 Deals with all roles related commands and functions
 """
+
 import utils
 from discord.ext import commands, tasks
 import discord
-import gSheetConnector
-import battlefyConnector
 import datetime
 import copy
-import os
-from dotenv import load_dotenv
-
-load_dotenv("files/.env")
-GOOGLE_SHEET_NAME = os.environ.get("google_sheet_name")
 
 
 class Roles(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.sheets = gSheetConnector.SheetConnector("files/googleAuth.json", GOOGLE_SHEET_NAME)
-        self.settings = self.sheets.get_settings("Settings")
-        self.battlefy = battlefyConnector.BattlefyUtils()
-        self.roles = self.sheets.get_self_assign_roles("AssignableRoles")
+        self.settings = utils.env.gsheet.get_settings("Settings")
+        self.roles = utils.env.gsheet.get_self_assign_roles("AssignableRoles")
         self.update_roles.start()
 
     @tasks.loop(hours=8)
     async def update_roles(self):
-        self.settings = self.sheets.get_settings("Settings")  # Update settings
-        self.roles = self.sheets.get_self_assign_roles("AssignableRoles")
+        self.settings = utils.env.gsheet.get_settings("Settings")  # Update settings
+        self.roles = utils.env.gsheet.get_self_assign_roles("AssignableRoles")
         for server in self.bot.guilds:
             if str(server.id) in self.settings:
                 serverSetting = self.settings[str(server.id)]
@@ -50,11 +42,11 @@ class Roles(commands.Cog):
                 return False
             if str(serverID) in self.settings:
                 settings = self.settings[str(serverID)]
-                captains = await self.battlefy.get_custom_field(settings["BattlefyTournamentID"],
+                captains = await utils.env.battlefy.get_custom_field(settings["BattlefyTournamentID"],
                                                                 settings["BattlefyFieldID"])
                 if not captains:
                     return False
-                teamNames = await self.battlefy.get_captains_team(settings["BattlefyTournamentID"],
+                teamNames = await utils.env.battlefy.get_captains_team(settings["BattlefyTournamentID"],
                                                                   settings["BattlefyFieldID"])
                 captainCount = copy.deepcopy(len(captains))
                 # Gets the role object relating to the server's captain role
@@ -109,7 +101,7 @@ class Roles(commands.Cog):
                       aliases=["captain", "Captains"])
     async def assignCap(self, ctx):
         with ctx.typing():
-            self.settings = self.sheets.get_settings("Settings")
+            self.settings = utils.env.gsheet.get_settings("Settings")
             await self.__assign_captain_role(ctx.message.guild.id, ctx.message.channel.id)
 
     @commands.command(name='role', help="Give yourself a role", aliases=["rank", "assign"])
@@ -145,8 +137,8 @@ class Roles(commands.Cog):
     @commands.guild_only()
     @commands.command(name='updateRoles', help="Update settings and self assign roles")
     async def update_storage(self, ctx):
-        self.settings = self.sheets.get_settings("Settings")
-        self.roles = self.sheets.get_self_assign_roles("AssignableRoles")
+        self.settings = utils.env.gsheet.get_settings("Settings")
+        self.roles = utils.env.gsheet.get_self_assign_roles("AssignableRoles")
         await ctx.send("Updated settings and roles list")
 
     @commands.has_role("Staff")
@@ -262,11 +254,11 @@ class Roles(commands.Cog):
     async def check_captain(self, ctx):
         with ctx.typing():
             settings = self.settings[str(ctx.message.guild.id)]
-            captains = await self.battlefy.get_custom_field(settings["BattlefyTournamentID"],
+            captains = await utils.env.battlefy.get_custom_field(settings["BattlefyTournamentID"],
                                                             settings["BattlefyFieldID"])
             if not captains:
                 return
-            teamNames = await self.battlefy.get_captains_team(settings["BattlefyTournamentID"],
+            teamNames = await utils.env.battlefy.get_captains_team(settings["BattlefyTournamentID"],
                                                               settings["BattlefyFieldID"])
             for member in ctx.message.guild.members:
                 if str(member) in captains:
