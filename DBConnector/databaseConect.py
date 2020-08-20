@@ -13,8 +13,10 @@ class DBConnect:
             The string used to connect to the DB in the SQLalchemy format
         """
         self.engine = create_engine(databaseString)
+        print("Loaded DB: Engine Created")
         self.DBSession = sessionmaker(bind=self.engine)
         self.session = self.DBSession()
+        print("Loaded DB: Session Created")
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         """
