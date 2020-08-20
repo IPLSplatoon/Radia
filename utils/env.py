@@ -4,9 +4,9 @@ Utils file to handle all the environment variables in one place.
 import os
 from dotenv import load_dotenv
 
-import gSheetConnector
-import DBConnector
-import battlefyConnector
+from gSheetConnector import SheetConnector
+from DBConnector import DBConnect
+from battlefyConnector import BattlefyUtils
 
 load_dotenv("files/.env")
 
@@ -18,9 +18,9 @@ class Env:
         self.DB_String = os.environ.get("DB_String")
         self.system_environment = os.environ.get("system_environment")
 
-        self.gsheet = gSheetConnector.SheetConnector("files/googleAuth.json", self.google_sheet_name)
-        self.db = DBConnector.DBConnect(self.DB_String)
-        self.battlefy = battlefyConnector.BattlefyUtils()
+        self.gsheet = SheetConnector("files/googleAuth.json", self.google_sheet_name)
+        self.db = DBConnect(self.DB_String)
+        self.battlefy = BattlefyUtils()
 
 
 env = Env()
