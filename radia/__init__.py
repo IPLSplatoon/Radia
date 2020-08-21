@@ -23,3 +23,22 @@ logging.getLogger("websockets").setLevel(logging.WARNING)
 logging.getLogger("asyncio").setLevel(logging.WARNING)
 
 logging.getLogger(__name__)
+
+if sentry_env := os.getenv("SENTRY"):
+    initialize_sentry(sentry_env)
+
+# TODO: Initialize database & create a connection
+
+def initialize_sentry(sentry_env):
+    import sentry_sdk
+    from sentry_sdk.integrations.aiohttp import AioHttpIntegration
+    from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
+
+    sentry_sdk.init(
+        dsn="https://0070913733224711b3a9a3207b8ef7ab@o83253.ingest.sentry.io/5283135",
+        integrations=[
+            SqlalchemyIntegration(),
+            AioHttpIntegration()
+        ],
+        environment=sentry_env
+    )
