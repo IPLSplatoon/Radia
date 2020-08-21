@@ -1,20 +1,13 @@
 """
 Cog deals with all check in a print of checked in captains/teams
 """
-import gSheetConnector
 import utils
 from discord.ext import commands, tasks
 import discord
-from dotenv import load_dotenv
-import os
-import DBConnector
-from battlefyConnector import BattlefyUtils
 import re
 from typing import Optional
+from DBConnector import TeamObject
 
-load_dotenv("files/.env")
-GOOGLE_SHEET_NAME = os.environ.get("google_sheet_name")
-DB_CONNECTION_STRING = os.environ.get("DB_String")
 mentionExpression = re.compile("<@![0-9]{10,}>")  # Regular Expression to check if mention is valid
 
 # Get the bracket from the numerical value
@@ -26,7 +19,7 @@ bracketValueDict = {
 }
 
 
-async def team_embed(team: DBConnector.TeamObject) -> discord.embeds:
+async def team_embed(team: TeamObject) -> discord.embeds:
     """
     Create a discord embed with team's information
     :param team: DBConnector.TeamObject
@@ -63,16 +56,8 @@ async def team_embed(team: DBConnector.TeamObject) -> discord.embeds:
 class Teams(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.sheets = gSheetConnector.SheetConnector("files/googleAuth.json", GOOGLE_SHEET_NAME)
-        self.settings = self.sheets.get_settings("Settings")
+        self.settings = utils.env.gsheet.get_settings("Settings")
         self.enableCheckin = False
-        self.database = DBConnector.DBConnect(DB_CONNECTION_STRING)
-        self.battlefy = BattlefyUtils()
-        self.update_settings.start()
-
-    @tasks.loop(hours=2)
-    async def update_settings(self):
-        self.settings = self.sheets.get_settings("Settings")
 
     async def getUsername(self, guildID: int, mention: str) -> Optional[str]:
         if mentionExpression.match(mention):
@@ -146,10 +131,10 @@ class Teams(commands.Cog):
     async def load_teams(self, ctx):
         with ctx.typing():
             activeTournament, discordField, FCField = await self.get_details(str(ctx.message.guild.id))
-            teams = await self.battlefy.get_list_of_teams(activeTournament, discordField, FCField)
+            teams = await utils.env.battlefy.get_list_of_teams(activeTournament, discordField, FCField)
             if teams:
                 for team in teams:
-                    await self.database.updateTournamentTeam(team, activeTournament)
+                    await utils.env.db.updateTournamentTeam(team, activeTournament)
                 embed = await utils.create_embed("Add Teams", "Teams added to database for active tournament")
                 embed.add_field(name="Team Count:", value=len(teams), inline=True)
                 await ctx.send(embed=embed)
@@ -167,8 +152,8 @@ class Teams(commands.Cog):
             if not await self.check_role(ctx.message.guild.id, int(captainRoleID)):
                 await ctx.send(embed=await utils.create_embed("Add Tournament Error", "Invalid Captain Role ID"))
                 return
-            tournament = await self.battlefy.get_tournament(tournamentID)
-            response = await self.database.addTournament(tournamentID, tournament.startTime,
+            tournament = await utils.env.battlefy.get_tournament(tournamentID)
+            response = await utils.env.db.addTournament(tournamentID, tournament.startTime,
                                                          str(ctx.message.guild.id), captainRoleID)
             if response:
                 await ctx.send(embed=await utils.create_embed("Added Tournament",
@@ -197,16 +182,16 @@ class Teams(commands.Cog):
         with ctx.typing():
             activeTournament, discordField, FCField = await self.get_details(str(ctx.message.guild.id))
             if queryType.upper() in ["ID", "TEAMID"]:
-                teams = await self.database.get_teams(activeTournament, teamID=query)
+                teams = await utils.env.db.get_teams(activeTournament, teamID=query)
             elif queryType.upper() in ["NAME", "TEAMNAME"]:
-                teams = await self.database.get_teams(activeTournament, teamName=query)
+                teams = await utils.env.db.get_teams(activeTournament, teamName=query)
             else:
                 username = await self.getUsername(ctx.message.guild.id, query)
                 if not username:
                     await ctx.send(embed=await utils.create_embed("Team Overview Error",
                                                                   "Invalid mention"))
                     return
-                teams = await self.database.get_teams(activeTournament, captainDiscordUsername=username)
+                teams = await utils.env.db.get_teams(activeTournament, captainDiscordUsername=username)
             if teams is None:
                 embed = await utils.create_embed("Team Overview Error", "Didn't find any team under you name query!")
                 await ctx.send(embed=embed)
@@ -221,7 +206,7 @@ class Teams(commands.Cog):
         with ctx.typing():
             if self.enableCheckin:
                 activeTournament, discordField, FCField = await self.get_details(str(ctx.message.guild.id))
-                team = await self.database.get_teams(activeTournament,
+                team = await utils.env.db.get_teams(activeTournament,
                                                      captainDiscordUsername=str(ctx.message.author))
                 if not team:
                     await ctx.send(embed=await utils.create_embed("Team Checkin Error!",
@@ -229,7 +214,7 @@ class Teams(commands.Cog):
                     return
                 team = team[0]
                 if team.allowCheckin:
-                    reply = await self.database.set_checkin(True, activeTournament,
+                    reply = await utils.env.db.set_checkin(True, activeTournament,
                                                             captainDiscordUsername=str(ctx.message.author))
                     if reply:
                         embed = await utils.create_embed("{} is Checked In!".format(team.teamName),
@@ -261,7 +246,7 @@ class Teams(commands.Cog):
     async def checkin_list(self, ctx, bracket="All"):
         with ctx.typing():
             activeTournament, discordField, FCField = await self.get_details(str(ctx.message.guild.id))
-            query = await self.database.get_all_teams(activeTournament)
+            query = await utils.env.db.get_all_teams(activeTournament)
             teams = []
             if bracket.upper() in ["TOP", "ALPHA", "A"]:
                 for team in query:
@@ -321,16 +306,16 @@ class Teams(commands.Cog):
                 return
             activeTournament, discordField, FCField = await self.get_details(str(ctx.message.guild.id))
             if queryType.upper() in ["ID", "TEAMID"]:
-                teams = await self.database.get_teams(activeTournament, teamID=query)
+                teams = await utils.env.db.get_teams(activeTournament, teamID=query)
             elif queryType.upper() in ["NAME", "TEAMNAME"]:
-                teams = await self.database.get_teams(activeTournament, teamName=query)
+                teams = await utils.env.db.get_teams(activeTournament, teamName=query)
             else:
                 username = await self.getUsername(ctx.message.guild.id, query)
                 if not username:
                     await ctx.send(embed=await utils.create_embed("Team Bracket Assignment Error",
                                                                   "Invalid mention"))
                     return
-                teams = await self.database.get_teams(activeTournament, captainDiscordUsername=username)
+                teams = await utils.env.db.get_teams(activeTournament, captainDiscordUsername=username)
             if len(teams) > 1 or not teams:
                 await ctx.send(embed=await utils.create_embed("Team Bracket Assignment Error",
                                                               "Query returns more/less then one team"))
@@ -349,15 +334,15 @@ class Teams(commands.Cog):
                 return
             await user.add_roles(assignRole, reason="Bracket Assignment by {}".format(str(ctx.message.author)))
             if queryType.upper() in ["ID", "TEAMID"]:
-                checkinStatus = await self.database.set_allow_checkin(True, activeTournament, teamID=query)
-                bracketStatus = await self.database.set_bracket(bracketInt, activeTournament, teamID=query)
+                checkinStatus = await utils.env.db.set_allow_checkin(True, activeTournament, teamID=query)
+                bracketStatus = await utils.env.db.set_bracket(bracketInt, activeTournament, teamID=query)
             elif queryType.upper() in ["NAME", "TEAMNAME"]:
-                checkinStatus = await self.database.set_allow_checkin(True, activeTournament, teamName=query)
-                bracketStatus = await self.database.set_bracket(bracketInt, activeTournament, teamName=query)
+                checkinStatus = await utils.env.db.set_allow_checkin(True, activeTournament, teamName=query)
+                bracketStatus = await utils.env.db.set_bracket(bracketInt, activeTournament, teamName=query)
             else:
-                checkinStatus = await self.database.set_allow_checkin(True, activeTournament,
+                checkinStatus = await utils.env.db.set_allow_checkin(True, activeTournament,
                                                                       captainDiscordUsername=username)
-                bracketStatus = await self.database.set_bracket(bracketInt, activeTournament,
+                bracketStatus = await utils.env.db.set_bracket(bracketInt, activeTournament,
                                                                 captainDiscordUsername=username)
             if checkinStatus and bracketStatus:
                 embed = await utils.create_embed("Team Bracket Assignment", "Bracket Assignment Complete")
@@ -388,19 +373,19 @@ class Teams(commands.Cog):
             else:
                 checkinStatus = False
             if queryType.upper() in ["ID", "TEAMID"]:
-                teams = await self.database.get_teams(activeTournament, teamID=query)
-                checkinReturn = await self.database.set_checkin(checkinStatus, activeTournament, teamID=query)
+                teams = await utils.env.db.get_teams(activeTournament, teamID=query)
+                checkinReturn = await utils.env.db.set_checkin(checkinStatus, activeTournament, teamID=query)
             elif queryType.upper() in ["NAME", "TEAMNAME"]:
-                teams = await self.database.get_teams(activeTournament, teamName=query)
-                checkinReturn = await self.database.set_checkin(checkinStatus, activeTournament, teamName=query)
+                teams = await utils.env.db.get_teams(activeTournament, teamName=query)
+                checkinReturn = await utils.env.db.set_checkin(checkinStatus, activeTournament, teamName=query)
             else:
                 username = await self.getUsername(ctx.message.guild.id, query)
                 if not username:
                     await ctx.send(embed=await utils.create_embed("Staff Checkin Error",
                                                                   "Invalid mention"))
                     return
-                teams = await self.database.get_teams(activeTournament, captainDiscordUsername=username)
-                checkinReturn = await self.database.set_checkin(checkinStatus, activeTournament,
+                teams = await utils.env.db.get_teams(activeTournament, captainDiscordUsername=username)
+                checkinReturn = await utils.env.db.set_checkin(checkinStatus, activeTournament,
                                                                 captainDiscordUsername=username)
             if checkinReturn is None:
                 await ctx.send(embed=await utils.create_embed("Staff Checkin Error", "Query found no teams"))
@@ -427,31 +412,31 @@ class Teams(commands.Cog):
         with ctx.typing():
             activeTournament, discordField, FCField = await self.get_details(str(ctx.message.guild.id))
             if queryType.upper() in ["ID", "TEAMID"]:
-                teams = await self.database.get_teams(activeTournament, teamID=query)
+                teams = await utils.env.db.get_teams(activeTournament, teamID=query)
             elif queryType.upper() in ["NAME", "TEAMNAME"]:
-                teams = await self.database.get_teams(activeTournament, teamName=query)
+                teams = await utils.env.db.get_teams(activeTournament, teamName=query)
             else:
                 username = await self.getUsername(ctx.message.guild.id, query)
                 if not username:
                     await ctx.send(embed=await utils.create_embed("Remove Team From Bracket Error",
                                                                   "Invalid mention"))
                     return
-                teams = await self.database.get_teams(activeTournament, captainDiscordUsername=username)
+                teams = await utils.env.db.get_teams(activeTournament, captainDiscordUsername=username)
             if len(teams) > 1 or not teams:
                 await ctx.send(embed=await utils.create_embed("Remove Team From Bracket Error",
                                                               "Query returns more/less then one team"))
                 return
             team = teams[0]
             if queryType.upper() in ["ID", "TEAMID"]:
-                checkinStatus = await self.database.set_allow_checkin(False, activeTournament, teamID=query)
-                bracketStatus = await self.database.set_bracket(-1, activeTournament, teamID=query)
+                checkinStatus = await utils.env.db.set_allow_checkin(False, activeTournament, teamID=query)
+                bracketStatus = await utils.env.db.set_bracket(-1, activeTournament, teamID=query)
             elif queryType.upper() in ["NAME", "TEAMNAME"]:
-                checkinStatus = await self.database.set_allow_checkin(False, activeTournament, teamName=query)
-                bracketStatus = await self.database.set_bracket(-1, activeTournament, teamName=query)
+                checkinStatus = await utils.env.db.set_allow_checkin(False, activeTournament, teamName=query)
+                bracketStatus = await utils.env.db.set_bracket(-1, activeTournament, teamName=query)
             else:
-                checkinStatus = await self.database.set_allow_checkin(False, activeTournament,
+                checkinStatus = await utils.env.db.set_allow_checkin(False, activeTournament,
                                                                       captainDiscordUsername=username)
-                bracketStatus = await self.database.set_bracket(-1, activeTournament,
+                bracketStatus = await utils.env.db.set_bracket(-1, activeTournament,
                                                                 captainDiscordUsername=username)
             if checkinStatus and bracketStatus:
                 embed = await utils.create_embed("Remove Team From Bracket", "Bracket Assignment Complete")

@@ -1,5 +1,5 @@
-# LowInk
-Low Ink Bot for staff use
+# `Radia`
+> Low Ink Bot for staff use
 
 [Add the bot](https://discord.com/api/oauth2/authorize?client_id=722554855473807360&permissions=8&scope=bot)
 

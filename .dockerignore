@@ -1,0 +1,14 @@
+*
+
+!.git
+!LICENSE
+!requirements.txt
+!bot.py
+!battlefyConnector
+!cogs
+!DBConnector
+!gSheetConnector
+!utils
+!files
+
+**/__pycache__
