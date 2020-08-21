@@ -3,12 +3,13 @@ services:
 
     radia:
         build: .
+        env_file: .env
         restart: unless-stopped
 
     postgresql:
         image: postgres
         restart: unless-stopped
         volumes:
-            - ./var/lib/postgresql/data:/var/lib/postgresql/data
+            - ./var/db:/var/lib/postgresql/data
         environment:
-            POSTGRES_PASSWORD: "${postgres}"
+            POSTGRES_PASSWORD: "${POSTGRES}"
