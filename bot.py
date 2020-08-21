@@ -3,16 +3,10 @@ This file starts and runs the main bot functions
 """
 import discord
 from discord.ext import commands
-import os
-from dotenv import load_dotenv
 import asyncio
 import random
 import datetime
-import gSheetConnector
 import utils
-
-load_dotenv("files/.env")
-TOKEN = os.environ.get("low_ink_discord_token")
 
 # This is the list of cogs that discord.py loads in as file names without the .py extension
 extensions = [
@@ -20,7 +14,7 @@ extensions = [
     "cogs.Roles",
     "cogs.other",
     "cogs.krakenmare",
-    "cogs.roleReact",
+    # "cogs.roleReact",
     "cogs.team",
     "cogs.splatoon"
 ]
@@ -58,7 +52,7 @@ async def on_command_error(ctx, error):
     elif isinstance(error, commands.TooManyArguments):
         return
     else:
-        utils.errorCollector.collect_error(error, "on_command_error")
+        utils.error.collector(error, "on_command_error")
 
 
 # When the bot is loaded
@@ -71,26 +65,6 @@ async def on_ready():
     print("Used in {} servers".format(len(bot.guilds)))
     print('------')
     bot.loop.create_task(presence_update())
-
-
-# Member join event
-@bot.event
-async def on_member_join(member: discord.member):
-    await assign_new_member_role(member)
-
-
-# Give default role to member
-async def assign_new_member_role(member: discord.member):
-    settings = gSheetConnector.SheetConnector("files/googleAuth.json", "Low Ink Bot DataSet") \
-        .get_settings("Settings")
-    if str(member.guild.id) in settings:
-        defaultRoleId = settings[str(member.guild.id)]["DefaultRoleID"]
-        defaultRole = member.guild.get_role(defaultRoleId)
-        if defaultRole is not None:
-            await member.add_roles(defaultRole)
-    else:
-        return
-
 
 # Updates presence data
 async def presence_update():
@@ -109,5 +83,5 @@ if __name__ == "__main__":
             exc = '{}: {}'.format(type(e).__name__, e)
             print('Failed to load extension {}\n{}'.format(extension, exc))
 
-    bot.run(TOKEN)
+    bot.run(utils.env.low_ink_discord_token)
 

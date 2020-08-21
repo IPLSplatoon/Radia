@@ -4,7 +4,6 @@ Deals with storing information for reaction based role assignment
 import _pickle as pickle
 import re
 from typing import Optional
-import os
 
 unicodeExpression = re.compile("U\+([0-9]*[A-Z]*){5}")
 
