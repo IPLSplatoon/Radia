@@ -1,14 +1,8 @@
 *
 
-!.git
 !LICENSE
 !requirements.txt
+!radia
 !bot.py
-!battlefyConnector
-!cogs
-!DBConnector
-!gSheetConnector
-!utils
-!files
 
 **/__pycache__
