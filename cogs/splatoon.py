@@ -1,77 +1,96 @@
 """
 This Cog Deals directly with all Splatoon related Commands.
 """
-import utils
 from discord.ext import commands
-import discord
+from mapListGen import MapToolkit
+from utils import embedder
 
 
 class Splatoon(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.mapGen = MapToolkit("files/mapDB.pickle")
 
-    @commands.command(name='generateSwiss', help="Generate a Swiss map set\n"
-                                                 "<maps>: List of maps you want to have."
-                                                 "Maps must be placed within speech marks & use commas to split maps.\n"
-                                                 "<rounds>: Number of rounds to generate\n"
-                                                 "<bestOf>: Number of games per round.\n"
-                                                 "[Embed Title]: Optional title for the embed\n"
-                                                 "[info]: Optional Info for the embed\n"
-                                                 "[Maps]: Optional, limit modes used.", aliases=["generateswiss"])
-    async def generate_swiss(self, ctx, maps, rounds, bestOf, embedTitle="Swiss Map List", info=None,
-                             modes='Splat Zones,Tower Control,Rainmaker,Clam Blitz'):
+    @commands.has_role("Staff")
+    @commands.command(name="setMapList", help="Set map list\n"
+                                              "<sz>: List of splat zones maps, seperated by commas.\n"
+                                              "<tc>: List of tower control maps, seperated by commas.\n"
+                                              "<rm>: List of rainmaker maps, seperated by commas.\n"
+                                              "<cb>: List of clam blitz maps, seperated by commas.\n")
+    async def set_map_list(self, ctx, sz, tc, rm, cb):
         with ctx.typing():
-            modes = modes.split(",")
-            maps = maps.split(",")
-            if not modes or not maps:  # Check that the split has worked correctly
-                embed = await utils.create_embed("Generate Swiss Error", "Unable to split Modes/Maps")
-                await ctx.send(embed=embed)
-                return
-            if not rounds.isdigit() or not bestOf.isdigit():  # check rounds and bestOf are given as numbers
-                embed = await utils.create_embed("Generate Swiss Error",
-                                                 "`Best Of` and/or `rounds` not given as numbers")
-                await ctx.send(embed=embed)
-                return
-            mapsList = await utils.generate_swiss(int(rounds), int(bestOf), maps, modes)
-            if mapsList:
-                embed = await utils.create_embed(embedTitle, info)
-                for x in range(len(mapsList)):
-                    embed.add_field(name="Round {}".format(x + 1), value="```\n{}```".format(mapsList[x]), inline=False)
-                await ctx.send(embed=embed)
+            response = await self.mapGen.setMaps(sz, tc, rm, cb)
+            if response:
+                await ctx.send(embed=await embedder.create_embed("Set Map", "Maps set"))
             else:
-                embed = await utils.create_embed("Generate Swiss Error", "Unable generate set")
-                await ctx.send(embed=embed)
+                await ctx.send(embed=
+                               await embedder.create_embed("Set Map Error",
+                                                           "Not Enough maps provided for one/more modes"))
 
-    @commands.command(name='generateTopCut', help="Generate a Top Cut map set\n"
-                                                  "<maps>: List of maps you want to have.\n"
-                                                  "Maps must be placed within speech marks & use commas to split maps.\n"
-                                                  "<rounds>: Number of rounds to generate\n"
-                                                  "<bestOf>: Number of games per round.\n"
-                                                  "[Embed Title]: Option title for the embed\n"
-                                                  "[info]: Option Info for the embed\n"
-                                                  "[Maps]: Options, limit maps used.", aliases=["generatetopcut"])
-    async def generate_top_cut(self, ctx, maps, rounds, bestOf, embedTitle="Top Cut Map List", info=None,
-                               modes='Splat Zones,Tower Control,Rainmaker,Clam Blitz'):
+    @commands.has_role("Staff")
+    @commands.command(name="setBracket", help="Set the bracket\n"
+                                              "<bracket>: Bracket and best of in the format\n"
+                                              "\"Bracket count, best of, Bracket count, best of...........\"\n"
+                                              "Separating each with commas")
+    async def set_brackets(self, ctx, bracket):
         with ctx.typing():
-            modes = modes.split(",")
-            maps = maps.split(",")
-            if not modes or not maps:  # Check that the split has worked correctly
-                embed = await utils.create_embed("Generate Top Cut Error", "Unable to split Modes/Maps")
-                await ctx.send(embed=embed)
-                return
-            if not rounds.isdigit() or not bestOf.isdigit():  # check rounds and bestOf are given as numbers
-                embed = await utils.create_embed("Generate Top Cut Error",
-                                                 "`Best Of` and/or `rounds` not given as numbers")
-                await ctx.send(embed=embed)
-                return
-            mapList = await utils.generate_top_cut(int(rounds), int(bestOf), maps, modes)
-            if mapList:
-                embed = await utils.create_embed(embedTitle, info)
-                for x in range(len(mapList)):
-                    embed.add_field(name="Round {}".format(x + 1), value="```\n{}```".format(mapList[x]), inline=False)
-                await ctx.send(embed=embed)
+            response = await self.mapGen.setBrackets(bracket)
+            if response:
+                await ctx.send(embed=await embedder.create_embed("Set Bracket", "Bracket format set"))
             else:
-                embed = await utils.create_embed("Generate Top Cut Error", "Unable generate set")
+                await ctx.send(embed=await embedder.create_embed("Set Bracket Error", "Bracket not in pairs!"))
+
+    @commands.has_role("Staff")
+    @commands.command(name="generateSet", help="Generate a set\n"
+                                               "<seed>: Seed to generate bracket with\n")
+    async def generate_set(self, ctx, seed):
+        with ctx.typing():
+            response = await self.mapGen.generateBracket(seed)
+            if response:
+                await ctx.send(embed=response)
+            else:
+                await ctx.send(embed=await embedder.create_embed("Generate Set Error",
+                                                                 "Bracket/Set data blank and/or generator is locked"))
+
+    @commands.has_role("Staff")
+    @commands.command(name="getSet", help="Get an already existing set\n"
+                                          "<seed>: Seed to generate bracket with\n")
+    async def get_set(self, ctx):
+        with ctx.typing():
+            response = await self.mapGen.getBracket()
+            if response:
+                await ctx.send(embed=response)
+            else:
+                await ctx.send(embed=await embedder.create_embed("Get Set Error", "Set data doesn't exist"))
+
+    @commands.has_role("Staff")
+    @commands.command(name="getSettings", help="Get settings in storage\n")
+    async def get_settings(self, ctx):
+        with ctx.typing():
+            await ctx.send(embed=await self.mapGen.getSettings())
+
+    @commands.has_role("Staff")
+    @commands.command(name="toggleLock", help="Toggle Lock for det Generator\n")
+    async def toggle_lock(self, ctx):
+        with ctx.typing():
+            response = await self.mapGen.toggleLock()
+            embed = await embedder.create_embed("Toggle Lock")
+            if response:
+                embed.add_field(name="Lock State:", value="**On**", inline=False)
+            else:
+                embed.add_field(name="Lock State:", value="**Off**", inline=False)
+            await ctx.send(embed=embed)
+
+    @commands.has_role("Staff")
+    @commands.command(name="getJSON", help="Get set in JSON format")
+    async def get_JSON(self, ctx):
+        with ctx.typing():
+            response = await self.mapGen.uploadJSON()
+            if response is None:
+                await ctx.send(embed=await embedder.create_embed("Get Set Error", "Set data doesn't exist"))
+            else:
+                embed = await embedder.create_embed("JSON Download", "JSON Uploaded", response)
+                embed.add_field(name="Link:", value="`{}`".format(response), inline=False)
                 await ctx.send(embed=embed)
 
 
