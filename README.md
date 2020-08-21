@@ -1,16 +1,11 @@
-# `Radia`
-> Low Ink Bot for staff use
+# Radia
+> Radia is the mascot of Inkling Performance Labs. As lead researcher, her duty is to take care teams participating in Low Ink as well as see growth in the teams and individuals taking part in the tournaments.
 
-[Add the bot](https://discord.com/api/oauth2/authorize?client_id=722554855473807360&permissions=8&scope=bot)
+<!-- Banner -->
 
-# Requirements
-- Server with the following
-    - Python 3.8 or newer
-    - pip3.8
-    
- # Current Features
- - Automatic Captain role assignment
- - Self assign roles
- - Canned responses
- - Rules responses
- - Actually maintainable codebase *(tm)*
+[![Add the Bot][oauth-link]](https://discord.com/oauth2/authorize?client_id=722554855473807360&permissions=8&scope=bot)
+
+# 
+
+<!-- Vars -->
+[oauth-link]: https://img.shields.io/badge/OAuth2-Add%20the%20Bot-7289DA
