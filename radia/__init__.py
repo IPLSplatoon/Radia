@@ -42,4 +42,8 @@ def initialize_sentry(sentry_env):
 
 if sentry_env := os.getenv("SENTRY"):
     initialize_sentry(sentry_env)
+    logging.info(".env - 'SENTRY' key found. Initializing Sentry")
+else:
+    logging.info(".env - 'SENTRY' key not found. Skipping Sentry.")
+
 # TODO: Initialize database connection
