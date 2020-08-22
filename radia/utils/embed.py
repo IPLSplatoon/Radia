@@ -1,3 +1,6 @@
+"""Utilities to help with embedding."""
+
+from datetime import datetime
 import discord
 
 async def create(**kwargs) -> discord.Embed:
@@ -12,7 +15,7 @@ async def create(**kwargs) -> discord.Embed:
         url="https://battlefy.com/low-ink",
         icon_url="https://cdn.vlee.me.uk/LowInk/LowInkIcon.png")
     embed.set_footer(text="The Low Ink Bot", icon_url="https://cdn.vlee.me.uk/LowInk/LowInk.png")
-    embed.timestamp = datetime.datetime.utcnow()
+    embed.timestamp = datetime.utcnow()
     return embed
 
 async def listblock(items: list) -> str:
