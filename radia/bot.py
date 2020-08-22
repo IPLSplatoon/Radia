@@ -42,5 +42,5 @@ class Bot(commands.Bot):
             "According to all known laws of aviation",
             "I kid you not Hoeen, he turns himself into a pickle.",
             "Go to sleep Lepto",
-            "Skye passed out again",
+            "Skye passed out again"
         ])))
