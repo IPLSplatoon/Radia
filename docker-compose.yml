@@ -6,7 +6,7 @@ services:
         env_file: .env
         restart: unless-stopped
 
-    postgresql:
+    db:
         image: postgres
         restart: unless-stopped
         volumes:
