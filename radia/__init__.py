@@ -11,6 +11,7 @@ This includes:
 import os
 import logging
 
+# Initialize logging
 logging.basicConfig(
     level=(
         logging.DEBUG if os.getenv("DEBUG") else logging.INFO
@@ -24,11 +25,7 @@ logging.getLogger("asyncio").setLevel(logging.WARNING)
 
 logging.getLogger(__name__)
 
-if sentry_env := os.getenv("SENTRY"):
-    initialize_sentry(sentry_env)
-
-# TODO: Initialize database & create a connection
-
+# Optionally initialize sentry
 def initialize_sentry(sentry_env):
     import sentry_sdk
     from sentry_sdk.integrations.aiohttp import AioHttpIntegration
@@ -42,3 +39,7 @@ def initialize_sentry(sentry_env):
         ],
         environment=sentry_env
     )
+
+if sentry_env := os.getenv("SENTRY"):
+    initialize_sentry(sentry_env)
+# TODO: Initialize database connection
