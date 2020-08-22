@@ -8,6 +8,7 @@ import os
 import logging
 
 from radia import cogs
+from radia import utils
 from radia.bot import Bot
 
 # Create Bot
