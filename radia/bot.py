@@ -41,6 +41,6 @@ class Bot(commands.Bot):
             "Stream @ Twitch.tv/inkfarer",
             "According to all known laws of aviation",
             "I kid you not Hoeen, he turns himself into a pickle.",
-            "Go to sleep Lepto",
-            "Skye passed out again"
+            "Go to sleep Lepto.",
+            "Skye passed out again."
         ])))
