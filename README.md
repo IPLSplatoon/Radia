@@ -31,11 +31,11 @@
 
 1. Create a `.env` in the repository root:
 
-   ```conf
+   ```py
    TOKEN = discord.bot.token
    POSTGRES = db_password
    SENTRY = "System Environment"  # Optional
-   DEBUG = true/false   # Optional
+   DEBUG = true  # Optional
    ```
 
 1. Run `docker-compose up` in the repository root.
