@@ -24,4 +24,8 @@ for cog in cogs.names:
         logging.error(type(e).__name__, e)
 
 # Run Bot
-bot.run(os.getenv("TOKEN"))
+if not (token := os.getenv("TOKEN")):
+    logging.error(".env - 'TOKEN' key not found. Cannot start bot.")
+    raise EnvironmentError
+
+bot.run(token)
