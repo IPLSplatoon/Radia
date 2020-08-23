@@ -1,6 +1,7 @@
 """Utilities to help with embedding."""
 
 from datetime import datetime
+
 import discord
 
 def create(**kwargs) -> discord.Embed:

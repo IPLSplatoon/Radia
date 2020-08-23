@@ -2,8 +2,8 @@
 Holds the custom Bot subclass
 """
 
-import logging
 import random
+import logging
 
 import asyncio
 import discord
