@@ -2,10 +2,8 @@
 Initalizes the early stuff for the entire application
 
 This includes:
- - Setting up logging
- - Optionally setting up sentry
- - Opening a database connection
- - etc.
+ - Initializing logging
+ - Optionally initializing sentry
 """
 
 import os
