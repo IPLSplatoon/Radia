@@ -16,9 +16,11 @@ class Connector:
             raise EnvironmentError
 
         self.engine = create_engine(f"postgresql://postgres:{os.getenv('POSTGRES')}@db:5432")
-        self.sessionmaker = sessionmaker(bind=self.engine)
-        self.session = self.sessionmaker()
+        self.session = sessionmaker(bind=self.engine)
         logging.debug("Loaded db.connector")
+
+        # Use as: 'with db.connector.open() as session:'
+        self.open = session.begin
 
 
 connector = Connector()
