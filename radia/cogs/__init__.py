@@ -1,5 +1,5 @@
 """
-List all extensions
+List all the extensions.
 """
 
 names = [
