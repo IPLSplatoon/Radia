@@ -1,6 +1,4 @@
-"""
-Holds the custom Bot subclass
-"""
+"""Holds the custom Bot subclass."""
 
 import random
 import logging

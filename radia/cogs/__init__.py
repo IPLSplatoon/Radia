@@ -1,6 +1,4 @@
-"""
-List all the extensions.
-"""
+"""List all the extensions."""
 
 names = [
     "kraken",
