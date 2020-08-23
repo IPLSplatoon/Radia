@@ -1,4 +1,4 @@
-"""Open"""
+"""Initializes the database connector."""
 
 import logging
 import os
