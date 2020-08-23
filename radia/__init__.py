@@ -45,5 +45,3 @@ if sentry_env := os.getenv("SENTRY"):
     logging.info(".env - 'SENTRY' key found. Initializing Sentry")
 else:
     logging.info(".env - 'SENTRY' key not found. Skipping Sentry.")
-
-# TODO: Initialize database connection
