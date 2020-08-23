@@ -2,9 +2,12 @@
 
 import os
 import logging
+from contextlib import contextmanager
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+
+from . import models
 
 
 class Connector:
@@ -16,9 +19,24 @@ class Connector:
             raise EnvironmentError
 
         self.engine = create_engine(f"postgresql://postgres:{os.getenv('POSTGRES')}@db:5432")
-        self.session = sessionmaker(bind=self.engine)
-        self.open = session.begin  # Usage: 'with db.connector.open() as session:'
+        self.sessionmaker = sessionmaker(self.engine)
         logging.debug("Loaded db.connector")
+
+    @contextmanager
+    def open(self):
+        """
+        Open a new session using a with statement.
+        
+        Usage: `with db.connector.open() as session:`
+        """
+        try:
+            session = self.sessionmaker()
+            yield session
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
 
 
 connector = Connector()
