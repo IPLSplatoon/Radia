@@ -11,20 +11,19 @@ class Settings(Base):
 
     __tablename__ = "settings"
     server = Column(
-        String(), primary_key=True, unique=True, nullable=False
-    )
+        String(), primary_key=True, unique=True, nullable=False)
+
     captain_role = Column(
-        String(), unique=True
-    )
+        String(), unique=True)
+
     bot_channel = Column(
-        String(), unique=True
-    )
+        String(), unique=True)
+
     battlefy_field = Column(
-        String()
-    )
+        String())
+
     battlefy_tourney = Column(
-        String()
-    )
+        String())
+
     auto_assign_captain_role = Column(
-        Boolean()
-    )
+        Boolean())
