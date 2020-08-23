@@ -16,9 +16,5 @@ class Connector:
         self.session = self.sessionmaker()
         logging.info("Loaded DB Connector: Session Created")
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        """Exit Function."""
-        self.session.close()
-
 
 connector = Connector()
