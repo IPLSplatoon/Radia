@@ -13,3 +13,6 @@ class Connector:
         self.sessionmaker = sessionmaker(bind=self.engine)
         self.session = self.sessionmaker()
         logging.info("Loaded DB Connector: Session Created")
+
+
+connector = Connector()
