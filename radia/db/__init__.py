@@ -14,7 +14,7 @@ class Connector:
         self.engine = create_engine(f"postgresql://postgres:{os.getenv('POSTGRES')}@db:5432")
         self.sessionmaker = sessionmaker(bind=self.engine)
         self.session = self.sessionmaker()
-        logging.info("Loaded DB Connector: Session Created")
+        logging.debug("Loaded db.connector")
 
 
 connector = Connector()
