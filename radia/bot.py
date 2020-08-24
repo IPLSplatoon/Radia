@@ -36,6 +36,7 @@ class Bot(commands.Bot):
             "Sprinkles!",
             "what is luti?",
             "Round 4, here we go again!",
+            "The real round 4 were the friends we made along the way.",
             "What is Low Ink?",
             "Ban Kraken Mare",
             "Icon by Ozei#3125",
