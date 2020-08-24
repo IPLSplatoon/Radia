@@ -6,6 +6,7 @@ from contextlib import contextmanager
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
 
 from . import models
 
@@ -19,6 +20,7 @@ class Connector:
             raise EnvironmentError
 
         self.engine = create_engine(f"postgresql://postgres:{os.getenv('POSTGRES')}@db:5432")
+
         self.sessionmaker = sessionmaker(self.engine)
         logging.debug("Loaded db.connector")
 
@@ -40,3 +42,6 @@ class Connector:
 
 
 connector = Connector()
+
+Base = declarative_base()
+Base.metadata.create_all(connector.engine)
