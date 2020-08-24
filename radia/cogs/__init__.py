@@ -2,5 +2,6 @@
 
 names = [
     "kraken",
-    "misc"
+    "misc",
+    "settings"
 ]
