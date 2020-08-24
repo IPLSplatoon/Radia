@@ -22,19 +22,16 @@ class Settings(commands.Cog):
         with db.connector.open() as session:
             try:
                 server = session.query(SettingsModel).filter(SettingsModel.server == str(ctx.guild.id)).one()
+                embed = utils.embed.create(title=f"Current settings for {str(ctx.guild)}:")
+                embed.add_field(name="Captain Role:", value=ctx.guild.get_role(int(server.captain_role)).mention, inline=False)
+                embed.add_field(name="Bot Channel:", value=ctx.guild.get_channel(int(server.bot_channel)).mention, inline=False)
+                embed.add_field(name="Battlefy Field:", value=server.battlefy_field, inline=False)
+                embed.add_field(name="Battlefy Tourney:", value=server.battlefy_tourney, inline=False)
+                embed.add_field(name="Auto-assign Captain Role:", value=server.auto_assign_captain_role, inline=False)
+                await ctx.send(embed=embed)
             except NoResultFound:
-                server = None
-        if server:
-            embed = utils.embed.create(title=f"Current settings for {str(ctx.guild)}:")
-            embed.add_field(name="Captain Role:", value=str(ctx.guild.get_role(server.captain_role)), inline=False)
-            embed.add_field(name="Bot Channel:", value=str(ctx.guild.get_channel(server.bot_channel)), inline=False)
-            embed.add_field(name="Battlefy Field:", value=server.battlefy_field, inline=False)
-            embed.add_field(name="Battlefy Tourney:", value=server.battlefy_tourney, inline=False)
-            embed.add_field(name="Auto-assign Captain Role:", value=server.auto_assign_captain_role, inline=False)
-            await ctx.send(embed=embed)
-        else:
-            await ctx.send(f"There are no settings for your server, initialize your server with `{ctx.prefix}settings init`")
-    
+                await ctx.send(f"There are no settings for your server, initialize your server with `{ctx.prefix}settings init`")
+
     @settings.command(aliases=["initialize", "new"])
     async def init(self, ctx, captain_role, bot_channel, battlefy_field, battlefy_tourney, auto_assign_captain_role: bool = True):
         """
