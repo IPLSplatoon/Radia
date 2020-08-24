@@ -1,5 +1,5 @@
 """
-Initalizes the bot
+Initializes the bot
 
 This includes importing the bot, loading the cogs, setting the prefix, etc.
 """
