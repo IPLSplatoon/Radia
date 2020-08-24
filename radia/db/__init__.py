@@ -35,6 +35,7 @@ class Connector:
             session.rollback()
             raise
         finally:
+            session.commit()
             session.close()
 
 

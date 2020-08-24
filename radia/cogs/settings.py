@@ -34,6 +34,31 @@ class Settings(commands.Cog):
             await ctx.send(embed=embed)
         else:
             await ctx.send(f"There are no settings for your server, initialize your server with `{ctx.prefix}settings init`")
+    
+    @settings.command(aliases=["initialize", "new"])
+    async def init(self, ctx, captain_role, bot_channel, battlefy_field, battlefy_tourney, auto_assign_captain_role: bool = True):
+        """
+        Initialize settings for the server.
+        
+        Example: `!init @Captian #bot-commands 5c7..caf 5f2..094 [False]`
+        """
+        with db.connector.open() as session:
+            try:
+                server = session.query(SettingsModel).filter(SettingsModel.server == str(ctx.guild.id)).one()
+            except NoResultFound:
+                server = None
+            if not server:
+                new = SettingsModel(
+                    server=str(ctx.guild.id),
+                    captain_role=str(ctx.message.role_mentions[0].id),
+                    bot_channel=str(ctx.message.channel_mentions[0].id),
+                    battlefy_field=battlefy_field,
+                    battlefy_tourney=battlefy_tourney,
+                    auto_assign_captain_role=auto_assign_captain_role)
+                session.add(new)
+                await ctx.send(f"Initialized settings.")
+            else:
+                await ctx.send(f"Settings have already been initialized for your server, you can view them with `{ctx.prefix}settings`.")
 
 
 def setup(bot):
