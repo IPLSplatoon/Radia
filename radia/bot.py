@@ -7,6 +7,8 @@ import asyncio
 import discord
 from discord.ext import commands, tasks
 
+from radia import utils
+
 
 class Bot(commands.Bot):
 
@@ -16,7 +18,9 @@ class Bot(commands.Bot):
 
     async def on_command_error(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send(f"Missing data, you got got to enter something after the command!\nYou can use `{self.command_prefix}help` for help.")
+            await ctx.send(embed=utils.embed.create(
+                title=f"Error: **Missing Required Argument**",
+                description=f"You can use `{ctx.prefix}help` for help."))
         elif isinstance(error, (commands.CommandNotFound, commands.MissingRole)):
             return
         else:
