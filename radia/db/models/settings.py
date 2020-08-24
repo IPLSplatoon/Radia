@@ -3,6 +3,8 @@
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, String, Boolean
 
+from radia.db import connector
+
 Base = declarative_base()
 
 
@@ -27,3 +29,6 @@ class Settings(Base):
 
     auto_assign_captain_role = Column(
         Boolean())
+
+
+Base.metadata.create_all(connector.engine)

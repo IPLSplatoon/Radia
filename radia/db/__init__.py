@@ -6,9 +6,6 @@ from contextlib import contextmanager
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
-
-from . import models
 
 
 class Connector:
@@ -42,6 +39,3 @@ class Connector:
 
 
 connector = Connector()
-
-Base = declarative_base()
-Base.metadata.create_all(connector.engine)
