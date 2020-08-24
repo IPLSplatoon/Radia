@@ -5,11 +5,6 @@ import logging
 import discord
 from discord.ext import commands, tasks
 
-from radia import db
-from radia.db.models import Settings
-
-with db.connector.open() as session:
-    pass
 
 class Kraken(commands.Cog):
     """Deals with Kraken Mare."""
