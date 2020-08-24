@@ -25,6 +25,14 @@ class Misc(commands.Cog):
         embed = utils.embed.create(title="Pets!", description="Picture of pets")
         embed.set_image(url=f"https://cdn.vlee.me.uk/TurnipBot/pets/{randint(0, 83)}.png")
         await ctx.send(embed=embed)
+    
+    @commands.has_role("Organiser")
+    @commands.command(hidden=True)
+    async def alright(self, ctx):
+        """Increases one to the counter of people who responded: 'alright'."""
+        embed = utils.embed.create(title="alright", description="alright counter: `its_a_stub_lol`")
+        await ctx.send(embed=embed)
+        
 
 def setup(bot):
     bot.add_cog(Misc(bot))
