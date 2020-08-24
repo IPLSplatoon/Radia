@@ -7,6 +7,7 @@ from discord.ext import commands
 
 from radia import utils
 
+
 class Misc(commands.Cog):
     """All the miscellaneous commands."""
 
@@ -21,7 +22,7 @@ class Misc(commands.Cog):
     @commands.command(hidden=True)
     async def pet(self, ctx):
         """Get a picture of a pet."""
-        embed = await utils.embed.create(title="Pets!", description="Picture of pets")
+        embed = utils.embed.create(title="Pets!", description="Picture of pets")
         embed.set_image(url=f"https://cdn.vlee.me.uk/TurnipBot/pets/{randint(0, 83)}.png")
         await ctx.send(embed=embed)
 
