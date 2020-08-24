@@ -32,3 +32,10 @@ def listblock(items: list) -> str:
         *[f"- {item}" for item in items],
         "```"
     ])
+
+def emojibool(value: bool) -> str:
+    """Return an emoji based the Boolean value to display to the user instead of text."""
+    return {
+        True: "\u2705",
+        False: "\u274c"
+    }[value]
