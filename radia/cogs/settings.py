@@ -27,7 +27,7 @@ class Settings(commands.Cog):
                 embed.add_field(name="Bot Channel:", value=ctx.guild.get_channel(int(server.bot_channel)).mention, inline=False)
                 embed.add_field(name="Battlefy Field:", value=server.battlefy_field, inline=False)
                 embed.add_field(name="Battlefy Tourney:", value=server.battlefy_tourney, inline=False)
-                embed.add_field(name="Auto-assign Captain Role:", value=server.auto_assign_captain_role, inline=False)
+                embed.add_field(name="Auto-assign Captain Role:", value=utils.embed.emojibool(server.auto_assign_captain_role), inline=False)
                 await ctx.send(embed=embed)
             except NoResultFound:
                 await ctx.send(f"There are no settings for your server, initialize your server with `{ctx.prefix}settings init`")
