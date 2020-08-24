@@ -37,7 +37,7 @@ class Settings(commands.Cog):
         """
         Initialize settings for the server.
         
-        Example: `!init @Captian #bot-commands 5c7..caf 5f2..094 [False]`
+        Example: `!settings init @Captian #bot-commands 5c7..caf 5f2..094 [False]`
         """
         with db.connector.open() as session:
             try:
