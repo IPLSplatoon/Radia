@@ -3,6 +3,8 @@ services:
 
     bot:
         build: .
+        depends_on:
+            - db
         env_file: .env
         restart: unless-stopped
 
@@ -10,6 +12,6 @@ services:
         image: postgres
         restart: unless-stopped
         volumes:
-            - ./var/db:/var/lib/postgresql/data
+            - ./radia/db/data:/var/lib/postgresql/data
         environment:
             POSTGRES_PASSWORD: "${POSTGRES}"
