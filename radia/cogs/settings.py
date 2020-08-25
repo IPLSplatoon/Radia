@@ -126,7 +126,18 @@ class Settings(commands.Cog):
             else:
                 server.auto_assign_captain_role = value
                 await ctx.send("Successfully changed `auto_assign_captain_role` field.")
-                await ctx.send("Successfully changed field.")
+
+    @settings.command()
+    async def delete(self, ctx):
+        """Delete the settings query from the database."""
+        with db.connector.open() as session:
+            try:
+                server = session.query(SettingsModel).filter(SettingsModel.server == str(ctx.guild.id)).one()
+            except NoResultFound:
+                await ctx.send(f"There are no settings for your server. initialize your server with `{ctx.prefix}`settings init`")
+            else:
+                session.delete(server)
+                await ctx.send("Successfully deleted settings.")
 
 def setup(bot):
     bot.add_cog(Settings(bot))
