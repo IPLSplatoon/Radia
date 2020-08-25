@@ -72,7 +72,7 @@ class Settings(commands.Cog):
             else:
                 if mentions := ctx.message.role_mentions:
                     server.captain_role = mentions[0].id
-                    await ctx.send("Successfully changed field.")
+                    await ctx.send("Successfully changed `captain_role` field.")
                 else:
                     await ctx.send("Invalid captain role, did you remember to mention the role?")
 
@@ -87,7 +87,7 @@ class Settings(commands.Cog):
             else:
                 if mentions := ctx.message.channel_mentions:
                     server.bot_channel = mentions[0].id
-                    await ctx.send("Successfully changed field.")
+                    await ctx.send("Successfully changed `bot_channel` field.")
                 else:
                     await ctx.send("Invalid bot channel, did you remember to mention the channel?")
 
@@ -101,7 +101,7 @@ class Settings(commands.Cog):
                 await ctx.send(f"There are no settings for your server. initialize your server with `{ctx.prefix}`settings init`")
             else:
                 server.battlefy_field = value
-                await ctx.send("Successfully changed field.")
+                await ctx.send("Successfully changed `battlefy_field`... field.")
     
     @edit.command(aliases=["tourney"])
     async def battlefy_tourney(self, ctx, value):
@@ -113,7 +113,7 @@ class Settings(commands.Cog):
                 await ctx.send(f"There are no settings for your server. initialize your server with `{ctx.prefix}`settings init`")
             else:
                 server.battlefy_tourney = value
-                await ctx.send("Successfully changed field.")
+                await ctx.send("Successfully changed `battlefy_tourney` field.")
     
     @edit.command(aliases=["auto", "auto-assign", "assign"])
     async def auto_assign_captain_role(self, ctx, value: bool):
@@ -125,6 +125,7 @@ class Settings(commands.Cog):
                 await ctx.send(f"There are no settings for your server. initialize your server with `{ctx.prefix}`settings init`")
             else:
                 server.auto_assign_captain_role = value
+                await ctx.send("Successfully changed `auto_assign_captain_role` field.")
                 await ctx.send("Successfully changed field.")
 
 def setup(bot):
