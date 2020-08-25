@@ -114,6 +114,18 @@ class Settings(commands.Cog):
             else:
                 server.battlefy_tourney = value
                 await ctx.send("Successfully changed field.")
+    
+    @edit.command(aliases=["auto", "auto-assign", "assign"])
+    async def auto_assign_captain_role(self, ctx, value: bool):
+        """Edit auto-assign captain role."""
+        with db.connector.open() as session:
+            try:
+                server = session.query(SettingsModel).filter(SettingsModel.server == str(ctx.guild.id)).one()
+            except NoResultFound:
+                await ctx.send(f"There are no settings for your server. initialize your server with `{ctx.prefix}`settings init`")
+            else:
+                server.auto_assign_captain_role = value
+                await ctx.send("Successfully changed field.")
 
 def setup(bot):
     bot.add_cog(Settings(bot))
