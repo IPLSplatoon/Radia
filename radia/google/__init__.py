@@ -1,0 +1,1 @@
+"""Initializes the Google Sheets connector."""
