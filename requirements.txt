@@ -1,5 +1,8 @@
+# Bot
 discord
 asyncio
 sentry_sdk
+
+# Database
 sqlalchemy
 psycopg2
