@@ -12,6 +12,10 @@ from radia import utils
 
 class Bot(commands.Bot):
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.help_command = utils.HelpCommand()
+
     async def on_ready(self):
         logging.info(f"Logged in as: {self.user.name}")
         self.update_presence.start()
