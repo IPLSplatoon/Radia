@@ -30,7 +30,7 @@ class HelpCommand(commands.DefaultHelpCommand):
     async def send_cog_help(self, cog):
         """Send cog command page."""
         embed = self.create_embed(
-            title=f"{cog.qualified_name.capitalize()}",
+            title=cog.qualified_name.capitalize(),
             description=cog.description,
             fields=[{
                 "name": f"{cog.qualified_name.capitalize()} Commands:",
@@ -45,7 +45,7 @@ class HelpCommand(commands.DefaultHelpCommand):
     async def send_group_help(self, group):
         """Send command group page."""
         embed = self.create_embed(
-            title=f"`{self.short(group, False)}`",
+            title=self.short(group, False),
             description=group.help,
             fields=[{
                 "name": f"Subcommands:",
@@ -60,14 +60,14 @@ class HelpCommand(commands.DefaultHelpCommand):
     async def send_command_help(self, command):
         """Send command page."""
         embed = self.create_embed(
-            title=f"`{self.short(command, False)}`",
+            title=self.short(command, False),
             description=command.help,
         )
         await self.get_destination().send(embed=embed)
 
     async def command_not_found(self, string):
         """Returns message when command is not found."""
-        return f"Command `{self.short(string, False)}` does not exist."
+        return f"Command {self.short(string, False)} does not exist."
 
     async def subcommand_not_found(self, command, string):
         """Returns message when subcommand is not found."""
