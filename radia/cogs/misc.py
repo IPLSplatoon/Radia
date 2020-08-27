@@ -14,12 +14,12 @@ class Misc(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(hidden=True, aliases=['🏓'])
+    @commands.command(aliases=['🏓'])
     async def ping(self, ctx):
         embed = discord.Embed(title="🏓 Pong!", description=f"Latency: `{round(self.bot.latency*1000)}ms`", color=0xde2e43)
         await ctx.send(embed=embed)
 
-    @commands.command(hidden=True)
+    @commands.command()
     async def pet(self, ctx):
         """Get a picture of a pet."""
         embed = utils.embed.create(title="Pets!", description="Picture of pets")
