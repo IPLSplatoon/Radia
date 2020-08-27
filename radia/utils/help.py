@@ -72,7 +72,7 @@ class HelpCommand(commands.DefaultHelpCommand):
     async def subcommand_not_found(self, command, string):
         """Returns message when subcommand is not found."""
         message = super().subcommand_not_found(command, string).split()
-        message[1] = f'`${message[1][1:-1]}`'
+        message[1] = f'`{self.clean_prefix}{message[1][1:-1]}`'
         if not message[-1].endswith("."):
             message[-1] = f'`{message[-1]}`.'
         return " ".join(message)
