@@ -5,7 +5,7 @@ import logging
 
 
 class Connector:
-    """Database connector."""
+    """Google connector."""
 
     def __init__(self):
         try:
