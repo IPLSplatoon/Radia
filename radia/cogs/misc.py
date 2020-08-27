@@ -16,6 +16,7 @@ class Misc(commands.Cog):
 
     @commands.command(aliases=['🏓'])
     async def ping(self, ctx):
+        """Get the latency of the bot."""
         embed = discord.Embed(title="🏓 Pong!", description=f"Latency: `{round(self.bot.latency*1000)}ms`", color=0xde2e43)
         await ctx.send(embed=embed)
 
