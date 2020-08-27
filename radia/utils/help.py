@@ -70,11 +70,11 @@ class HelpCommand(commands.DefaultHelpCommand):
 
     async def subcommand_not_found(self, command, string):
         """Returns message when subcommand is not found."""
-        message = super().subcommand_not_found(command, string).split()
-        message[1] = f'`{self.clean_prefix}{message[1][1:-1]}`'
-        if not message[-1].endswith("."):
-            message[-1] = f'`{message[-1]}`.'
-        return " ".join(message)
+        if isinstance(command, commands.Group) and len(command.all_commands) > 0:
+            return f"Command {self.short(command, False)} has no subcommand named `{string}`."
+        else:
+            return f"Command {self.short(command, False)} has no subcommands."
+
 
     async def send_error_message(self, error):
         """Send error message, override to support sending embeds."""
