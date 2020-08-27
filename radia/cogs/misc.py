@@ -26,7 +26,7 @@ class Misc(commands.Cog):
         embed.set_image(url=f"https://cdn.vlee.me.uk/TurnipBot/pets/{randint(0, 83)}.png")
         await ctx.send(embed=embed)
     
-    @commands.has_role("Organiser")
+    @commands.has_role("Staff")
     @commands.command(hidden=True)
     async def alright(self, ctx):
         """Increases one to the counter of people who responded: 'alright'."""
