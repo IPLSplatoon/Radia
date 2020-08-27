@@ -24,10 +24,10 @@ class Settings(Base):
     battlefy_field = Column(
         String())
 
-    battlefy_tourney = Column(
+    tournament = Column(
         String())
 
-    auto_assign_captain_role = Column(
+    auto_role = Column(
         Boolean())
 
 

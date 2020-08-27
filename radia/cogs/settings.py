@@ -26,14 +26,14 @@ class Settings(commands.Cog):
                 embed.add_field(name="Captain Role:", value=ctx.guild.get_role(int(server.captain_role)).mention)
                 embed.add_field(name="Bot Channel:", value=ctx.guild.get_channel(int(server.bot_channel)).mention)
                 embed.add_field(name="Battlefy Field:", value=server.battlefy_field, inline=False)
-                embed.add_field(name="Battlefy Tourney:", value=server.battlefy_tourney, inline=False)
-                embed.add_field(name="Auto-assign Captain Role:", value=utils.embed.emojibool(server.auto_assign_captain_role), inline=False)
+                embed.add_field(name="Tournament:", value=server.tournament, inline=False)
+                embed.add_field(name="Auto-role:", value=utils.embed.emojibool(server.auto_role), inline=False)
                 await ctx.send(embed=embed)
             except NoResultFound:
                 await ctx.send(f"There are no settings for your server, initialize your server with `{ctx.prefix}settings init`")
 
     @settings.command(aliases=["initialize", "new"])
-    async def init(self, ctx, captain_role, bot_channel, battlefy_field, battlefy_tourney, auto_assign_captain_role: bool = True):
+    async def init(self, ctx, captain_role, bot_channel, battlefy_field, tournament, auto_role: bool = True):
         """
         Initialize settings for the server.
         
@@ -50,8 +50,8 @@ class Settings(commands.Cog):
                     captain_role=str(ctx.message.role_mentions[0].id),
                     bot_channel=str(ctx.message.channel_mentions[0].id),
                     battlefy_field=battlefy_field,
-                    battlefy_tourney=battlefy_tourney,
-                    auto_assign_captain_role=auto_assign_captain_role)
+                    tournament=tournament,
+                    auto_role=auto_role)
                 session.add(new)
                 await ctx.send(f"Initialized settings.")
             else:
@@ -104,7 +104,7 @@ class Settings(commands.Cog):
                 await ctx.send("Successfully changed `battlefy_field`... field.")
     
     @edit.command(aliases=["tourney"])
-    async def battlefy_tourney(self, ctx, value):
+    async def tournament(self, ctx, value):
         """Edit battlefy tournament."""
         with db.connector.open() as session:
             try:
@@ -112,11 +112,11 @@ class Settings(commands.Cog):
             except NoResultFound:
                 await ctx.send(f"There are no settings for your server. initialize your server with `{ctx.prefix}`settings init`")
             else:
-                server.battlefy_tourney = value
-                await ctx.send("Successfully changed `battlefy_tourney` field.")
+                server.tournament = value
+                await ctx.send("Successfully changed `tournament` field.")
     
-    @edit.command(aliases=["auto", "auto-assign", "assign"])
-    async def auto_assign_captain_role(self, ctx, value: bool):
+    @edit.command(aliases=["auto"])
+    async def auto_role(self, ctx, value: bool):
         """Edit auto-assign captain role."""
         with db.connector.open() as session:
             try:
@@ -124,8 +124,8 @@ class Settings(commands.Cog):
             except NoResultFound:
                 await ctx.send(f"There are no settings for your server. initialize your server with `{ctx.prefix}`settings init`")
             else:
-                server.auto_assign_captain_role = value
-                await ctx.send("Successfully changed `auto_assign_captain_role` field.")
+                server.auto_role = value
+                await ctx.send("Successfully changed `auto_role` field.")
 
     @settings.command()
     async def delete(self, ctx):
