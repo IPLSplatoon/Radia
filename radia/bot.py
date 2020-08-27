@@ -25,6 +25,7 @@ class Bot(commands.Bot):
             return
         else:
             logging.error(error)
+            raise error
 
     @tasks.loop(seconds=60)
     async def update_presence(self):
