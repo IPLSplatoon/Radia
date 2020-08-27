@@ -45,7 +45,7 @@ class Settings(commands.Cog):
         """
         Initialize settings for the server.
         
-        Example: `!settings init @Captian #bot-commands 5c7..caf 5f2..094 [False]`
+        Example: `!settings init @Captain #bot-commands 5c7..caf 5f2..094 [False]`
         """
         with db.connector.open() as session:
             try:
@@ -71,7 +71,7 @@ class Settings(commands.Cog):
 
     @edit.command(aliases=["captain", "role"])
     async def captain_role(self, ctx, mention):
-        """Edit the captain role."""
+        """Edit the captain role field."""
         with db.connector.open() as session:
             try:
                 server = session.query(SettingsModel).filter(SettingsModel.server == str(ctx.guild.id)).one()
@@ -86,7 +86,7 @@ class Settings(commands.Cog):
 
     @edit.command(aliases=["bot", "bot_channel"])
     async def channel(self, ctx, mention):
-        """Edit the bot channel."""
+        """Edit the bot channel field."""
         with db.connector.open() as session:
             try:
                 server = session.query(SettingsModel).filter(SettingsModel.server == str(ctx.guild.id)).one()
@@ -101,7 +101,7 @@ class Settings(commands.Cog):
 
     @edit.command(aliases=["field"])
     async def battlefy_field(self, ctx, value):
-        """Edit battlefy field."""
+        """Edit the battlefy field... field."""
         with db.connector.open() as session:
             try:
                 server = session.query(SettingsModel).filter(SettingsModel.server == str(ctx.guild.id)).one()
@@ -113,7 +113,7 @@ class Settings(commands.Cog):
     
     @edit.command(aliases=["tourney"])
     async def tournament(self, ctx, value):
-        """Edit battlefy tournament."""
+        """Edit the tournament field."""
         with db.connector.open() as session:
             try:
                 server = session.query(SettingsModel).filter(SettingsModel.server == str(ctx.guild.id)).one()
@@ -125,7 +125,7 @@ class Settings(commands.Cog):
     
     @edit.command(aliases=["auto"])
     async def auto_role(self, ctx, value: bool):
-        """Edit auto-assign captain role."""
+        """Edit the auto-role field."""
         with db.connector.open() as session:
             try:
                 server = session.query(SettingsModel).filter(SettingsModel.server == str(ctx.guild.id)).one()
