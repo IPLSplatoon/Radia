@@ -50,7 +50,7 @@ class HelpCommand(commands.DefaultHelpCommand):
                 "name": f"Subcommands:",
                 "value": "\n".join([
                     self.short(command)
-                    for command in await self.filter_commands(group.all_commands.values())
+                    for command in await self.filter_commands(group.commands)
                 ])
             }]
         )
