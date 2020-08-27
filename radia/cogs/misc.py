@@ -1,6 +1,6 @@
 """Misc cog."""
 
-from random import randint
+from random import choice, randint
 
 import discord
 from discord.ext import commands
@@ -33,7 +33,18 @@ class Misc(commands.Cog):
         """Increases one to the counter of people who responded: 'alright'."""
         embed = utils.embed.create(title="alright", description="alright counter: `its_a_stub_lol`")
         await ctx.send(embed=embed)
-        
+    
+    @commands.command(aliases=['reputation'])
+    async def rep(self, ctx, action, mention, *, message):
+        """Show your appreciation or disdain for someone."""
+        emojis = {
+            "+": ["\U0001f44d", "\u2728", "\U0001f389", "\U0001f499", "\U0001f44f", "\U0001f31f"],
+            "-": ["\U0001f44e", "\U0001f4a2", "\U0001f52a", "\U0001f52b", "\U0001f611", "\U0001f6ab"]
+        }.get(action, False)
+        if emojis:
+            await ctx.message.add_reaction(choice(emojis))
+        else:
+            await ctx.send("That's not a valid action")
 
 def setup(bot):
     bot.add_cog(Misc(bot))
