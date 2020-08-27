@@ -1,7 +1,7 @@
 """
 Contains HelpCommand class.
 
-Stole directly from "https://github.com/offthedial/bot/blob/master/offthedialbot/help.py"
+Stole and adapted from "https://github.com/offthedial/bot/blob/master/offthedialbot/help.py"
 Thank me :)
 """
 
