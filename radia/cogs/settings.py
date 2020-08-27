@@ -18,7 +18,15 @@ class Settings(commands.Cog):
 
     @commands.group(invoke_without_command=True)
     async def settings(self, ctx):
-        """Retrieve the current settings for the server."""
+        """
+        Retrieve the current settings for the server.
+        
+        - `captain_role`: The role to assign to captains.
+        - `bot_channel`: A channel dedicated to bot commands.
+        - `battlefy_field`: IDFK.
+        - `tournament`: The BattleFy ID of the tournament.
+        - `auto_role`: Whether to automatically assign the captain role.
+        """
         with db.connector.open() as session:
             try:
                 server = session.query(SettingsModel).filter(SettingsModel.server == str(ctx.guild.id)).one()
