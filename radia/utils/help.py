@@ -21,7 +21,7 @@ class HelpCommand(commands.DefaultHelpCommand):
             fields=[{
                 "name": cog.qualified_name if cog else '\u200B',
                 "value": "\n".join([
-                    self.list_command(command)
+                    self.short(command)
                     for command in await self.filter_commands(cog_commands)
                 ])} for cog, cog_commands in mapping.items() if await self.filter_commands(cog_commands)][::-1]
         )
@@ -35,7 +35,7 @@ class HelpCommand(commands.DefaultHelpCommand):
             fields=[{
                 "name": f"{cog.qualified_name.capitalize()} Commands:",
                 "value": "\n".join([
-                    self.list_command(command)
+                    self.short(command)
                     for command in cog.get_commands()
                 ])
             }]
@@ -45,12 +45,12 @@ class HelpCommand(commands.DefaultHelpCommand):
     async def send_group_help(self, group):
         """Send command group page."""
         embed = self.create_embed(
-            title=f"`{self.clean_prefix}{group}`",
+            title=f"`{self.short(group, False)}`",
             description=group.help,
             fields=[{
                 "name": f"Subcommands:",
                 "value": "\n".join([
-                    self.list_command(command)
+                    self.short(command)
                     for command in await self.filter_commands(group.all_commands.values())
                 ])
             }]
@@ -60,14 +60,14 @@ class HelpCommand(commands.DefaultHelpCommand):
     async def send_command_help(self, command):
         """Send command page."""
         embed = self.create_embed(
-            title=f"`{self.clean_prefix}{command}`",
+            title=f"`{self.short(command, False)}`",
             description=command.help,
         )
         await self.get_destination().send(embed=embed)
 
     async def command_not_found(self, string):
         """Returns message when command is not found."""
-        return f"Command `{self.clean_prefix}{string}` does not exist."
+        return f"Command `{self.short(string, False)}` does not exist."
 
     async def subcommand_not_found(self, command, string):
         """Returns message when subcommand is not found."""
@@ -90,6 +90,6 @@ class HelpCommand(commands.DefaultHelpCommand):
             text=f"Type {self.clean_prefix}help command for more info on a command. You can also type {self.clean_prefix}help category for more info on a category.")
         return embed
 
-    def list_command(self, command):
+    def short(self, command, doc=True):
         """List the command as a one-liner."""
-        return f'`{self.clean_prefix}{command}` {command.short_doc}'
+        return f'`{self.clean_prefix}{command}` {(command.short_doc if doc else "")}'
