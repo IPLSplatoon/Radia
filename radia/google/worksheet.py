@@ -1,5 +1,6 @@
 """Contains the Worksheet class."""
 
+import asyncio
 import pandas as pd
 
 
@@ -14,8 +15,12 @@ class Worksheet:
 
     async def refresh(self):
         """Refresh the worksheet and records by reinitializing them."""
-        self.worksheet = self.gsheet.worksheet(self.name)
-        self.dataframe = pd.DataFrame(self.worksheet.get_all_records())
+        
+        async def task():
+            self.worksheet = self.gsheet.worksheet(self.name)
+            self.dataframe = pd.DataFrame(self.worksheet.get_all_records())
+
+        await asyncio.create_task(task())
 
 
 class Responses(Worksheet):
