@@ -6,6 +6,8 @@ import logging
 
 import gspread
 
+from .worksheet import Worksheet
+
 
 class Connector:
     """Google connector."""
@@ -17,10 +19,10 @@ class Connector:
             logging.error("google.json - file not found.")
             raise EnvironmentError
         else:
+
             self.gsheet = self.service.open_by_key(os.getenv("GSHEET"))
-            self.worksheets = {
-                "rules": self.gsheet.worksheet("Rules"),
-            }
+            self.rules = Worksheet(self.gsheet, "Rules")
+
         logging.debug("Loaded google.connector")
 
 
