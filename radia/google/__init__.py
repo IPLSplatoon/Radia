@@ -6,7 +6,7 @@ import logging
 
 import gspread
 
-from .worksheet import Worksheet
+from .worksheet import Worksheet, Responses
 
 
 class Connector:
@@ -21,13 +21,10 @@ class Connector:
         else:
 
             self.gsheet = self.service.open_by_key(os.getenv("GSHEET"))
-            self.rules = self.get_worksheet("Rules")
-            self.canned = self.get_worksheet("Canned Responses")
+            self.rules = Responses(self.gsheet, "Rules")
+            self.canned = Responses(self.gsheet, "Canned Responses")
 
         logging.debug("Loaded google.connector")
 
-    def get_worksheet(self, name):
-        """Return a worksheet with the linked google sheet and passed name."""
-        return Worksheet(self.gsheet, name)
 
 connector = Connector()
