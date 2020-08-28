@@ -31,9 +31,9 @@ class Connector:
         try:
             session = self.sessionmaker()
             yield session
-        except:
+        except Exception as e:
             session.rollback()
-            raise
+            raise e
         finally:
             session.commit()
             session.close()
