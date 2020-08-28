@@ -9,6 +9,7 @@ import logging
 
 from radia import cogs
 from radia import utils
+from radia import db, google
 from radia.bot import Bot
 
 # Create Bot
