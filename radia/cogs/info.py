@@ -22,7 +22,7 @@ class Info(commands.Cog):
     async def rules(self, ctx, prefix=None, image: bool = False):
         if prefix:
             try:
-                name, response = google.connector.rules.get(prefix)
+                name, response = google.connector.rules.get(prefix.lower())
                 embed = utils.embed.create(title=f"{name.capitalize()} Rules", description=response)
                 await ctx.send(embed=embed)
             except TypeError:
