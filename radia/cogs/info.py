@@ -15,7 +15,7 @@ class Info(commands.Cog):
     async def refresh(self, ctx):
         """Reload all the data on the worksheets."""
         await google.connector.rules.refresh()
-        await google.connector.canned.refresh()
+        await google.connector.whatis.refresh()
         await ctx.message.add_reaction("\u2728")
 
     @commands.command(aliases=["rule"])
