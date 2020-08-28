@@ -75,7 +75,6 @@ class HelpCommand(commands.DefaultHelpCommand):
         else:
             return f"Command {self.short(command, False)} has no subcommands."
 
-
     async def send_error_message(self, error):
         """Send error message, override to support sending embeds."""
         await self.get_destination().send(embed=embedder(title="Command/Subcommand not found.", description=error))

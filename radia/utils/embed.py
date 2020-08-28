@@ -4,6 +4,7 @@ from datetime import datetime
 
 import discord
 
+
 def create(**kwargs) -> discord.Embed:
     """
     Create a discord embed template
@@ -19,6 +20,7 @@ def create(**kwargs) -> discord.Embed:
     embed.timestamp = datetime.utcnow()
     return embed
 
+
 def listblock(items: list) -> str:
     """
     Return a formatted list
@@ -32,6 +34,7 @@ def listblock(items: list) -> str:
         *[f"- {item}" for item in items],
         "```"
     ])
+
 
 def emojibool(value: bool) -> str:
     """Return an emoji based the Boolean value to display to the user instead of text."""
