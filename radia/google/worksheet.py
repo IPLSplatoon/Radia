@@ -29,4 +29,4 @@ class Responses(Worksheet):
         """Return the rules section with the given prefix."""
         for i, row in self.dataframe.iterrows():
             if prefix in [p for p in row[:5] if p != '']:
-                return row["prefix0"], row["Response"]
+                return row["prefix0"], row["Response"], row["ImageLink"]

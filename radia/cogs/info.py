@@ -22,8 +22,10 @@ class Info(commands.Cog):
     async def rules(self, ctx, prefix=None, image: bool = False):
         if prefix:
             try:
-                name, response = google.connector.rules.get(prefix.lower())
+                name, response, image_link = google.connector.rules.get(prefix.lower())
                 embed = utils.embed.create(title=f"{name.capitalize()} Rules", description=response)
+                if image:
+                    embed.set_image(image_link)
                 await ctx.send(embed=embed)
             except TypeError:
                 await ctx.send("Section could not be found, try a different prefix.")
