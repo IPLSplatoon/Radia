@@ -147,5 +147,6 @@ class Settings(commands.Cog):
                 session.delete(server)
                 await ctx.send("Successfully deleted settings.")
 
+
 def setup(bot):
     bot.add_cog(Settings(bot))
