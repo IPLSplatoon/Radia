@@ -66,4 +66,5 @@ class TeamPlayer(Base):
     Player = relationship("Player")
     TournamentTeam = relationship("TournamentTeam")
 
+
 Base.metadata.create_all(connector.engine)

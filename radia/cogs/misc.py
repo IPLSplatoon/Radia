@@ -46,5 +46,6 @@ class Misc(commands.Cog):
         else:
             await ctx.send("That's not a valid action")
 
+
 def setup(bot):
     bot.add_cog(Misc(bot))
