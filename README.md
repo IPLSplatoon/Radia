@@ -26,6 +26,7 @@
    - When you get to **Role** give it `editor`.
 1. Download the `credentials` files and rename it `google.json`
 1. Share the Google Sheet with the `client_email` from the json file.
+1. Copy the gsheet key from the url at `https://docs.google.com/spreadsheets/d/`**`{key}`**`/edit`, you will use this in the `.env`
 
 #### Bot Setup
 
@@ -34,6 +35,7 @@
    ```py
    TOKEN = discord.bot.token
    POSTGRES = db_password
+   GSHEET = gsheet_key
    SENTRY = "System Environment"  # Optional
    DEBUG = true  # Optional
    ```
