@@ -22,7 +22,7 @@ lib64/
 parts/
 sdist/
 var/
-db/data/
+radia/db/data/
 wheels/
 share/python-wheels/
 *.egg-info/
@@ -126,6 +126,7 @@ venv.bak/
 
 # Other project settings
 .vscode
+.devcontainer
 .idea
 
 # mkdocs documentation
