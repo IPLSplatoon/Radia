@@ -3,21 +3,18 @@
 import json
 import logging
 
+import gspread
+
 
 class Connector:
     """Google connector."""
 
     def __init__(self):
         try:
-            with open(".googleenv.json") as infile:
-                creds = json.load(infile)
-
+            gc = gspread.service_account(filename='google.json')
         except FileNotFoundError:
-            logging.error(".googleenv.json - file not found.")
+            logging.error("google.json - file not found.")
             raise EnvironmentError
-
-        else:
-            pass  # Authorization
 
         logging.debug("Loaded google.connector")
 
