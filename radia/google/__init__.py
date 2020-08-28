@@ -18,9 +18,9 @@ class Connector:
             raise EnvironmentError
         else:
             self.gsheet = self.service.open_by_key(os.getenv("GSHEET"))
-            self.rules = self.gsheet.worksheet("Rules")
-
-
+            self.worksheets = {
+                "rules": self.gsheet.worksheet("Rules"),
+            }
         logging.debug("Loaded google.connector")
 
 
