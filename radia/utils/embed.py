@@ -19,7 +19,7 @@ def create(**kwargs) -> discord.Embed:
     embed.timestamp = datetime.utcnow()
     return embed
 
-def listblock(items: list) -> str:
+def list_block(items: list) -> str:
     """
     Return a formatted list
     :param list items:
@@ -33,7 +33,7 @@ def listblock(items: list) -> str:
         "```"
     ])
 
-def emojibool(value: bool) -> str:
+def emoji_bool(value: bool) -> str:
     """Return an emoji based the Boolean value to display to the user instead of text."""
     return {
         True: "\u2705",

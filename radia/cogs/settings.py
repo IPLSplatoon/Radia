@@ -35,7 +35,7 @@ class Settings(commands.Cog):
                 embed.add_field(name="Bot Channel:", value=ctx.guild.get_channel(int(server.bot_channel)).mention)
                 embed.add_field(name="Battlefy Field:", value=server.battlefy_field, inline=False)
                 embed.add_field(name="Tournament:", value=server.tournament, inline=False)
-                embed.add_field(name="Auto-role:", value=utils.embed.emojibool(server.auto_role), inline=False)
+                embed.add_field(name="Auto-role:", value=utils.embed.emoji_bool(server.auto_role), inline=False)
                 await ctx.send(embed=embed)
             except NoResultFound:
                 await ctx.send(f"There are no settings for your server, initialize your server with `{ctx.prefix}settings init`")

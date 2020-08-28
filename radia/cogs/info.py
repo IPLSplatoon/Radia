@@ -35,7 +35,7 @@ class Info(commands.Cog):
             embed = utils.embed.create(title="Rules")
             embed.add_field(
                 name="Options:",
-                value=utils.embed.listblock(google.connector.rules.options()))
+                value=utils.embed.list_block(google.connector.rules.options()))
             await ctx.send(embed=embed)
 
     @commands.command(aliases=["canned"])
@@ -55,7 +55,7 @@ class Info(commands.Cog):
             embed = utils.embed.create(title="What Is...")
             embed.add_field(
                 name="Options:",
-                value=utils.embed.listblock(google.connector.whatis.options()))
+                value=utils.embed.list_block(google.connector.whatis.options()))
             await ctx.send(embed=embed)
 
 
