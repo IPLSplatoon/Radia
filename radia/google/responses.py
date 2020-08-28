@@ -16,7 +16,7 @@ class Reply:
 class Responses:
     """
     Object for holding responses list
-     """
+    """
     def __init__(self, options: list, replies: dict):
         self.options = options  # This should hold all the options available under prefix0
         self.replies = replies  # This holds the each prefix and the accompanying Reply object
