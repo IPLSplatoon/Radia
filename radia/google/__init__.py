@@ -22,7 +22,7 @@ class Connector:
 
             self.gsheet = self.service.open_by_key(os.getenv("GSHEET"))
             self.rules = Responses(self.gsheet, "Rules")
-            self.canned = Responses(self.gsheet, "Canned Responses")
+            self.whatis = Responses(self.gsheet, "Canned Responses")
 
         logging.debug("Loaded google.connector")
 
