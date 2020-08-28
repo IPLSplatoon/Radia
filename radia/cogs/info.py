@@ -38,16 +38,16 @@ class Info(commands.Cog):
             await ctx.send(embed=embed)
 
     @commands.command(aliases=["canned"])
-    async def whatis(self, ctx, category=None, image: bool = False):
-        if category:
+    async def whatis(self, ctx, prefix=None, image: bool = False):
+        if prefix:
             try:
-                name, response, image_link = google.connector.whatis.get(category.lower())
+                name, response, image_link = google.connector.whatis.get(prefix.lower())
                 embed = utils.embed.create(title=f"What Is... {name.capitalize()}?", description=response)
                 if image:
                     embed.set_image(image_link)
                 await ctx.send(embed=embed)
             except TypeError:
-                await ctx.send("Section could not be found, try a different category.")
+                await ctx.send("Section could not be found, try a different prefix.")
 
         else:
             embed = utils.embed.create(title="What Is...")
