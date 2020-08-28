@@ -12,10 +12,11 @@ class Info(commands.Cog):
         self.bot = bot
     
     @commands.command()
-    def refresh(self, ctx):
+    async def refresh(self, ctx):
         """Reload all the data on the worksheets."""
         await google.connector.rules.refresh()
         await google.connector.canned.refresh()
+        await ctx.message.add_reaction("\u2728")
 
 
 def setup(bot):
