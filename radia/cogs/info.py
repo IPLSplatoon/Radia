@@ -18,6 +18,9 @@ class Info(commands.Cog):
         await google.connector.canned.refresh()
         await ctx.message.add_reaction("\u2728")
 
+    @commands.command(aliases=["rule"])
+    async def rules(self, ctx, rules=None, image=False):
+        pass
 
 def setup(bot):
     bot.add_cog(Info(bot))
