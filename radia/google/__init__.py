@@ -21,9 +21,12 @@ class Connector:
         else:
 
             self.gsheet = self.service.open_by_key(os.getenv("GSHEET"))
-            self.rules = Worksheet(self.gsheet, "Rules")
+            self.rules = get_worksheet("Rules")
 
         logging.debug("Loaded google.connector")
 
+    def get_worksheet(self, name):
+        """Return a worksheet with the linked google sheet and passed name."""
+        return Worksheet(self.gsheet, name)
 
 connector = Connector()
