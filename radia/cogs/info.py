@@ -20,6 +20,7 @@ class Info(commands.Cog):
 
     @commands.command(aliases=["rule"])
     async def rules(self, ctx, prefix=None, image: bool = False):
+        """Send an embedded rules section."""
         if prefix:
             try:
                 name, response, image_link = google.connector.rules.get(prefix.lower())
@@ -39,6 +40,7 @@ class Info(commands.Cog):
 
     @commands.command(aliases=["canned"])
     async def whatis(self, ctx, prefix=None, image: bool = False):
+        """Send a canned response."""
         if prefix:
             try:
                 name, response, image_link = google.connector.whatis.get(prefix.lower())
