@@ -1,5 +1,5 @@
 # Custom .gitignore files
-.googleenv.json
+google.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
