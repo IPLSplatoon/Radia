@@ -17,7 +17,7 @@ class HelpCommand(commands.DefaultHelpCommand):
     async def send_bot_help(self, mapping):
         """Send bot command page."""
         embed = self.create_embed(
-            title="`!help`",
+            title=f"`{self.clean_prefix}help`",
             fields=[{
                 "name": cog.qualified_name if cog else '\u200B',
                 "value": "\n".join([
