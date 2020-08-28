@@ -11,7 +11,7 @@ class Worksheet:
         self.worksheet = self.gsheet.worksheet("Rules")
         self.records = pd.DataFrame(self.worksheet.get_all_records())
     
-    def refresh(self):
+    async def refresh(self):
         """Refresh the worksheet and records by reinitializing them."""
         self.worksheet = self.gsheet.worksheet("Rules")
         self.records = pd.DataFrame(self.worksheet.get_all_records())
