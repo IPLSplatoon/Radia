@@ -22,11 +22,11 @@ class Responses(Worksheet):
     """Represents a google sheets worksheet with prefixes and responses."""
 
     def options(self):
-        """Return the rules options."""
+        """Return the response options."""
         return self.dataframe["prefix0"]
     
     def get(self, prefix):
-        """Return the rules section with the given prefix."""
+        """Return the responses section with the given prefix."""
         for i, row in self.dataframe.iterrows():
             if prefix in [p for p in row[:5] if p != '']:
                 return row["prefix0"], row["Response"], row["ImageLink"]
