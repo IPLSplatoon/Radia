@@ -1,7 +1,7 @@
 """Stores the team table model."""
 
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, ForeignKey, relationship
+from sqlalchemy import *
 
 from radia.db import connector
 

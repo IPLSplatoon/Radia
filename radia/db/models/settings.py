@@ -1,7 +1,7 @@
 """Stores the settings table model."""
 
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, String, Boolean
+from sqlalchemy import *
 
 from radia.db import connector
 

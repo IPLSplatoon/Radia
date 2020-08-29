@@ -1,7 +1,7 @@
 """Stores the user table model."""
 
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, String, Boolean, Integer, ARRAY
+from sqlalchemy import *
 
 from radia.db import connector
 
