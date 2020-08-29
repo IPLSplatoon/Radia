@@ -57,8 +57,9 @@ class HelpCommand(commands.DefaultHelpCommand):
 
     async def send_command_help(self, command):
         """Send command page."""
+        sig = self.get_command_signature(command)
         embed = self.create_embed(
-            title=self.short(command, False),
+            title=f"`{sig[:-1] if sig.endswith(' ') else sig}`",
             description=command.help,
         )
         await self.get_destination().send(embed=embed)
