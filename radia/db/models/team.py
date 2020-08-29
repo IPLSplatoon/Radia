@@ -1,7 +1,7 @@
-"""Stores the tournament table model."""
+"""Stores the team table model."""
 
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, ForeignKey, relationship
 
 from radia.db import connector
 
@@ -15,14 +15,19 @@ class Team(Base):
     id = Column(
         Integer, primary_key=True, unique=True, nullable=False)
 
-    battlefy = Column(
-        String, unique=True)
-    
     name = Column(
         String, nullable=False)
     
-    icon = Column(
-        String, nullable=True)
+    battlefy = Column(
+        String, unique=True)
+    
+    captain = Column(
+        Integer, ForeignKey("user.id"), nullable=False)
 
+    members = relationship("user")
+
+    icon = Column(
+        String)
+    
 
 Base.metadata.create_all(connector.engine)
