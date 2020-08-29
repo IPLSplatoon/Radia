@@ -1,7 +1,7 @@
 """Stores the participant table model."""
 
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import *
+from sqlalchemy.ext.declarative import declarative_base
 
 from radia.db import connector
 
