@@ -5,7 +5,6 @@ Stole and adapted from "https://github.com/offthedial/bot/blob/master/offthedial
 Thank me :)
 """
 
-import discord
 from discord.ext import commands
 
 from .embed import create as embedder
@@ -64,11 +63,11 @@ class HelpCommand(commands.DefaultHelpCommand):
         )
         await self.get_destination().send(embed=embed)
 
-    async def command_not_found(self, string):
+    def command_not_found(self, string):
         """Returns message when command is not found."""
         return f"Command {self.short(string, False)} does not exist."
 
-    async def subcommand_not_found(self, command, string):
+    def subcommand_not_found(self, command, string):
         """Returns message when subcommand is not found."""
         if isinstance(command, commands.Group) and len(command.all_commands) > 0:
             return f"Command {self.short(command, False)} has no subcommand named `{string}`."

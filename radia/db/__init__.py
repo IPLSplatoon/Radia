@@ -16,7 +16,7 @@ class Connector:
             logging.error(".env - 'POSTGRES' key not found. Cannot start database.")
             raise EnvironmentError
 
-        self.engine = create_engine(f"postgresql://postgres:{os.getenv('POSTGRES')}@db:5432")
+        self.engine = create_engine(f"postgresql://postgres:{postgres}@db:5432")
 
         self.sessionmaker = sessionmaker(self.engine)
         logging.debug("Loaded db.connector")

@@ -27,7 +27,7 @@ class Registration(Base):
     name = Column(
         String, nullable=False)
 
-    joined_at = sqlalchemy.Column(
+    joined_at = Column(
         DateTime)
 
     checked_in = Column(

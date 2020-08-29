@@ -17,7 +17,7 @@ class Bot(commands.Bot):
         self.help_command = utils.HelpCommand()
 
     async def on_ready(self):
-        logging.info(f"Logged in as: {self.user.name}")
+        logging.info("Logged in as: %s", self.user.name)
         self.update_presence.start()
 
     async def on_command_error(self, ctx, error):

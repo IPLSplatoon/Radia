@@ -40,8 +40,8 @@ def initialize_sentry(sentry_env):
             SqlalchemyIntegration(),
             AioHttpIntegration()
         ],
-        environment=sentry_env
-    )
+        environment=sentry_env)
+
 
 if sentry_env := os.getenv("SENTRY"):
     initialize_sentry(sentry_env)

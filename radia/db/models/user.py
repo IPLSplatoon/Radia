@@ -31,7 +31,7 @@ class User(Base):
         String)
     
     admin = Column(
-        Boolean, default=False))
+        Boolean, default=False)
 
 
 Base.metadata.create_all(connector.engine)

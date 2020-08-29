@@ -1,7 +1,6 @@
 """Initializes the Google Sheets connector."""
 
 import os
-import json
 import logging
 
 import gspread
