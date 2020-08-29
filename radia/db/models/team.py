@@ -1,7 +1,7 @@
 """Stores the tournament table model."""
 
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, String, Boolean
+from sqlalchemy import Column, Integer, String
 
 from radia.db import connector
 
@@ -13,7 +13,7 @@ class Team(Base):
 
     __tablename__ = "team"
     id = Column(
-        sqlalchemy.Integer, primary_key=True, unique=True, nullable=False)
+        Integer, primary_key=True, unique=True, nullable=False)
 
     battlefy = Column(
         String, unique=True)
