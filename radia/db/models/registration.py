@@ -33,4 +33,5 @@ class Registration(Base):
     checked_in = Column(
         Boolean, default=False)
 
+
 Base.metadata.create_all(connector.engine)
