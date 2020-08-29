@@ -1,7 +1,7 @@
 """Stores the user table model."""
 
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, String, Integer, ARRAY
+from sqlalchemy import Column, String, Boolean, Integer, ARRAY
 
 from radia.db import connector
 
@@ -26,6 +26,9 @@ class User(Base):
     
     discord = Column(
         String)
+    
+    admin = Column(
+        Boolean, default=False))
 
 
 Base.metadata.create_all(connector.engine)
