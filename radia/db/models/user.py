@@ -18,12 +18,15 @@ class User(Base):
     ign = Column(
         String, nullable=False)
 
+    ign_old = Column(
+        ARRAY(String))
+
     battlefy = Column(
         String, nullable=False)
 
-    ign_old = Column(
-        ARRAY(String))
-    
+    icon = Column(
+        String, nullable=True)
+
     discord = Column(
         String)
     
