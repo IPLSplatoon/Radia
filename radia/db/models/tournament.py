@@ -27,7 +27,7 @@ class Tournament(Base):
     role = Column(
         String)
     
-    teams = relationship("TournamentTeam")
+    teams = relationship("Participant")
 
 
 Base.metadata.create_all(connector.engine)
