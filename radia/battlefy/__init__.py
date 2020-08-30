@@ -20,5 +20,9 @@ class Connector:
                 return None
             return await response.json()
 
+    async def get_tournament(self, tournament: str):
+        """Get tournament from battlefy."""
+        request = await self.get(f"https://dtmwra1jsgyb0.cloudfront.net/tournaments/{tournament}")
+
 
 connector = Connector()
