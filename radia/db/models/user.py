@@ -29,7 +29,7 @@ class User(Base):
 
     discord = Column(
         String)
-    
+
     admin = Column(
         Boolean, default=False)
 
