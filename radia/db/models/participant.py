@@ -17,9 +17,9 @@ class Participant(Base):
 
     tournament = Column(
         Integer, ForeignKey("tournament.id"))
-    
+
     player = relationship("player")
-   
+
     name = Column(
         String, nullable=False)
 
