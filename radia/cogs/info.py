@@ -1,5 +1,7 @@
 """Info cog."""
 
+import random
+
 import discord
 from discord.ext import commands, tasks
 
@@ -15,9 +17,10 @@ class Info(commands.Cog):
     @commands.command()
     async def refresh(self, ctx):
         """Reload all the data on the worksheets."""
-        await google.connector.rules.refresh()
-        await google.connector.whatis.refresh()
-        await ctx.message.add_reaction("\u2728")
+        with ctx.typing():
+            await google.connector.rules.refresh()
+            await google.connector.whatis.refresh()
+        await ctx.send("\u2728 *Refreshed!*")
 
     @commands.command(aliases=["rule"])
     async def rules(self, ctx, prefix=None, image: bool = False):
@@ -50,7 +53,7 @@ class Info(commands.Cog):
                     embed.set_image(image_link)
                 await ctx.send(embed=embed)
             except TypeError:
-                await ctx.send("Section could not be found, try a different prefix.")
+                await ctx.send(self.invalid_whatis(prefix))
 
         else:
             embed = utils.embed.create(title="What Is...")
@@ -58,6 +61,15 @@ class Info(commands.Cog):
                 name="Options:",
                 value=utils.embed.list_block(google.connector.whatis.options()))
             await ctx.send(embed=embed)
+
+    def invalid_whatis(self, prefix):
+        """Send a random error message when the prefix doesn't exist."""
+        return random.choice([
+            f"WHAT IS {prefix.upper()}??",
+            "Doesn't exist",
+            "a social construct",
+            ""
+        ])
 
 
 def setup(bot):
