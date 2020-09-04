@@ -7,9 +7,8 @@ This includes importing the bot, loading the cogs, setting the prefix, etc.
 import os
 import logging
 
-from radia import cogs
-from radia import utils
-from radia import db, google
+from radia import cogs, utils
+from radia import db, google, battlefy
 from radia.bot import Bot
 
 # Create Bot

@@ -46,6 +46,16 @@ class Misc(commands.Cog):
         else:
             await ctx.send("That's not a valid action")
 
+    @commands.Cog.listener()
+    async def on_message(self, message):
+        """
+        Send an unreciprocated error when someone confesses their love for radia.
+
+        This is mainly because of Skye (radia's mine)
+        """
+        if "love" in message.content and self.bot.user in message.mentions:
+            await message.channel.send(embed=utils.embed.create(title="Error: Unreciprocated"))
+
 
 def setup(bot):
     bot.add_cog(Misc(bot))

@@ -2,3 +2,4 @@
 
 from . import embed
 from .help import HelpCommand
+from . import roles

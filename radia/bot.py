@@ -23,7 +23,7 @@ class Bot(commands.Bot):
     async def on_command_error(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
             await ctx.send(embed=utils.embed.create(
-                title=f"Error: **Missing Required Argument**",
+                title="Error: **Missing Required Argument**",
                 description=f"You can use `{ctx.prefix}help` for help."))
         elif isinstance(error, (commands.CommandNotFound, commands.MissingRole)):
             return
@@ -46,7 +46,13 @@ class Bot(commands.Bot):
             "Ban Kraken Mare",
             "Icon by Ozei#3125",
             "Wawa!",
-            "Stream @ Twitch.tv/inkfarer",
+            "Twitch: twitch.tv/IPLSplatoon",
+            "Battlefy: battlefy.com/inkling-performance-labs",
+            "Twitter: @IPLSplatoon",
+            "Patreon: patreon.com/IPLSplatoon",
+            "Github: github.com/IPL-Splat",
+            "Facebook: facebook.com/IPLSplatoon",
+            "Youtube: youtube.com/channel/UCFRVQSUskcsB5NjjIZKkWTA",
             "According to all known laws of aviation",
             "I kid you not Hoeen, he turns himself into a pickle.",
             "Go to sleep Lepto.",

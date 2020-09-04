@@ -1,4 +1,8 @@
-"""Kraken cog."""
+"""
+Kraken cog.
+
+The real purpose of this file is so I can easily copy and paste the boilerplate.
+"""
 
 import logging
 
