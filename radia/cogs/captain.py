@@ -43,7 +43,7 @@ class Captain(commands.Cog):
         ]))
         embed.add_field(name="List of Invalid Captains:", value=utils.embed.list_block(invalid_captains))
         await ctx.send(embed=embed)
-        """Group of commands handling the captain roles."""
+
     
     async def in_server(self, ctx, member: str) -> bool:
         """Check if any string representation of a member is in the server or not."""
