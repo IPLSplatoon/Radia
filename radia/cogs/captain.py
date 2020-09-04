@@ -25,30 +25,32 @@ class Captain(commands.Cog):
     async def check(self, ctx):
         """Show the current status of captains."""
         # settings = db.connector.find_settings(server=ctx.guild.id)
-
         teams = await battlefy.connector.get_teams("5f21e5e1f5fc96423c53d094") # DB: settings.tournament
 
         # Create list of invalid captains
         invalid_captains = [
             f"{team.captain.discord} | {team.name}"
             for team in teams
-            if not self.in_server(ctx, team.captain.discord)
+            if not await self.in_server(ctx, team.captain.discord)
         ]
-
         # Send Status Check
         embed = utils.embed.create(title="Captain Check", description="Here's a quick status check on captains.")
         embed.add_field(name="\ufeff", value="\n".join([
             f"Total Teams: `{len(teams)}`",
             f"Invalid Captains: `{len(invalid_captains)}"
         ]))
-        embed.add_field(name="List of Invalid Captains:", value=utils.embed.list_block(invalid_captains))
+        if invalid_captains:  # Create a field to list the invalid captains, if there are any
+            embed.add_field(name="List of Invalid Captains:", value=utils.embed.list_block(invalid_captains))
         await ctx.send(embed=embed)
 
+    @captain.command()
+    async def assign(self, ctx):
+        pass
     
     async def in_server(self, ctx, member: str) -> bool:
         """Check if any string representation of a member is in the server or not."""
         try:
-            self.member.convert(ctx, member)
+            await self.member.convert(ctx, member)
         except commands.BadArgument:
             return False
         return True
