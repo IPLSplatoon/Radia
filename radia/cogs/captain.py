@@ -46,7 +46,26 @@ class Captain(commands.Cog):
     @captain.command()
     async def assign(self, ctx):
         pass
-    
+
+    @captain.command()
+    async def remove(self, ctx, nick: bool = False):
+        """Remove captain role from members."""
+        # settings = db.connector.find_settings(server=ctx.guild.id)
+        captain_role = ctx.guild.get_role("406171863698505739")  # DB: settings.captain_role
+        
+        with ctx.typing():
+            # Loop over members with the captain_role
+            for member in captain_role.members:
+                member.remove_roles(captain_role)
+                if nick:
+                    await member.edit(nick=None)
+
+            # Display embed
+            embed = await utils.embed.create(
+                title="Success: Captain Role Removed",
+                description=f"Removed Captain role from `{len(captain_role.members)}` members.")
+        await ctx.send(embed=embed)
+
     async def in_server(self, ctx, member: str) -> bool:
         """Check if any string representation of a member is in the server or not."""
         try:
