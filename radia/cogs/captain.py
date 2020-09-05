@@ -57,7 +57,7 @@ class Captain(commands.Cog):
                 await member.remove_roles(captain_role)  # DB: settings.captain_role
                 await member.edit(nick=None)
                 invalid_captains.append(f"{team.captain.discord} | {team.name}")
-        
+
         # Send Report Embed
         embed = utils.embed.create(
             title="Success: Captain Role Assigned",

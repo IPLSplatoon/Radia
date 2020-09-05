@@ -27,18 +27,17 @@ class Champion(commands.Cog):
             # Add champion roles from every member mentioned
             for member in ctx.message.mentions:
                 await member.add_roles(*roles)
-            # Log all members the champion roles were added to
-            embed = utils.embed.create(
-                title="Added champion roles to:",
-                description=utils.embed.list_block(
-                    [member.mention for member in ctx.message.mentions]))
 
+        # Log all members the champion roles were added to
+        embed = utils.embed.create(
+            title="Added champion roles to:",
+            description=utils.embed.list_block(
+                [member.mention for member in ctx.message.mentions]))
         await ctx.send(embed=embed)
-
 
     @champion.command(aliases=["dethrone"])
     async def remove(self, ctx):
-        """Remove the Champion role from members who currently have it."""
+        """Remove the champion roles from members who currently have it."""
         with ctx.typing():
             # Create list of applicable champion roles
             roles = utils.roles.get(ctx,
@@ -46,19 +45,19 @@ class Champion(commands.Cog):
                 "Beta Bracket Champions",
                 "Gamma Bracket Champions"
             )
-            # Create a list of all members with any champion role
+            # Create a set of all members with any champion role
             all_champions = set()
             for role in roles:
                 all_champions += role.members
             # Remove champion roles from each of those members
             for member in all_champions:
                 await member.remove_roles(*roles)
-            # Log all members the champion roles were removed from
-            embed = utils.embed.create(
-                title="Removed champion roles from:",
-                description=utils.embed.list_block(
-                    [member.mention for member in all_champions]))
 
+        # Log all members the champion roles were removed from
+        embed = utils.embed.create(
+            title="Removed champion roles from:",
+            description=utils.embed.list_block(
+                [member.mention for member in all_champions]))
         await ctx.send(embed=embed)
 
 
