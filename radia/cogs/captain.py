@@ -42,7 +42,7 @@ class Captain(commands.Cog):
     async def assign(self, ctx):
         """Assign captain role to members."""
         # settings = db.connector.find_settings(server=ctx.guild.id)
-        captain_role = ctx.guild.get_role(406171863698505739)
+        captain_role = ctx.guild.get_role("406171863698505739")  # DB: settings.captain_role
 
         # Loop over teams and assign valid captains
         teams = await battlefy.connector.get_teams("5f21e5e1f5fc96423c53d094") # DB: settings.tournament
