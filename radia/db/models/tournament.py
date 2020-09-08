@@ -1,6 +1,4 @@
-"""
-Stores the tournament table model.
-"""
+"""Stores the tournament table model."""
 
 from sqlalchemy import *
 from sqlalchemy.ext.declarative import declarative_base

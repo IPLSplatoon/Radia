@@ -1,6 +1,4 @@
-"""
-Stores the team table model.
-"""
+"""Stores the team table model."""
 
 from sqlalchemy import *
 from sqlalchemy.ext.declarative import declarative_base
