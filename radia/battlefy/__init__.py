@@ -22,7 +22,7 @@ class Connector:
             return await response.json()
 
     async def get_tournament(self, tournament):
-        """ Get tournament.
+        """ Get tournament object from battlefy api.
         :param tournament str: Battlefy Tournament ID
         :return Tournament: A Tournament object
         """
@@ -30,7 +30,7 @@ class Connector:
         return Tournament(battlefy_tournament)
 
     async def get_teams(self, tournament):
-        """ Get teams.
+        """ Get a list of team objects from battlefy api.
         :param tournament str: Battlefy Tournament ID
         :return list[Team]: A list of Team objects
         """
