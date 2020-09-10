@@ -3,6 +3,7 @@ Contains HelpCommand class.
 
 Stole and adapted from "https://github.com/offthedial/bot/blob/master/offthedialbot/help.py"
 Thank me :)
+- LeptoFlare
 """
 
 from discord.ext import commands
