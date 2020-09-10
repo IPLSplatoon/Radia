@@ -49,3 +49,5 @@ class Maplist:
     def gen_game(self, game):
         """Generate a game."""
 
+    def __iter__(self):
+        return self.maplist
