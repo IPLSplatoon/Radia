@@ -31,3 +31,21 @@ class Maplist:
             for bracket in self.brackets
         ]
 
+    def gen_maplist(self):
+        """Generate maplist."""
+        for bracket in self.maplist:
+            self.gen_bracket(bracket)
+
+    def gen_bracket(self, bracket):
+        """Generate maplist for a bracket."""
+        for _round in bracket:
+            self.gen_round(_round)
+    
+    def gen_round(self, _round):
+        """Generate a round for a bracket."""
+        for game in _round:
+            self.gen_game(game)
+    
+    def gen_game(self, game):
+        """Generate a game."""
+
