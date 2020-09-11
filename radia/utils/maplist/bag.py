@@ -5,22 +5,23 @@ import random
 
 class Bag:
     """ Implemented algorithm to create balanced random picking.
-    :param list items: A list of items to be placed in the bag.
-    :param int maximum:
-        The maximum number of recents in the bag at a time.
+    :param set items: A list of items to be placed in the bag.
+    :param int div:
+        The fraction of items that are the maximum number of recents at a time.
         A higher number means more balanced but less randomized.
     """
-    def __init__(self, items: list, maximum: int):
+
+    def __init__(self, items: set, div=3):
         self.items = items
-        self.max = maximum
         self.recents = []
-    
-    def pick(self, prune=True):
-        pick = random.choice(self.items - self.recents)
-        self.recents.append(pick)
-        if prune:
-            self.prune()
-        return pick
+        self.max = int(len(items)/div)
+
+    def __iter__(self):
+        return iter(self.items - set(self.recents))
+
+    def pick(self, item):
+        """Add an item to the recents list."""
+        self.recents.append(item)
 
     def prune(self):
         """Remove the oldest elements from the bag out of the maximum."""
