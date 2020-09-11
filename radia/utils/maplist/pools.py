@@ -1,5 +1,7 @@
 """Contains Pools class."""
 
+from .bag import Bag
+
 
 class Pools:
     """Class containing utility methods for handling pools."""
@@ -7,7 +9,21 @@ class Pools:
     MIN_MAPS = 8
 
     class NotEnoughMaps(Exception):
-        """There aren't enough maps in the map pool."""
+        """ There aren't enough maps in the map pool.
+        
+        Contains 5 different bags:
+        - 1 bag for each pool
+        - 1 bag for all maps
+        - 1 bag for modes
+
+        Bags:
+            Pool[mode]: Gets the bag for the pool
+            Pool.maps: Gets the bag for all maps
+            Pool.modes: Gets the bag for modes
+        
+        Methods:
+            Pool.pick(): Returns a new tuple(map, mode) pick
+        """
 
     def __init__(self, *, sz, tc, rm, cb) -> dict:
         """ Create a class to represent map pools.
@@ -54,18 +70,26 @@ class Pools:
                 self[mode].recents.pop()
             _map = self.pick_map(mode)
 
-    def modes(self):
-        """Return all the modes of the pools."""
-        return list(self.pools.keys())
+        # Add map to recents
+        self.maps.pick(_map)
+        self[mode].pick(_map)
+        return _map
 
-    def sz(self):
-        return self.pools["Splat Zones"]
+    def keys(self):
+        self.pools.keys()
 
-    def tc(self):
-        return self.pools["Tower Control"]
+    def values(self):
+        self.pools.values()
 
-    def rm(self):
-        return self.pools["Rainmaker"]
+    def items(self):
+        self.pools.items()
 
-    def cb(self):
-        return self.pools["Clam Blitz"]
+    def __getitem__(self, key):
+        return self.pools[key]
+
+    def __total_maps(self) -> set:
+        """Return all of the maps in all pools."""
+        total = set()
+        for maps in self.pools.values():
+            total += set(maps)
+        return total
