@@ -1,6 +1,5 @@
 """Contains Maplist class."""
 
-from .bag import Bag
 from .pools import Pools
 
 
