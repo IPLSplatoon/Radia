@@ -29,13 +29,30 @@ class Pools:
         self.maps: Bag = Bag(self.__total_maps())
         self.modes: Bag = Bag(set(self.pools.keys()))
 
+    def pick(self):
+        """Pick a map and mode."""
+        mode = self.pick_mode()
+        _map = self.pick_map(mode)
+        return _map, mode
 
-    def total_maps(self):
-        """Return the total number of maps in the pool."""
-        total = 0
-        for maps in self.pools.values():
-            total += len(maps)
-        return total
+    def pick_mode(self):
+        """Pick a mode."""
+        mode = next(iter(self.modes))
+        self.modes.pick(mode)
+        return mode
+    
+    def pick_map(self, mode):
+        """Pick a map."""
+        # Pick a new map from the bag
+        try:
+            _map = next(iter(set(self[mode]) - self.maps.recents))
+        except StopIteration:
+            # Start removing maps from recents until a map can be picked
+            if self.maps.recents:
+                self.maps.recents.pop()
+            else:
+                self[mode].recents.pop()
+            _map = self.pick_map(mode)
 
     def modes(self):
         """Return all the modes of the pools."""
