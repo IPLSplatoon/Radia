@@ -34,7 +34,7 @@ class Maplist:
     def gen_maplist(self):
         """Generate maplist."""
         for bracket in self.maplist:
-            # Prune all the pool recent maps
+            # Prune every pool's recent maps
             for pool in self.pools.values():
                 pool.prune()
             self.gen_bracket(bracket)
@@ -42,6 +42,7 @@ class Maplist:
     def gen_bracket(self, bracket):
         """Generate maplist for a bracket."""
         for _round in bracket:
+            # Prune all maps and modes
             self.pools.maps.prune()
             self.pools.modes.prune()
             self.gen_round(_round)
