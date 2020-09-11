@@ -42,7 +42,7 @@ class Pools:
             "Rainmaker": Bag(rm),
             "Clam Blitz": Bag(cb),
         }
-        self.maps: Bag = Bag(self.__total_maps())
+        self.maps: Bag = Bag(self.__total_maps(), 4/3)
         self.modes: Bag = Bag(set(self.pools.keys()))
 
     def pick(self):
