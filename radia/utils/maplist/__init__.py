@@ -16,6 +16,7 @@ class Maplist:
         self.pools = pools
         self.brackets = brackets
         self.maplist = self.create_empty()
+        self.gen_maplist()
 
     def create_empty(self):
         """Create an empty maplist object.
@@ -34,20 +35,26 @@ class Maplist:
     def gen_maplist(self):
         """Generate maplist."""
         for bracket in self.maplist:
+            # Prune all the pool recent maps
+            for pool in self.pools.values():
+                pool.prune()
             self.gen_bracket(bracket)
 
     def gen_bracket(self, bracket):
         """Generate maplist for a bracket."""
         for _round in bracket:
+            self.pools.maps.prune()
+            self.pools.modes.prune()
             self.gen_round(_round)
-    
+
     def gen_round(self, _round):
         """Generate a round for a bracket."""
         for game in _round:
             self.gen_game(game)
-    
+
     def gen_game(self, game):
         """Generate a game."""
+        game["map"], game["mode"] = self.pools.pick()
 
     def __iter__(self):
         return self.maplist
