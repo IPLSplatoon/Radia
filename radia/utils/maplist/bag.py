@@ -24,6 +24,10 @@ class Bag:
         self.recents.append(item)
 
     def prune(self):
-        """Remove the oldest elements from the bag out of the maximum."""
+        """Remove the oldest elements from the recents out of the maximum."""
         if len(self.recents) >= self.max:
             self.recents = self.recents[-self.max:]
+
+    def empty(self):
+        """Remove all elements from the recents."""
+        self.recents = []
