@@ -53,7 +53,7 @@ class Misc(commands.Cog):
 
         This is mainly because of Skye (radia's mine)
         """
-        if "love" in message.content and self.bot.user in message.mentions:
+        if any(msg in message.content for msg in ["love", "ily"]) and (self.bot.user in message.mentions or "radia" in message.content):
             await message.channel.send(embed=utils.embed.create(title="Error: Unreciprocated"))
 
 
