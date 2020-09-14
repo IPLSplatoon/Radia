@@ -41,6 +41,7 @@ class Maplist:
         # Empty all maps and modes
         self.pools.maps.empty()
         self.pools.modes.empty()
+        # Generate rounds
         for _round in bracket:
             self.gen_round(_round)
 
@@ -51,6 +52,7 @@ class Maplist:
         self.pools.modes.prune()
         for pool in self.pools.values():
             pool.prune()
+        # Generate games
         for game in _round:
             self.gen_game(game)
 

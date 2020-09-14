@@ -20,7 +20,7 @@ for cog in cogs.names:
         bot.load_extension("radia.cogs." + cog)
         logging.debug("Loaded cogs.%s", cog)
     except Exception as e:
-        logging.warn("Failed to load cogs.%s", cog)
+        logging.warning("Failed to load cogs.%s", cog)
         logging.error(type(e).__name__, e)
 
 # Run Bot

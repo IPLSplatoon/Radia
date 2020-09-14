@@ -21,7 +21,7 @@ class Kraken(commands.Cog):
     async def update_roles(self):
         guild = discord.utils.get(self.bot.guilds, id=406137039285649428)
         if guild is None:
-            return logging.warn("Cannot run update_roles, is the bot in the Low Ink server?")
+            return logging.warning("Cannot run update_roles, is the bot in the Low Ink server?")
         kraken = discord.utils.get(guild.members, id=158733178713014273)
         role_ids = [
             "689622040222761058", "471466333771399168", "563484622717976606",
