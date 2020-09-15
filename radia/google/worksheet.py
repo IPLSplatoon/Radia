@@ -15,12 +15,13 @@ class Worksheet:
 
     async def refresh(self):
         """Refresh the worksheet and records by reinitializing them."""
-        
-        async def task():
+        loop = asyncio.get_running_loop()
+
+        def call_gsheet():
             self.worksheet = self.gsheet.worksheet(self.name)
             self.dataframe = pd.DataFrame(self.worksheet.get_all_records())
 
-        await asyncio.create_task(task())
+        await loop.run_in_executor(None, call_gsheet)
 
 
 class Responses(Worksheet):
