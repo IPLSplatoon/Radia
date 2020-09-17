@@ -37,7 +37,9 @@
    POSTGRES = db_password
    GSHEET = gsheet_key
    SENTRY = "System Environment"  # Optional
-   DEBUG = true  # Optional
+   DEBUG = 1  # Optional
    ```
+
+   Please know that there are no `true` or `false` values in `.env` files. If you want to set a key to false, set it to `0`
 
 1. Run `docker-compose up` in the repository root.
