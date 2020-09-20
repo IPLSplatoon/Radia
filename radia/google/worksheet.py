@@ -30,7 +30,7 @@ class Responses(Worksheet):
     def options(self):
         """Return the response options."""
         return self.dataframe["prefix0"]
-    
+
     def get(self, prefix):
         """Return the responses section with the given prefix."""
         for i, row in self.dataframe.iterrows():
