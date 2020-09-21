@@ -11,7 +11,7 @@ def create(**kwargs) -> discord.Embed:
     :return: discord.embed
         discord.py embed object
     """
-    embed = discord.Embed(color=0xe0fe3a, **kwargs)
+    embed = discord.Embed(color=0xFCFF3B, **kwargs)
     embed.set_author(
         name="Radia",
         url="https://battlefy.com/low-ink",
