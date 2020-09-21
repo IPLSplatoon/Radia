@@ -38,27 +38,17 @@ class Maplist:
 
     def gen_bracket(self, bracket):
         """Generate maplist for a bracket."""
-        # Empty all maps and modes
-        self.pools.maps.empty()
-        self.pools.modes.empty()
-        # Generate rounds
         for _round in bracket:
             self.gen_round(_round)
 
     def gen_round(self, _round):
         """Generate a round for a bracket."""
-        # Prune everything
-        self.pools.maps.prune()
-        self.pools.modes.prune()
-        for pool in self.pools.values():
-            pool.prune()
-        # Generate games
         for game in _round:
             self.gen_game(game)
 
     def gen_game(self, game):
         """Generate a game."""
-        game["map"], game["mode"] = self.pools.pick()
+        # TODO
 
     def __iter__(self):
         return self.maplist

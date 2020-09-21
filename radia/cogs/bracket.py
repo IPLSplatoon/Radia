@@ -1,4 +1,4 @@
-"""Braket cog."""
+"""Bracket cog."""
 
 import logging
 
