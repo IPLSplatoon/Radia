@@ -12,11 +12,7 @@ def create(**kwargs) -> discord.Embed:
         discord.py embed object
     """
     embed = discord.Embed(color=0xFCFF3B, **kwargs)
-    embed.set_author(
-        name="Radia",
-        url="https://battlefy.com/low-ink",
-        icon_url="https://cdn.vlee.me.uk/LowInk/LowInkIcon.png")
-    embed.set_footer(text="The Low Ink Bot", icon_url="https://cdn.vlee.me.uk/LowInk/LowInk.png")
+    embed.set_footer(text="Radia", icon_url="https://cdn.vlee.me.uk/LowInk/RadiaMemcakeMin.png")
     embed.timestamp = datetime.utcnow()
     return embed
 
