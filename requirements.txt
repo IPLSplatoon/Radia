@@ -2,6 +2,7 @@
 discord
 asyncio
 sentry_sdk
+aiohttp
 
 # Database
 sqlalchemy
