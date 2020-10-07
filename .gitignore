@@ -125,8 +125,6 @@ venv.bak/
 .ropeproject
 
 # Other project settings
-.vscode
-.devcontainer
 .idea
 
 # mkdocs documentation
