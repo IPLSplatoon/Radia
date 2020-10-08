@@ -8,7 +8,7 @@ Thank me :)
 
 from discord.ext import commands
 
-from .embed import create as embedder
+from . import Embed
 
 
 class HelpCommand(commands.DefaultHelpCommand):
@@ -78,11 +78,11 @@ class HelpCommand(commands.DefaultHelpCommand):
 
     async def send_error_message(self, error):
         """Send error message, override to support sending embeds."""
-        await self.get_destination().send(embed=embedder(title="Command/Subcommand not found.", description=error))
+        await self.get_destination().send(embed=Embed(title="Command/Subcommand not found.", description=error))
 
     def create_embed(self, fields: list = (), **kwargs):
         """Create help embed."""
-        embed = embedder(**kwargs)
+        embed = Embed(**kwargs)
         for field in fields:
             embed.add_field(**field, inline=False)
         embed.set_footer(

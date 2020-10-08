@@ -1,5 +1,5 @@
 """Import all of the utilites."""
 
-from . import embed
+from .embed import Embed
 from .help import HelpCommand
 from . import roles

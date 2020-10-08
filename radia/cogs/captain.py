@@ -34,7 +34,7 @@ class Captain(commands.Cog):
             if not await self.in_server(ctx, team.captain.discord)
         ]
         # Send Status Check
-        embed = utils.embed.create(title="Captain Check", description="Here's a quick status check on captains.")
+        embed = utils.Embed(title="Captain Check", description="Here's a quick status check on captains.")
         self.list_invalid_captains(embed, teams, invalid_captains)
         await ctx.send(embed=embed)
 
@@ -59,7 +59,7 @@ class Captain(commands.Cog):
                 invalid_captains.append(f"{team.captain.discord} | {team.name}")
 
         # Send Report Embed
-        embed = utils.embed.create(
+        embed = utils.Embed(
             title="Success: Captain Role Assigned",
             description=f"Assigned Captain role to `{len(captain_role.members)}` members.")
         self.list_invalid_captains(embed, teams, invalid_captains)
@@ -79,7 +79,7 @@ class Captain(commands.Cog):
                     await member.edit(nick=None)
 
         # Display embed
-        embed = await utils.embed.create(
+        embed = await utils.Embed(
             title="Success: Captain Role Removed",
             description=f"Removed Captain role from `{len(captain_role.members)}` members.")
         await ctx.send(embed=embed)
@@ -103,7 +103,7 @@ class Captain(commands.Cog):
         if invalid_captains:
             embed.add_field(
                 name="List of Invalid Captains:",
-                value=utils.embed.list_block(invalid_captains))
+                value=utils.Embed.list_block(invalid_captains))
 
 
 def setup(bot):
