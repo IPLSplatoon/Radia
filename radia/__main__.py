@@ -7,12 +7,16 @@ This includes importing the bot, loading the cogs, setting the prefix, etc.
 import os
 import logging
 
+from discord import Intents
+
 from radia import cogs, utils
 from radia import db, google, battlefy
 from radia.bot import Bot
 
 # Create Bot
-bot = Bot(command_prefix="!")
+intents = Intents.default()
+intents.members = True
+bot = Bot(command_prefix="!" intents=intents)
 
 # Load Cogs
 for cog in cogs.names:
