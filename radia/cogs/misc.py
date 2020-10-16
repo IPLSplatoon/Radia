@@ -23,7 +23,7 @@ class Misc(commands.Cog):
     @commands.command()
     async def pet(self, ctx):
         """Get a picture of a pet."""
-        embed = utils.embed.create(title="Pets!", description="Picture of pets")
+        embed = utils.Embed(title="Pets!", description="Picture of pets")
         embed.set_image(url=f"https://cdn.vlee.me.uk/TurnipBot/pets/{randint(0, 83)}.png")
         await ctx.send(embed=embed)
     
@@ -31,7 +31,7 @@ class Misc(commands.Cog):
     @commands.command(hidden=True)
     async def alright(self, ctx):
         """Increases one to the counter of people who responded: 'alright'."""
-        embed = utils.embed.create(title="alright", description="alright counter: `its_a_stub_lol`")
+        embed = utils.Embed(title="alright", description="alright counter: `its_a_stub_lol`")
         await ctx.send(embed=embed)
     
     @commands.command(aliases=['reputation'])
@@ -54,7 +54,7 @@ class Misc(commands.Cog):
         This is mainly because of Skye (radia's mine)
         """
         if any(msg in message.content for msg in ["love", "ily"]) and (self.bot.user in message.mentions or "radia" in message.content):
-            await message.channel.send(embed=utils.embed.create(title="Error: Unreciprocated"))
+            await message.channel.send(embed=utils.Embed(title="Error: Unreciprocated"))
 
 
 def setup(bot):

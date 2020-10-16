@@ -30,12 +30,12 @@ class Settings(commands.Cog):
         with db.connector.open() as session:
             try:
                 server = session.query(SettingsModel).filter(SettingsModel.server == str(ctx.guild.id)).one()
-                embed = utils.embed.create(title=f"Current settings for {str(ctx.guild)}:")
+                embed = utils.Embed(title=f"Current settings for {str(ctx.guild)}:")
                 embed.add_field(name="Captain Role:", value=ctx.guild.get_role(int(server.captain_role)).mention)
                 embed.add_field(name="Bot Channel:", value=ctx.guild.get_channel(int(server.bot_channel)).mention)
                 embed.add_field(name="Battlefy Field:", value=server.battlefy_field, inline=False)
                 embed.add_field(name="Tournament:", value=server.tournament, inline=False)
-                embed.add_field(name="Auto-role:", value=utils.embed.emoji_bool(server.auto_role), inline=False)
+                embed.add_field(name="Auto-role:", value=utils.Embed.emoji_bool(server.auto_role), inline=False)
                 await ctx.send(embed=embed)
             except NoResultFound:
                 await ctx.send(f"There are no settings for your server, initialize your server with `{ctx.prefix}settings init`")

@@ -28,7 +28,7 @@ class Info(commands.Cog):
         if prefix:
             try:
                 name, response, image_link = google.connector.rules.get(prefix.lower())
-                embed = utils.embed.create(title=f"{name.capitalize()} Rules", description=response)
+                embed = utils.Embed(title=f"{name.capitalize()} Rules", description=response)
                 if image:
                     embed.set_image(image_link)
                 await ctx.send(embed=embed)
@@ -36,10 +36,10 @@ class Info(commands.Cog):
                 await ctx.send("Section could not be found, try a different prefix.")
 
         else:
-            embed = utils.embed.create(title="Rules")
+            embed = utils.Embed(title="Rules")
             embed.add_field(
                 name="Options:",
-                value=utils.embed.list_block(google.connector.rules.options()))
+                value=utils.Embed.list_block(google.connector.rules.options()))
             await ctx.send(embed=embed)
 
     @commands.command(aliases=["canned"])
@@ -48,7 +48,7 @@ class Info(commands.Cog):
         if prefix:
             try:
                 name, response, image_link = google.connector.whatis.get(prefix.lower())
-                embed = utils.embed.create(title=f"What Is... {name.capitalize()}?", description=response)
+                embed = utils.Embed(title=f"What Is... {name.capitalize()}?", description=response)
                 if image:
                     embed.set_image(image_link)
                 await ctx.send(embed=embed)
@@ -56,10 +56,10 @@ class Info(commands.Cog):
                 await ctx.send(self.invalid_whatis(prefix))
 
         else:
-            embed = utils.embed.create(title="What Is...")
+            embed = utils.Embed(title="What Is...")
             embed.add_field(
                 name="Options:",
-                value=utils.embed.list_block(google.connector.whatis.options()))
+                value=utils.Embed.list_block(google.connector.whatis.options()))
             await ctx.send(embed=embed)
 
     def invalid_whatis(self, prefix):
