@@ -5,8 +5,8 @@ import dateutil.parser
 
 class Player:
     """Function and utilities for managing players from the battlefy api."""
-    
-    def __init__(self, battlefy, discord = None, sw = None):
+
+    def __init__(self, battlefy, discord=None, sw=None):
         self.raw = battlefy
         self.slug = self.raw.get("userSlug")  # More persistent than their "persistent" player ids
         self.ign = self.raw.get("inGameName")
