@@ -27,15 +27,8 @@ class Connector:
         :return Tournament: A Tournament object
         """
         battlefy_tournament = await self.query(f"tournaments/{tournament}")
-        return Tournament(battlefy_tournament)
-
-    async def get_teams(self, tournament):
-        """ Get a list of team objects from battlefy api.
-        :param tournament str: Battlefy Tournament ID
-        :return list[Team]: A list of Team objects
-        """
         battlefy_teams = await self.query(f"tournaments/{tournament}/teams")
-        return [Team(team) for team in battlefy_teams]
+        return Tournament(battlefy_tournament, battlefy_teams)
 
 
 connector = Connector()
