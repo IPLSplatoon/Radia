@@ -11,7 +11,7 @@ from radia.db.models import Settings as SettingsModel
 
 
 class Settings(commands.Cog):
-    """Deals with Kraken Mare."""
+    """Manages tournament settings."""
 
     def __init__(self, bot):
         self.bot = bot
@@ -23,8 +23,7 @@ class Settings(commands.Cog):
         
         - `captain_role`: The role to assign to captains.
         - `bot_channel`: A channel dedicated to bot commands.
-        - `battlefy_field`: IDFK.
-        - `tournament`: The BattleFy ID of the tournament.
+        - `tournament`: The Battlefy ID of the tournament.
         - `auto_role`: Whether to automatically assign the captain role.
         """
         with db.connector.open() as session:
@@ -33,7 +32,6 @@ class Settings(commands.Cog):
                 embed = utils.Embed(title=f"Current settings for {str(ctx.guild)}:")
                 embed.add_field(name="Captain Role:", value=ctx.guild.get_role(int(server.captain_role)).mention)
                 embed.add_field(name="Bot Channel:", value=ctx.guild.get_channel(int(server.bot_channel)).mention)
-                embed.add_field(name="Battlefy Field:", value=server.battlefy_field, inline=False)
                 embed.add_field(name="Tournament:", value=server.tournament, inline=False)
                 embed.add_field(name="Auto-role:", value=utils.Embed.emoji_bool(server.auto_role), inline=False)
                 await ctx.send(embed=embed)
@@ -41,7 +39,7 @@ class Settings(commands.Cog):
                 await ctx.send(f"There are no settings for your server, initialize your server with `{ctx.prefix}settings init`")
 
     @settings.command(aliases=["initialize", "new"])
-    async def init(self, ctx, captain_role, bot_channel, battlefy_field, tournament, auto_role: bool = True):
+    async def init(self, ctx, captain_role, tournament, auto_role: bool = True):
         """
         Initialize settings for the server.
         
@@ -56,8 +54,6 @@ class Settings(commands.Cog):
                 new = SettingsModel(
                     server=str(ctx.guild.id),
                     captain_role=str(ctx.message.role_mentions[0].id),
-                    bot_channel=str(ctx.message.channel_mentions[0].id),
-                    battlefy_field=battlefy_field,
                     tournament=tournament,
                     auto_role=auto_role)
                 session.add(new)
@@ -99,18 +95,6 @@ class Settings(commands.Cog):
                 else:
                     await ctx.send("Invalid bot channel, did you remember to mention the channel?")
 
-    @edit.command(aliases=["field"])
-    async def battlefy_field(self, ctx, value):
-        """Edit the battlefy field... field."""
-        with db.connector.open() as session:
-            try:
-                server = session.query(SettingsModel).filter(SettingsModel.server == str(ctx.guild.id)).one()
-            except NoResultFound:
-                await ctx.send(f"There are no settings for your server. initialize your server with `{ctx.prefix}`settings init`")
-            else:
-                server.battlefy_field = value
-                await ctx.send("Successfully changed `battlefy_field`... field.")
-    
     @edit.command(aliases=["tourney"])
     async def tournament(self, ctx, value):
         """Edit the tournament field."""
