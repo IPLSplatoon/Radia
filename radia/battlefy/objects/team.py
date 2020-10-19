@@ -2,7 +2,7 @@
 
 import dateutil.parser
 
-from .player import Player
+from .player import Player, Captain
 
 
 class Team:
@@ -15,7 +15,7 @@ class Team:
             self.logo = self.raw["persistentTeam"]["logoUrl"]
         self.created_at = dateutil.parser.isoparse(self.raw["createdAt"])
 
-        self.captain = Player(
+        self.captain = Captain(
             self.raw["captain"],
             self.__custom_field(discord_field_id),
             self.__custom_field(fc_field_id))
