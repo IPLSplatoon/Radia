@@ -12,11 +12,9 @@ class Tournament(Base):
     """Tournament table model."""
 
     __tablename__ = "tournament"
-    id = Column(Integer, primary_key=True, unique=True, nullable=False)
-    battlefy_id = Column(String, unique=True)
-    date = Column(DateTime)
-    guild = Column(String)
-    role = Column(String)
+    id = Column(String, primary_key=True, unique=True, nullable=False)
+    server = 0  # TODO: link to server model that holds this tournament
+    captain_role_id = Column(Integer, unique=True)
 
 
 Base.metadata.create_all(connector.engine)

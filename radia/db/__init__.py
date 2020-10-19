@@ -7,6 +7,8 @@ from contextlib import contextmanager
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
+from . import models
+
 
 class Connector:
     """Database connector."""
@@ -40,3 +42,20 @@ class Connector:
 
 
 connector = Connector()
+
+
+class Query:
+    """ Here lies all of the ugly queries.
+    
+    The reason why this is not part of the connector class is because of circular imports.
+    """
+
+    def __init__(self, connector):
+        self.connector = connector
+    
+    def server(self, id):
+        with self.connector.open() as session:
+            return session.query(models.Server).filter(models.Server.id == id).one()
+
+
+query = Query(connector)
