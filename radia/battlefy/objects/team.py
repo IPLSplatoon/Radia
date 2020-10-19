@@ -18,8 +18,7 @@ class Team:
         self.captain = Player(
             self.raw["captain"],
             self.__custom_field(discord_field_id),
-            self.__custom_field(fc_field_id)
-        )
+            self.__custom_field(fc_field_id))
         self.players = [Player(raw) for raw in battlefy["players"]]
 
     def __custom_field(self, _id: str, default=None):
