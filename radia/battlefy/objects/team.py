@@ -1,7 +1,6 @@
 """Battlefy team object."""
 
 import dateutil.parser
-import re
 
 from .player import Player
 

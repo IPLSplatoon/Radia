@@ -1,6 +1,5 @@
 """Battlefy tournament object."""
 
-from os import fchdir
 import re
 import dateutil.parser
 from . import Team
