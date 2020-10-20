@@ -11,7 +11,7 @@ class Captain(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        self.member = commands.MemberConverter()
+        self.member_converter = commands.MemberConverter()
 
     @commands.group(invoke_without_subcommand=True)
     async def captain(self, ctx, *args, **kwargs):
@@ -68,7 +68,7 @@ class Captain(commands.Cog):
     @captain.command()
     async def remove(self, ctx, nick: bool = False):
         """Remove captain role from members."""
-        # settings = db.connector.find_settings(server=ctx.guild.id)
+        # tournament = db.utils.query_active_tournament(ctx.guild.id)
         captain_role = ctx.guild.get_role("406171863698505739")  # DB: settings.captain_role
         
         with ctx.typing():
@@ -87,7 +87,7 @@ class Captain(commands.Cog):
     async def in_server(self, ctx, member: str) -> bool:
         """Check if any string representation of a member is in the server or not."""
         try:
-            await self.member.convert(ctx, member)
+            await self.member_converter.convert(ctx, member)
         except commands.BadArgument:
             return False
         return True
