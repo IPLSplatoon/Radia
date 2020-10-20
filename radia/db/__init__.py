@@ -6,6 +6,7 @@ from contextlib import contextmanager
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm.exc import NoResultFound
 
 from . import models
 
@@ -41,10 +42,7 @@ class Connector:
             session.close()
 
 
-connector = Connector()
-
-
-class Query:
+class Utils:
     """ Here lies all of the ugly queries.
     
     The reason why this is not part of the connector class is because of circular imports.
@@ -53,9 +51,26 @@ class Query:
     def __init__(self, connector):
         self.connector = connector
     
-    def server(self, id):
+    def query_server(self, id):
         with self.connector.open() as session:
-            return session.query(models.Server).filter(models.Server.id == id).one()
+            try:
+                return session.query(models.Server).filter(models.Server.id == id).one()
+            except NoResultFound:
+                return None
+    
+    def add_server(self, **kwargs):
+        with self.connector.open() as session:
+            new = models.Server(**kwargs)
+            session.add(new)
+        return new
+    
+    def query_tournament(self):
+        pass
+    
+    def query_active_tournament(self, server_id):
+        server = self.query_server(server_id)
+        # TODO: Get active tournament from server
+    
 
-
-query = Query(connector)
+connector = Connector()
+utils = Utils(connector)
