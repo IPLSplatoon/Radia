@@ -28,7 +28,10 @@ class HelpCommand(commands.DefaultHelpCommand):
         await self.get_destination().send(embed=embed)
 
     async def send_cog_help(self, cog):
-        """Send cog command page."""
+        """ Send cog command page.
+        
+        The most beautiful function I've ever written in python
+        """
         embed = self.create_embed(
             title=cog.qualified_name.capitalize(),
             description=cog.description,
