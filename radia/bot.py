@@ -42,7 +42,7 @@ class Bot(commands.Bot):
             "Signup for Unnamed Tournament!",
             # funny
             "Powered by High Ink!",
-            "Testing Grounds is buying LUTI.",
+            "Investing in buying LUTI.",
             "Get your coffee grounds 45% off this weekend at Testing Grounds."
             "According to all known laws of aviation",
             # Round 4
