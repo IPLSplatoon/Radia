@@ -21,30 +21,11 @@ class Misc(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command()
-    async def pet(self, ctx):
+    async def pet(self, ctx, num: int = None):
         """Get a picture of a pet."""
         embed = utils.Embed(title="Pets!", description="Picture of pets")
-        embed.set_image(url=f"https://cdn.vlee.me.uk/TurnipBot/pets/{randint(0, 83)}.png")
+        embed.set_image(url=f"https://cdn.vlee.me.uk/TurnipBot/pets/{num if num != None else randint(0, 83)}.png")
         await ctx.send(embed=embed)
-    
-    @commands.has_role("Staff")
-    @commands.command(hidden=True)
-    async def alright(self, ctx):
-        """Increases one to the counter of people who responded: 'alright'."""
-        embed = utils.Embed(title="alright", description="alright counter: `its_a_stub_lol`")
-        await ctx.send(embed=embed)
-    
-    @commands.command(aliases=['reputation'])
-    async def rep(self, ctx, action, mention, *, message):
-        """Show your appreciation or disdain for someone."""
-        emojis = {
-            "+": ["\U0001f44d", "\u2728", "\U0001f389", "\U0001f499", "\U0001f44f", "\U0001f31f"],
-            "-": ["\U0001f44e", "\U0001f4a2", "\U0001f52a", "\U0001f52b", "\U0001f611", "\U0001f6ab"]
-        }.get(action, False)
-        if emojis:
-            await ctx.message.add_reaction(choice(emojis))
-        else:
-            await ctx.send("That's not a valid action")
 
     @commands.Cog.listener()
     async def on_message(self, message):
