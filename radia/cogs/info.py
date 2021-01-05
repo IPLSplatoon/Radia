@@ -21,7 +21,7 @@ class Info(commands.Cog):
             await utils.agenda.refresh()
             await google.connector.rules.refresh()
             await google.connector.whatis.refresh()
-        await ctx.send("\u2728 *Refreshed!*")
+        await ctx.message.add_reaction("♻")
 
     @commands.command(aliases=["rule"])
     async def rules(self, ctx, prefix=None, image: bool = False):
