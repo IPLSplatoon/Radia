@@ -62,3 +62,6 @@ class Event:
     def __init__(self, battlefy, role="406171863698505739", *args):
         self.battlefy = battlefy
         self.role = role
+    
+    def get_role(self, ctx):
+        return ctx.guild.get_role(int(self.role))
