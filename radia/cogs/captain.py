@@ -11,7 +11,6 @@ class Captain(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        self.member_converter = commands.MemberConverter()
 
     @commands.group(invoke_without_subcommand=True)
     async def captain(self, ctx, *args, **kwargs):
@@ -83,14 +82,6 @@ class Captain(commands.Cog):
             title="Success: Captain Role Removed",
             description=f"Removed Captain role from `{len(captain_role.members)}` members.")
         await ctx.send(embed=embed)
-
-    async def in_server(self, ctx, member: str) -> bool:
-        """Check if any string representation of a member is in the server or not."""
-        try:
-            await self.member_converter.convert(ctx, member)
-        except commands.BadArgument:
-            return False
-        return True
 
     @staticmethod
     def list_invalid_captains(embed, teams, invalid_captains):
