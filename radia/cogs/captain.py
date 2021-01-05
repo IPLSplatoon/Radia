@@ -1,9 +1,10 @@
 """Captain cog."""
 
+from typing import List
 import discord
 from discord.ext import commands
 
-from radia import utils, battlefy#, db
+from radia import utils, battlefy
 
 
 class Captain(commands.Cog):
@@ -23,78 +24,84 @@ class Captain(commands.Cog):
     @captain.command()
     async def check(self, ctx):
         """Show the current status of captains."""
-        # settings = db.connector.find_settings(server=ctx.guild.id)
-        teams = await battlefy.connector.get_teams("5f21e5e1f5fc96423c53d094") # DB: settings.tournament
+        # Get the tournament teams
+        tourney = utils.agenda.next_tourney()
+        teams: List[battlefy.Team] = await battlefy.connector.get_teams(tourney.battlefy)
 
         # Create list of invalid captains
         invalid_captains = [
             f"{team.captain.discord} | {team.name}"
             for team in teams
-            if not await self.in_server(ctx, team.captain.discord)
+            if not await team.captain.get_discord(ctx)
         ]
         # Send Status Check
         embed = utils.Embed(title="Captain Check", description="Here's a quick status check on captains.")
-        self.list_invalid_captains(embed, teams, invalid_captains)
+        embed.add_field(name="\ufeff", value="\n".join([
+            f"Total Teams: `{len(teams)}`",
+            f"Invalid Captains: `{len(invalid_captains)}"
+        ]))
+        self.embed_invalid_captains(embed, invalid_captains, name="List of invalid captains:")
         await ctx.send(embed=embed)
 
     @captain.command()
-    async def assign(self, ctx):
+    async def assign(self, ctx, nick: bool = False):
         """Assign captain role to members."""
-        # settings = db.connector.find_settings(server=ctx.guild.id)
-        captain_role = ctx.guild.get_role("406171863698505739")  # DB: settings.captain_role
+        tourney = utils.agenda.next_tourney()
+        invalid_captains = []
+        assigned_to = 0
 
         # Loop over teams and assign valid captains
-        teams = await battlefy.connector.get_teams("5f21e5e1f5fc96423c53d094") # DB: settings.tournament
-        invalid_captains = []
-        for team in teams:
-            # Convert captain discord field to member object
-            member = team.captain.discord
-            if await self.in_server(ctx, member):
-                await member.add_roles(captain_role)  # DB: settings.captain_role
-                await member.edit(nick=team.name[:32])
-            else:
-                await member.remove_roles(captain_role)  # DB: settings.captain_role
-                await member.edit(nick=None)
-                invalid_captains.append(f"{team.captain.discord} | {team.name}")
+        async with ctx.typing():
+            teams: List[battlefy.Team] = await battlefy.connector.get_teams(tourney.battlefy)
+            for team in teams:
+                # Add captain role to members
+                try:
+                    if (member := await team.captain.get_discord(ctx)) == None:
+                        raise discord.DiscordException
+                    await member.add_roles(tourney.get_role(ctx))
+                # Adding role failed, append team to the list of invalid captains
+                except discord.DiscordException:
+                    invalid_captains.append(f"{team.captain.discord} | {team.name}")
+                # Adding captain role was successful, edit captain nickname
+                else:
+                    if nick:
+                        await member.edit(nick=team.name[:32])
+                    assigned_to += 1
 
         # Send Report Embed
         embed = utils.Embed(
-            title="Success: Captain Role Assigned",
-            description=f"Assigned Captain role to `{len(captain_role.members)}` members.")
-        self.list_invalid_captains(embed, teams, invalid_captains)
+            title="✅ **Success:** captain role assigned",
+            description=f"{tourney.get_role(ctx).mention} assigned to `{len(tourney.get_role(ctx).members)}`")
+        self.embed_invalid_captains(embed, invalid_captains)
         await ctx.send(embed=embed)
 
     @captain.command()
     async def remove(self, ctx, nick: bool = False):
         """Remove captain role from members."""
-        # tournament = db.utils.query_active_tournament(ctx.guild.id)
-        captain_role = ctx.guild.get_role("406171863698505739")  # DB: settings.captain_role
-        
-        with ctx.typing():
+        tourney = utils.agenda.prev_tourney()
+
+        async with ctx.typing():
             # Loop over members with the captain_role
-            for member in captain_role.members:
-                member.remove_roles(captain_role)
+            for member in tourney.get_role(ctx).members:
+                member.remove_roles(tourney.get_role(ctx))
                 if nick:
                     await member.edit(nick=None)
 
         # Display embed
-        embed = await utils.Embed(
+        embed = utils.Embed(
             title="Success: Captain Role Removed",
-            description=f"Removed Captain role from `{len(captain_role.members)}` members.")
+            description=f"Removed Captain role from `{len(tourney.get_role(ctx).members)}` members.")
         await ctx.send(embed=embed)
 
     @staticmethod
-    def list_invalid_captains(embed, teams, invalid_captains):
-        """Add fields to display number of invalid captains and list their details."""
-        embed.add_field(name="\ufeff", value="\n".join([
-            f"Total Teams: `{len(teams)}`",
-            f"Invalid Captains: `{len(invalid_captains)}"
-        ]))
-        # Create a field to list the invalid captains, if there are any
-        if invalid_captains:
-            embed.add_field(
-                name="List of Invalid Captains:",
-                value=utils.Embed.list_block(invalid_captains))
+    def embed_invalid_captains(embed, invalid_captains, **kwargs):
+        """Add fields to embed to display number of invalid captains and list their details."""
+        embed.add_field(
+            name="Could not assign the captain role to:",
+            value=(
+                utils.Embed.list_block(invalid_captains)
+                if invalid_captains else "✨ **~ Every captain has their role! ~**"),
+            **kwargs)
 
 
 def setup(bot):
