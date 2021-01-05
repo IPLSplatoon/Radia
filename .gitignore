@@ -22,7 +22,6 @@ lib64/
 parts/
 sdist/
 var/
-radia/db/data/
 wheels/
 share/python-wheels/
 *.egg-info/

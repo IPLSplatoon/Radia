@@ -10,7 +10,7 @@ import logging
 from discord import Intents
 
 from radia import cogs, utils
-from radia import db, google, battlefy
+from radia import google, battlefy
 from radia.bot import Bot
 
 # Create Bot

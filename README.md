@@ -34,7 +34,6 @@
 
    ```py
    TOKEN = discord.bot.token
-   POSTGRES = db_password
    GSHEET = gsheet_key
    SENTRY = "System Environment"  # Optional
    DEBUG = 1  # Optional
