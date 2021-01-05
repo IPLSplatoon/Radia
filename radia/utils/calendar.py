@@ -44,6 +44,18 @@ class Agenda:
             if event.has_end() and event.end > arrow.now():
                 yield event
 
+    def prev_tourney(self):
+        """Return the previous tournament, or None if there isn't one."""
+        prev_event = None
+        for event in self.calendar.timeline:
+            if not event.has_end() or not event.description:
+                continue
+            elif event.begin < arrow.now():
+                prev_event = event
+            else:
+                return Event(**load_yaml(prev_event.description))
+
+
 class Event:
     """Represents a tournament event."""
 
