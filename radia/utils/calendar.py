@@ -12,20 +12,24 @@ class Agenda:
 
     def __init__(self):
         self.session = aiohttp.ClientSession()
+        self.calendar = None
         self.agenda = []
 
     def __iter__(self):
         return iter(self.agenda)
     
     async def next_tourney(self):
-        return self.agenda[0]
+        """Return the upcoming tournament, or None if there isn't one."""
+        if self.agenda:
+            return self.agenda[0]
 
     async def refresh(self, *args, **kwargs):
         """Refresh the calendar and tournament events by reinitializing them."""
-        calendar = Calendar(self.query(*args, **kwargs))
+        self.calendar = Calendar(self.query(*args, **kwargs))
         self.agenda = [
             Event(**load_yaml(event.description))
-            for event in calendar.timeline.start_after(arrow.now())
+            for event in self.filter_cal()
+            if event.description
         ]
 
     async def query(self, url="fi2493cmq5k867spkca48be37o%40group.calendar.google.com/private-81bf777d88e7c877b4aa735a45f676da/basic.ics"):
@@ -34,7 +38,11 @@ class Agenda:
             if response.status == 200:
                 return await response.text()
             logging.error("Unable to fetch google calendar file, Status Code: %s", response.status)
-
+    
+    def filter_cal(self):
+        for event in self.calendar.timeline:
+            if event.has_end() and event.end > arrow.now():
+                yield event
 
 class Event:
     """Represents a tournament event."""
