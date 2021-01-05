@@ -6,5 +6,4 @@ names = [
     "info",
     "kraken",
     "misc",
-    "settings"
 ]
