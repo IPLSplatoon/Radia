@@ -31,7 +31,7 @@ class Bracket(commands.Cog):
             # Create a set of all members with any bracket role
             all_champions = set()
             for role in roles:
-                all_champions += role.members
+                all_champions.update(role.members)
             # Remove bracket roles from each of those members
             for member in all_champions:
                 await member.remove_roles(*roles)
