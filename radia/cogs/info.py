@@ -18,6 +18,7 @@ class Info(commands.Cog):
     async def refresh(self, ctx):
         """Reload all the data on the worksheets."""
         with ctx.typing():
+            await utils.agenda.refresh()
             await google.connector.rules.refresh()
             await google.connector.whatis.refresh()
         await ctx.send("\u2728 *Refreshed!*")
