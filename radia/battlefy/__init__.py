@@ -30,5 +30,9 @@ class Connector:
         battlefy_teams = await self.query(f"tournaments/{tournament}/teams")
         return Tournament(battlefy_tournament, battlefy_teams)
 
+    async def get_teams(self, *args):
+        """Helper function that simply returns the ".teams" attribute of a tournament."""
+        tourney = await self.get_tournament(*args)
+        return tourney.teams
 
 connector = Connector()
