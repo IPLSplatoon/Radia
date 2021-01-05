@@ -11,8 +11,7 @@ class Team:
     def __init__(self, battlefy, discord_field_id, fc_field_id):
         self.raw = battlefy
         self.name = self.raw["name"]
-        if "logoUrl" in self.raw["persistentTeam"]:
-            self.logo = self.raw["persistentTeam"]["logoUrl"]
+        self.logo = self.raw["persistentTeam"].get("logoUrl", None)
         self.created_at = dateutil.parser.isoparse(self.raw["createdAt"])
 
         self.captain = Captain(
