@@ -11,3 +11,7 @@ psycopg2
 # Google
 gspread
 pandas
+
+# Calendar
+ics
+pyyaml
