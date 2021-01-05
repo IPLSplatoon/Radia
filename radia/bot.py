@@ -34,30 +34,34 @@ class Bot(commands.Bot):
     @tasks.loop(seconds=60)
     async def update_presence(self):
         await self.change_presence(activity=discord.Game(random.choice([
+            "!help to get started",
+            # Signup!
             "Signup for Low Ink!",
             "Signup for Swim or Sink!",
             "Signup for Testing Grounds!",
             "Signup for Unnamed Tournament!",
+            # funny
             "Powered by High Ink!",
-            "Signup for Low Ink!",
-            "The Low Ink bot.",
-            "!help to get started",
-            "Sprinkles!",
-            "what is luti?",
+            "Testing Grounds is buying LUTI.",
+            "Get your coffee grounds 45% off this weekend at Testing Grounds."
+            "According to all known laws of aviation",
+            # Round 4
             "Round 4, here we go again!",
             "The real round 4 were the friends we made along the way.",
-            "What is Low Ink?",
-            "Ban Kraken Mare",
-            "Icon by Ozei#3125",
+            # uwu stuff
+            "Sprinkles!",
             "Wawa!",
+            # Socials
+            "Twitter: @IPLSplatoon",
             "Twitch: twitch.tv/IPLSplatoon",
             "Battlefy: battlefy.com/inkling-performance-labs",
-            "Twitter: @IPLSplatoon",
             "Patreon: patreon.com/IPLSplatoon",
             "Github: github.com/IPL-Splat",
-            "Facebook: facebook.com/IPLSplatoon",
             "Youtube: youtube.com/channel/UCFRVQSUskcsB5NjjIZKkWTA",
-            "According to all known laws of aviation",
+            "Facebook: facebook.com/IPLSplatoon",
+            # People-specific
+            "Icon by Ozei!",
+            "Ban Kraken Mare",
             "I kid you not Hoeen, he turns himself into a pickle.",
             "Go to sleep Lepto.",
             "Skye passed out again."
