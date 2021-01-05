@@ -62,7 +62,8 @@ class Bot(commands.Bot):
             # People-specific
             "Icon by Ozei!",
             "Ban Kraken Mare",
-            "I kid you not Hoeen, he turns himself into a pickle.",
-            "Go to sleep Lepto.",
-            "Skye passed out again."
+            "I kid you not Hoeen, he turns himself into a pickle",
+            "Go to sleep Lepto",
+            "Skye passed out again",
+            "Helpdesk needs you .jpg"
         ])))
