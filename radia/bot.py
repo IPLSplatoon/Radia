@@ -34,6 +34,10 @@ class Bot(commands.Bot):
     @tasks.loop(seconds=60)
     async def update_presence(self):
         await self.change_presence(activity=discord.Game(random.choice([
+            "Signup for Low Ink!",
+            "Signup for Swim or Sink!",
+            "Signup for Testing Grounds!",
+            "Signup for Unnamed Tournament!",
             "Powered by High Ink!",
             "Signup for Low Ink!",
             "The Low Ink bot.",
