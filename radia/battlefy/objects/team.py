@@ -16,12 +16,12 @@ class Team:
         self.created_at = dateutil.parser.isoparse(self.raw["createdAt"])
 
         self.captain = Captain(
-            self.raw["captain"],
-            self.__custom_field(discord_field_id),
-            self.__custom_field(fc_field_id))
-        self.players = [Player(raw) for raw in battlefy["players"]]
+            battlefy=self.raw.get("captain", None),
+            discord_field=self.__get_custom_field_by_id(discord_field_id),
+            fc_field=self.__get_custom_field_by_id(fc_field_id))
+        self.players = [Player(battlefy=raw) for raw in battlefy["players"]]
 
-    def __custom_field(self, _id: str, default=None):
+    def __get_custom_field_by_id(self, _id: str, default=None):
         """ Return a custom field
         :param _id: The id of the custom field.
         :return:
