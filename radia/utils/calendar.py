@@ -18,14 +18,14 @@ class Agenda:
     def __iter__(self):
         return iter(self.agenda)
     
-    async def next_tourney(self):
+    def next_tourney(self):
         """Return the upcoming tournament, or None if there isn't one."""
         if self.agenda:
             return self.agenda[0]
 
     async def refresh(self, *args, **kwargs):
         """Refresh the calendar and tournament events by reinitializing them."""
-        self.calendar = Calendar(self.query(*args, **kwargs))
+        self.calendar = Calendar(await self.query(*args, **kwargs))
         self.agenda = [
             Event(**load_yaml(event.description))
             for event in self.filter_cal()
