@@ -14,15 +14,6 @@ class Info(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
     
-    @commands.command()
-    async def refresh(self, ctx):
-        """Reload all the data on the worksheets."""
-        with ctx.typing():
-            await utils.agenda.refresh()
-            await google.connector.rules.refresh()
-            await google.connector.whatis.refresh()
-        await ctx.message.add_reaction("♻")
-
     @commands.command(aliases=["rule"])
     async def rules(self, ctx, prefix=None, image: bool = False):
         """Send an embedded rules section."""
