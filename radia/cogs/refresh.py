@@ -30,7 +30,7 @@ class Refresh(commands.Cog):
     @tasks.loop(hours=1)
     async def refresh_loop(self):
         """Loop that refreshes worksheets and agenda."""
-        self.run_refresh()
+        await self.run_refresh()
 
 
 def setup(bot):
