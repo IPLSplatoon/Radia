@@ -22,10 +22,10 @@ class Captain(commands.Cog):
         await ctx.invoke(self.check, *args, **kwargs)  # Run 'captain check' command
 
     @captain.command()
-    async def check(self, ctx):
+    async def check(self, ctx, index: int = 0):
         """Show the current status of captains."""
         # Get the tournament teams
-        tourney = utils.agenda.next_tourney()
+        tourney = utils.agenda.tourney_at(index)
         teams: List[battlefy.Team] = await battlefy.connector.get_teams(tourney.battlefy)
 
         # Create list of invalid captains
