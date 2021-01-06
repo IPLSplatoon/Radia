@@ -56,7 +56,7 @@ class Captain(commands.Cog):
             for team in teams:
                 # Add captain role to members
                 try:
-                    if (member := await team.captain.get_discord(ctx)) == None:
+                    if (member := await team.captain.get_discord(ctx)) is None:
                         raise discord.DiscordException
                     await member.add_roles(tourney.get_role(ctx))
                     assigned_to += 1
