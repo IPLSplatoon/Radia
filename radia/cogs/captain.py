@@ -59,6 +59,7 @@ class Captain(commands.Cog):
                     if (member := await team.captain.get_discord(ctx)) == None:
                         raise discord.DiscordException
                     await member.add_roles(tourney.get_role(ctx))
+                    assigned_to += 1
                 # Adding role failed, append team to the list of invalid captains
                 except discord.DiscordException:
                     invalid_captains.append(f"{team.captain.discord} | {team.name}")
@@ -66,12 +67,11 @@ class Captain(commands.Cog):
                 else:
                     if nick:
                         await member.edit(nick=team.name[:32])
-                    assigned_to += 1
 
         # Send Report Embed
         embed = utils.Embed(
-            title="✅ **Success:** captain role assigned",
-            description=f"{tourney.get_role(ctx).mention} assigned to `{len(tourney.get_role(ctx).members)}`")
+            title=f"✅ **Success:** captain role assigned for {tourney.event.name}",
+            description=f"{tourney.get_role(ctx).mention} assigned to `{assigned_to}`")
         self.embed_invalid_captains(embed, invalid_captains)
         await ctx.send(embed=embed)
 
@@ -89,8 +89,8 @@ class Captain(commands.Cog):
 
         # Display embed
         embed = utils.Embed(
-            title="Success: Captain Role Removed",
-            description=f"Removed Captain role from `{len(tourney.get_role(ctx).members)}` members.")
+            title=f"✅ **Success:** captain role removed for {tourney.event.name}",
+            description=f"{tourney.get_role(ctx).mention} removed from `{len(tourney.get_role(ctx).members)}`")
         await ctx.send(embed=embed)
 
     @staticmethod
