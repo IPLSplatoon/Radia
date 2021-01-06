@@ -1,6 +1,6 @@
 """Misc cog."""
 
-from random import choice, randint
+from random import randint
 
 import discord
 from discord.ext import commands
