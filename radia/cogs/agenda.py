@@ -25,7 +25,7 @@ class Agenda(commands.Cog):
             ))
         else:
             try:
-                tourney = list(utils.agenda)[index]
+                tourney = utils.agenda.tourney_at(index)
             except IndexError:
                 await ctx.send("⛔ **Invalid tournament index**")
             else:
