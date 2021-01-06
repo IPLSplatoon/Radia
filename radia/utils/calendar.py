@@ -27,7 +27,7 @@ class Agenda:
         """Refresh the calendar and tournament events by reinitializing them."""
         self.calendar = Calendar(await self.query(*args, **kwargs))
         self.agenda = [
-            Event(**load_yaml(event.description))
+            Event(event, **load_yaml(event.description))
             for event in self.filter_cal()
             if event.description
         ]
@@ -59,7 +59,8 @@ class Agenda:
 class Event:
     """Represents a tournament event."""
 
-    def __init__(self, battlefy, role="406171863698505739", *args):
+    def __init__(self, event, battlefy, role="406171863698505739", *args):
+        self.event = event
         self.battlefy = battlefy
         self.role = role
     
