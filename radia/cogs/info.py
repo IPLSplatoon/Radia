@@ -49,7 +49,6 @@ class Info(commands.Cog):
         if prefix:
             try:
                 name, response, image_link = google.connector.whatis.get(prefix.lower())
-                print("poop")
             except TypeError:
                 await ctx.send(self.invalid_whatis(prefix))
             else:
