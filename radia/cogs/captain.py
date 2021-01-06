@@ -13,7 +13,7 @@ class Captain(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.group(invoke_without_subcommand=True)
+    @commands.group(invoke_without_command=True)
     async def captain(self, ctx, *args, **kwargs):
         """
         Show the current status of captains.
