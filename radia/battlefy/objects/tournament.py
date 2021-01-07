@@ -22,6 +22,8 @@ class Tournament:
     @classmethod
     def get_field_ids(cls, battlefy_teams):
         """Use regex to identify and return the field ids for battlefy fields."""
+        if not battlefy_teams:
+            return None, None
         custom_fields = battlefy_teams[0]["customFields"]
         for i, field in enumerate(custom_fields):
             fields = custom_fields.copy()
