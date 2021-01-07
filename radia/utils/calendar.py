@@ -36,6 +36,8 @@ class Agenda:
 
     def tourney_at(self, index: int):
         """Return the tournament at the given index."""
+        if index == -1:
+            return self.prev_tourney()
         return self.agenda[index]
 
     async def refresh(self, *args, **kwargs):
