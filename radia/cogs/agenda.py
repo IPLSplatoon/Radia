@@ -30,7 +30,7 @@ class Agenda(commands.Cog):
                 await ctx.send("⛔ **Invalid tournament index**")
             else:
                 await ctx.send(embed=utils.Embed(
-                    title=f"📆 Event Name: `{tourney.event.name}`",
+                    title=f"📅 Event Name: `{tourney.event.name}`",
                     description=self.tourney_desc(ctx, tourney),
                 ))
 
@@ -38,7 +38,7 @@ class Agenda(commands.Cog):
     async def next(self, ctx):
         tourney = utils.agenda.next_tourney()
         await ctx.send(embed=utils.Embed(
-            title=f"📆 Event Name: `{tourney.event.name}`",
+            title=f"📅 Event Name: `{tourney.event.name}`",
             description=self.tourney_desc(ctx, tourney),
         ))
 
