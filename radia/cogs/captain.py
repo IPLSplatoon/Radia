@@ -70,9 +70,7 @@ class Captain(commands.Cog):
 
         # Send Report Embed
         embed = utils.Embed(
-            title=f"✅ **Success:** captain role assigned for {tourney.event.name}",
-            description=f"{tourney.get_role(ctx).mention} assigned to `{assigned_to}`")
-        self.embed_invalid_captains(embed, invalid_captains)
+        self.embed_invalid_captains(embed, invalid_captains, name="Could not assign the captain role to:")
         await ctx.send(embed=embed)
 
     @captain.command()
