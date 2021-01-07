@@ -75,7 +75,7 @@ class Captain(commands.Cog):
 
 
     @captain.command()
-    async def remove(self, ctx, index: int = -1, nick: bool = False):
+    async def remove(self, ctx, index: int = 0, nick: bool = False):
         """Remove captain role from members."""
         tourney = utils.agenda.tourney_at(index)
 
