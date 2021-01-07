@@ -23,12 +23,19 @@ class Tournament:
         """Use regex to identify and return the field ids for battlefy fields."""
         custom_fields = battlefy_teams[0]["customFields"]
         for i, field in enumerate(custom_fields):
+            fields = custom_fields.copy()
             # Regex pattern matches valid discord usernames
-            if re.match(r'.#\d{4}$', field["value"]):
-                discord = custom_fields[i]["_id"]
-                fc = custom_fields[(i + 1) % 2]["_id"]  # Other field must be fc
+            if re.match(r'.{1,}#\d{4}$', field["value"]):
+                discord_field = fields.pop(i)
+                if fields:
+                    # Other field must be fc
+                    fc_field = fields.pop(0)
+                else:
+                    # There is no other field
+                    fc_field = {"_id": None}
+
                 # Return field ids
-                return discord, fc
+                return discord_field["_id"], fc_field["_id"]
         else:
             # Try it with the next team
             return cls.get_field_ids(battlefy_teams[1:])
