@@ -2,11 +2,10 @@
 
 names = [
     # Main
-    "tourney",
     "info",
+    "tourney",
     # Other
-    "champion",
-    "bracket",
+    "roles",
     "refresh",
     "misc",
 ]

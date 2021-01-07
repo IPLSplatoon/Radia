@@ -23,7 +23,7 @@ class HelpCommand(commands.DefaultHelpCommand):
                 "value": "\n".join([
                     self.short(command)
                     for command in await self.filter_commands(cog_commands)
-                ])} for cog, cog_commands in mapping.items() if await self.filter_commands(cog_commands)][::-1]
+                ])} for cog, cog_commands in mapping.items() if await self.filter_commands(cog_commands)]
         )
         await self.get_destination().send(embed=embed)
 
