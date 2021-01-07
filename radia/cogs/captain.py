@@ -30,7 +30,7 @@ class Captain(commands.Cog):
 
         # Create list of invalid captains
         invalid_captains = [
-            f"{team.captain.discord} | {team.name}"
+            f"`{team.captain.discord}` | `{team.name}`"
             for team in teams
             if not await team.captain.get_discord(ctx)
         ]
