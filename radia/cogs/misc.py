@@ -35,7 +35,10 @@ class Misc(commands.Cog):
         This is mainly because of Skye (radia's mine)
         """
         if any(msg in message.content for msg in ["love", "ily"]) and (self.bot.user in message.mentions or "radia" in message.content):
-            await message.channel.send(embed=utils.Embed(title="Error: Unreciprocated"))
+            if message.author.id == 571494333090496514:
+                await message.add_reaction("<:radia_uwu:748176810059104358>")
+            else:
+                await message.channel.send(embed=utils.Embed(title="Error: Unreciprocated"))
 
 
 def setup(bot):
