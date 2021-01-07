@@ -30,7 +30,7 @@ class Agenda(commands.Cog):
                 await ctx.send("⛔ **Invalid tournament index**")
             else:
                 await ctx.send(embed=utils.Embed(
-                    title="Upcoming Tournament",
+                    title=f"📆 Event Name: `{tourney.event.name}`",
                     description=self.tourney_desc(ctx, tourney),
                 ))
 
@@ -38,7 +38,7 @@ class Agenda(commands.Cog):
     async def next(self, ctx):
         tourney = utils.agenda.next_tourney()
         await ctx.send(embed=utils.Embed(
-            title="Upcoming Tournament",
+            title=f"📆 Event Name: `{tourney.event.name}`",
             description=self.tourney_desc(ctx, tourney),
         ))
 
@@ -46,7 +46,7 @@ class Agenda(commands.Cog):
     async def prev(self, ctx):
         tourney = utils.agenda.prev_tourney()
         await ctx.send(embed=utils.Embed(
-            title="Previous Tournament",
+            title=f"📆 Event Name: `{tourney.event.name}`",
             description=self.tourney_desc(ctx, tourney),
         ))
     
@@ -54,9 +54,8 @@ class Agenda(commands.Cog):
     def tourney_desc(ctx, tourney):
         format_str = 'MMM DD, YYYY h:mm A UTC'
         return "\n".join([
-            f"Name: `{tourney.event.name}`",
-            f"Starting Time: `{tourney.event.begin.format(format_str)}`",
-            f"Ending Time: `{tourney.event.end.format(format_str)}`",
+            f"Event Begin Time: `{tourney.event.begin.format(format_str)}`",
+            f"Event End Time: `{tourney.event.end.format(format_str)}`",
             f"Battlefy Tournament ID: `{tourney.battlefy}`",
             f"Captain Role: {tourney.get_role(ctx).mention}",
         ])
