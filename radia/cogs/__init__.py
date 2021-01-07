@@ -1,11 +1,12 @@
 """List all the extensions."""
 
 names = [
-    "agenda",
-    "captain",
-    "champion",
+    # Main
+    "tourney",
     "info",
-    "kraken",
-    "misc",
+    # Other
+    "champion",
+    "bracket",
     "refresh",
+    "misc",
 ]

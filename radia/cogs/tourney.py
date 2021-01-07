@@ -1,18 +1,71 @@
-"""Captain cog."""
+"""Tourney cog."""
 
-from typing import List
 import discord
 from discord.ext import commands
+from typing import List
 
 from radia import utils, battlefy
 
 
-class Captain(commands.Cog):
-    """Manages captain roles."""
+class Tourney(commands.Cog):
+    """Tourney related commands."""
 
     def __init__(self, bot):
         self.bot = bot
+    
+    # Agenda Command Group:
 
+    @commands.has_role("Staff")
+    @commands.group(invoke_without_command=True, aliases=["calendar", "cal"])
+    async def agenda(self, ctx, index: int = None):
+        """View the agenda."""
+        if index is None:
+            await ctx.send(embed=utils.Embed(
+                title="🗓️ Agenda",
+                description=utils.Embed.list(
+                    [item.event.name for item in utils.agenda],
+                    ordered=True)
+            ))
+        else:
+            try:
+                tourney = utils.agenda.tourney_at(index)
+            except IndexError:
+                await ctx.send("⛔ **Invalid tournament index**")
+            else:
+                await ctx.send(embed=utils.Embed(
+                    title=f"📅 Event Name: `{tourney.event.name}`",
+                    description=self.tourney_desc(ctx, tourney),
+                ))
+
+    @agenda.command(aliases=["upcoming"])
+    async def next(self, ctx):
+        tourney = utils.agenda.next_tourney()
+        await ctx.send(embed=utils.Embed(
+            title=f"📅 Event Name: `{tourney.event.name}`",
+            description=self.tourney_desc(ctx, tourney),
+        ))
+
+    @agenda.command(aliases=["previous"])
+    async def prev(self, ctx):
+        tourney = utils.agenda.prev_tourney()
+        await ctx.send(embed=utils.Embed(
+            title=f"📆 Event Name: `{tourney.event.name}`",
+            description=self.tourney_desc(ctx, tourney),
+        ))
+    
+    @staticmethod
+    def tourney_desc(ctx, tourney):
+        format_str = 'MMM DD, YYYY h:mm A UTC'
+        return "\n".join([
+            f"Event Begin Time: `{tourney.event.begin.format(format_str)}`",
+            f"Event End Time: `{tourney.event.end.format(format_str)}`",
+            f"Battlefy Tournament ID: `{tourney.battlefy}`",
+            f"Captain Role: {tourney.get_role(ctx).mention}",
+        ])
+
+    # Captain Command Group:
+
+    @commands.has_role("Staff")
     @commands.group(invoke_without_command=True)
     async def captain(self, ctx, index: int = 0):
         """
@@ -72,8 +125,6 @@ class Captain(commands.Cog):
         await ctx.send(embed=embed)
         await ctx.invoke(self.check, 0, invalid_captains)  # Run 'captain check' command
 
-
-
     @captain.command()
     async def remove(self, ctx, index: int = 0, nick: bool = False):
         """Remove captain role from members."""
@@ -105,5 +156,6 @@ class Captain(commands.Cog):
             "inline": False,
             **kwargs})
 
+
 def setup(bot):
-    bot.add_cog(Captain(bot))
+    bot.add_cog(Tourney(bot))
