@@ -35,11 +35,9 @@ class Captain(commands.Cog):
             if not await team.captain.get_discord(ctx)
         ]
         # Send Status Check
-        embed = utils.Embed(title="Captain Check", description="Here's a quick status check on captains.")
-        embed.add_field(name="\ufeff", value="\n".join([
-            f"Total Teams: `{len(teams)}`",
-            f"Invalid Captains: `{len(invalid_captains)}"
-        ]))
+        embed = utils.Embed(
+            title=f"🗒️ Captain status check for `{tourney.event.name}`",
+            description=f"Invalid Captains / Total Teams: `{len(invalid_captains)}/{len(teams)}`")
         self.embed_invalid_captains(embed, invalid_captains, name="List of invalid captains:")
         await ctx.send(embed=embed)
 
