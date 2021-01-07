@@ -32,7 +32,7 @@ class Agenda:
             elif event.begin < arrow.now():
                 prev_event = event
             else:
-                return Event(**load_yaml(prev_event.description))
+                return Event(prev_event, **load_yaml(prev_event.description))
 
     def tourney_at(self, index: int):
         """Return the tournament at the given index."""
@@ -65,6 +65,7 @@ class Event:
 
     def __init__(self, event, battlefy, role="406171863698505739", **kwargs):
         self.event = event
+        # Event description params
         self.battlefy = battlefy
         self.role = role
     
