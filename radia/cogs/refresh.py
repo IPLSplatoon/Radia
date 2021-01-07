@@ -1,4 +1,4 @@
-"""Misc cog."""
+"""Refresh cog."""
 
 import discord
 from discord.ext import commands, tasks
@@ -22,7 +22,7 @@ class Refresh(commands.Cog):
 
     @commands.command()
     async def refresh(self, ctx):
-        """Refetch all of the code."""
+        """Refresh data for Info and Tourney."""
         with ctx.typing():
             await self.run_refresh()
         await ctx.send("♻ **Refreshed!**")
