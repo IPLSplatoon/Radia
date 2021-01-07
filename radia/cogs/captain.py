@@ -78,18 +78,19 @@ class Captain(commands.Cog):
     async def remove(self, ctx, index: int = 0, nick: bool = False):
         """Remove captain role from members."""
         tourney = utils.agenda.tourney_at(index)
+        removed_from = len(tourney.get_role(ctx).members)
 
         async with ctx.typing():
             # Loop over members with the captain_role
             for member in tourney.get_role(ctx).members:
-                member.remove_roles(tourney.get_role(ctx))
+                await member.remove_roles(tourney.get_role(ctx))
                 if nick:
                     await member.edit(nick=None)
 
         # Display embed
         embed = utils.Embed(
             title=f"✅ **Success:** roles removed for `{tourney.event.name}`",
-            description=f"{tourney.get_role(ctx).mention} removed from `{len(tourney.get_role(ctx).members)}` members.")
+            description=f"{tourney.get_role(ctx).mention} removed from `{removed_from}` members.")
         await ctx.send(embed=embed)
 
     @staticmethod
