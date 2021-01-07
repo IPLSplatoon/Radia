@@ -70,6 +70,8 @@ class Captain(commands.Cog):
 
         # Send Report Embed
         embed = utils.Embed(
+            title=f"✅ **Success:** roles assigned for `{tourney.event.name}`",
+            description=f"{tourney.get_role(ctx).mention} assigned to `{assigned_to}` members.")
         self.embed_invalid_captains(embed, invalid_captains, name="Could not assign the captain role to:")
         await ctx.send(embed=embed)
 
@@ -87,8 +89,8 @@ class Captain(commands.Cog):
 
         # Display embed
         embed = utils.Embed(
-            title=f"✅ **Success:** captain role removed for {tourney.event.name}",
-            description=f"{tourney.get_role(ctx).mention} removed from `{len(tourney.get_role(ctx).members)}`")
+            title=f"✅ **Success:** roles removed for `{tourney.event.name}`",
+            description=f"{tourney.get_role(ctx).mention} removed from `{len(tourney.get_role(ctx).members)}` members.")
         await ctx.send(embed=embed)
 
     @staticmethod
