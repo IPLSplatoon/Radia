@@ -94,7 +94,12 @@ class Captain(commands.Cog):
     @staticmethod
     def embed_invalid_captains(embed, invalid_captains, **kwargs):
         """Add fields to embed to display number of invalid captains and list their details."""
+        embed.add_field(**{
+            "value": (
                 utils.Embed.list(invalid_captains)
+                if invalid_captains else "> ✨ **~ No invalid captains! ~**"),
+            "inline": False,
+            **kwargs})
 
 def setup(bot):
     bot.add_cog(Captain(bot))
