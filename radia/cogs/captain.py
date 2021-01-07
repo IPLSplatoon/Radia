@@ -22,7 +22,7 @@ class Captain(commands.Cog):
         await ctx.invoke(self.check, index)  # Run 'captain check' command
 
     @captain.command()
-    async def check(self, ctx, index: int = 0):
+    async def check(self, ctx, index: int = 0, _invalid_captains=None):
         """Show the current status of captains."""
         # Get the tournament teams
         tourney = utils.agenda.tourney_at(index)
@@ -30,10 +30,9 @@ class Captain(commands.Cog):
 
         # Create list of invalid captains
         invalid_captains = [
-            f"`{team.captain.discord}` | `{team.name}`"
-            for team in teams
+            team for team in teams
             if not await team.captain.get_discord(ctx)
-        ]
+        ] if not _invalid_captains else _invalid_captains
         # Send Status Check
         embed = utils.Embed(
             title=f"🗒️ Captain status check for `{tourney.event.name}`",
@@ -60,7 +59,7 @@ class Captain(commands.Cog):
                     assigned_to += 1
                 # Adding role failed, append team to the list of invalid captains
                 except discord.DiscordException:
-                    invalid_captains.append(f"{team.captain.discord} | {team.name}")
+                    invalid_captains.append(team)
                 # Adding captain role was successful, edit captain nickname
                 else:
                     if nick:
@@ -70,13 +69,15 @@ class Captain(commands.Cog):
         embed = utils.Embed(
             title=f"✅ **Success:** roles assigned for `{tourney.event.name}`",
             description=f"{tourney.get_role(ctx).mention} assigned to `{assigned_to}` members.")
-        self.embed_invalid_captains(embed, invalid_captains, name="Could not assign the captain role to:")
         await ctx.send(embed=embed)
+        await ctx.invoke(self.check, 0, invalid_captains)  # Run 'captain check' command
+
+
 
     @captain.command()
-    async def remove(self, ctx, nick: bool = False):
+    async def remove(self, ctx, index: int = -1, nick: bool = False):
         """Remove captain role from members."""
-        tourney = utils.agenda.prev_tourney()
+        tourney = utils.agenda.tourney_at(index)
 
         async with ctx.typing():
             # Loop over members with the captain_role
@@ -96,7 +97,9 @@ class Captain(commands.Cog):
         """Add fields to embed to display number of invalid captains and list their details."""
         embed.add_field(**{
             "value": (
-                utils.Embed.list(invalid_captains)
+                utils.Embed.list(
+                    f"`{team.captain.discord}` | `{team.name}`"
+                    for team in invalid_captains)
                 if invalid_captains else "> ✨ **~ No invalid captains! ~**"),
             "inline": False,
             **kwargs})
