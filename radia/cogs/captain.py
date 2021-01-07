@@ -14,12 +14,12 @@ class Captain(commands.Cog):
         self.bot = bot
 
     @commands.group(invoke_without_command=True)
-    async def captain(self, ctx, *args, **kwargs):
+    async def captain(self, ctx, index: int = 0):
         """
         Show the current status of captains.
         Group of commands handling the captain roles.
         """
-        await ctx.invoke(self.check, *args, **kwargs)  # Run 'captain check' command
+        await ctx.invoke(self.check, index)  # Run 'captain check' command
 
     @captain.command()
     async def check(self, ctx, index: int = 0):
