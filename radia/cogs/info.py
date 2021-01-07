@@ -31,7 +31,7 @@ class Info(commands.Cog):
             embed = utils.Embed(title="Rules")
             embed.add_field(
                 name="Options:",
-                value=utils.Embed.list_block(google.connector.rules.options()))
+                value=utils.Embed.list(google.connector.rules.options()))
             await ctx.send(embed=embed)
 
     @commands.command(aliases=["canned"])
@@ -51,7 +51,7 @@ class Info(commands.Cog):
             embed = utils.Embed(title="What Is...")
             embed.add_field(
                 name="Options:",
-                value=utils.Embed.list_block(google.connector.whatis.options()))
+                value=utils.Embed.list(google.connector.whatis.options()))
             await ctx.send(embed=embed)
 
     def invalid_whatis(self, prefix):

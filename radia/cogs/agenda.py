@@ -18,10 +18,10 @@ class Agenda(commands.Cog):
         """View the agenda."""
         if index is None:
             await ctx.send(embed=utils.Embed(
-                title="📅 Agenda",
-                description="\n".join([
-                    f"`{index}:` {item.event.name}"
-                    for index, item in enumerate(utils.agenda)])
+                title="🗓️ Agenda",
+                description=utils.Embed.list(
+                    [item.event.name for item in utils.agenda],
+                    ordered=True)
             ))
         else:
             try:

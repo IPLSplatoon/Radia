@@ -31,7 +31,7 @@ class Champion(commands.Cog):
         # Log all members the champion roles were added to
         embed = utils.Embed(
             title="Added champion roles to:",
-            description=utils.Embed.list_block(
+            description=utils.Embed.list(
                 [member.mention for member in ctx.message.mentions]))
         await ctx.send(embed=embed)
 
@@ -56,7 +56,7 @@ class Champion(commands.Cog):
         # Log all members the champion roles were removed from
         embed = utils.Embed(
             title="Removed champion roles from:",
-            description=utils.Embed.list_block(
+            description=utils.Embed.list(
                 [member.mention for member in all_champions]))
         await ctx.send(embed=embed)
 

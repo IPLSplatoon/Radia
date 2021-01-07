@@ -14,7 +14,7 @@ class Embed(discord.Embed):
         self.timestamp = datetime.utcnow()
 
     @staticmethod
-    def list_block(items: list) -> str:
+    def list(items: list, *, ordered=False) -> str:
         """
         Return a formatted list
         :param list items:
@@ -22,10 +22,15 @@ class Embed(discord.Embed):
         :return str:
             The list codeblock
         """
+        def format(i, item):
+            """Format a list item."""
+            if ordered:
+                return f"> `{i}.` {item}"
+            else:
+                return f"> `-` {item}"
+
         return "\n".join([
-            "```",
-            *[f"- {item}" for item in items],
-            "```"
+            *[format(i, item) for i, item in enumerate(items)],
         ])
 
     @staticmethod

@@ -39,7 +39,7 @@ class Bracket(commands.Cog):
         # Log all members the bracket roles were removed from
         embed = utils.Embed(
             title="Removed bracket roles from:",
-            description=utils.Embed.list_block(f"`{len(all_champions)}` total members."))
+            description=utils.Embed.list(f"`{len(all_champions)}` total members."))
         await ctx.send(embed=embed)
 
 
