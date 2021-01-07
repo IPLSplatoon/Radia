@@ -16,7 +16,8 @@ class Tournament:
     @classmethod
     def create_teams(cls, battlefy_teams):
         """Create teams using the battlefy_teams data."""
-        return [Team(team, *cls.get_field_ids(battlefy_teams)) for team in battlefy_teams]
+        field_ids = cls.get_field_ids(battlefy_teams)
+        return [Team(team, *field_ids) for team in battlefy_teams]
 
     @classmethod
     def get_field_ids(cls, battlefy_teams):
