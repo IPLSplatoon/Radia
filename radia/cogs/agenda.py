@@ -13,7 +13,7 @@ class Agenda(commands.Cog):
         self.bot = bot
     
     @commands.has_role("Staff")
-    @commands.group(invoke_without_command=True)
+    @commands.group(invoke_without_command=True, aliases=["calendar", "cal"])
     async def agenda(self, ctx, index: int = None):
         """View the agenda."""
         if index is None:
