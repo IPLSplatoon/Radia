@@ -31,7 +31,7 @@ class Bot(commands.Bot):
             logging.error(error)
             raise error
 
-    @tasks.loop(seconds=60)
+    @tasks.loop(minutes=1)
     async def update_presence(self):
         await self.change_presence(activity=discord.Game(random.choice([
             "!help to get started",
@@ -43,7 +43,8 @@ class Bot(commands.Bot):
             # funny
             "Powered by High Ink!",
             "Investing in buying LUTI.",
-            "Get your coffee grounds 45% off this weekend at Testing Grounds."
+            "Get your coffee grounds 45% off this weekend at Testing Grounds.",
+            "Sink or Swim or Swim or Sink",
             "According to all known laws of aviation",
             # Round 4
             "Round 4, here we go again!",
@@ -65,5 +66,5 @@ class Bot(commands.Bot):
             "I kid you not Hoeen, he turns himself into a pickle",
             "Go to sleep Lepto",
             "Skye passed out again",
-            "Helpdesk needs you .jpg"
+            "Helpdesk needs you .jpg",
         ])))
