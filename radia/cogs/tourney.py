@@ -92,7 +92,14 @@ class Tourney(commands.Cog):
         embed = utils.Embed(
             title=f"🗒️ Captain status check for `{tourney.event.name}`",
             description=f"Invalid Captains / Total Teams: `{len(invalid_captains)}/{len(teams)}`")
-        self.embed_invalid_captains(embed, invalid_captains, name="List of invalid captains:")
+        embed.add_field(
+            name="List of invalid captains:",
+            value=(
+                # Embed a list of invalid captains
+                utils.Embed.list(
+                    f"`{team.captain.discord}` | `{team.name}`" for team in invalid_captains)
+                # If there are any invalid captains, else, return a simple string
+                if teams else "> ✨ **~ No invalid captains! ~**"))
         await ctx.send(embed=embed)
 
     @captain.command()
@@ -145,22 +152,6 @@ class Tourney(commands.Cog):
             title=f"✅ **Success:** roles removed for `{tourney.event.name}`",
             description=f"{tourney.get_role(ctx).mention} removed from `{removed_from}` members.")
         await ctx.send(embed=embed)
-
-    @staticmethod
-    def embed_invalid_captains(embed, invalid_captains, name):
-        """Add fields to embed to display number of invalid captains and list their details."""
-        embed.add_field(
-            name=name,
-            value=(
-                # Embed a list of invalid captains
-                utils.Embed.list(
-                    # List comprehension!
-                    f"`{team.captain.discord}` | `{team.name}`" for team in invalid_captains)
-                # If there are any invalid captains, else, return a simple string
-                if invalid_captains
-                else "> ✨ **~ No invalid captains! ~**"),
-            inline=False,
-        )
 
 
 def setup(bot):
