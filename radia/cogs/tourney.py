@@ -2,7 +2,6 @@
 
 import discord
 from discord.ext import commands
-from typing import List
 
 from radia import utils, battlefy
 
@@ -80,7 +79,7 @@ class Tourney(commands.Cog):
         """Show the current status of captains."""
         # Get the tournament teams
         tourney = utils.agenda.tourney_at(index)
-        teams: List[battlefy.Team] = await battlefy.connector.get_teams(tourney.battlefy)
+        teams = await battlefy.connector.get_teams(tourney.battlefy)
 
         # Create list of invalid captains
         invalid_captains = [
@@ -88,7 +87,7 @@ class Tourney(commands.Cog):
             if not await team.captain.get_discord(ctx)
         ] if not _invalid_captains else _invalid_captains
 
-        # Send status check
+        # Send status check embed
         embed = utils.Embed(
             title=f"🗒️ Captain status check for `{tourney.event.name}`",
             description=f"Invalid Captains / Total Teams: `{len(invalid_captains)}/{len(teams)}`")
@@ -111,7 +110,7 @@ class Tourney(commands.Cog):
 
         # Loop over teams and assign valid captains
         async with ctx.typing():
-            teams: List[battlefy.Team] = await battlefy.connector.get_teams(tourney.battlefy)
+            teams = await battlefy.connector.get_teams(tourney.battlefy)
             for team in teams:
                 # Attempt to add captain role to members
                 try:

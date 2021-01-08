@@ -5,7 +5,10 @@ from discord.ext import commands
 
 
 class Player:
-    """Function and utilities for managing players from the battlefy api."""
+    """ Function and utilities for managing players from the battlefy api.
+    
+    :param dict battlefy: The raw battlefy api data
+    """
 
     def __init__(self, battlefy):
         self.raw = battlefy
@@ -13,7 +16,12 @@ class Player:
 
 
 class Captain(Player):
-    """Added variables for captains specifically."""
+    """ Added variables for captains specifically.
+
+    :param dict battlefy: Same as Player
+    :param str discord_field: The value of the battlefy custom field for their discord
+    :param str fc_field: The value of the battlefy custom field for their fc
+    """
 
     def __init__(self, battlefy, discord_field, fc_field):
         super().__init__(battlefy)
