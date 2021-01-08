@@ -22,7 +22,7 @@ class Roles(commands.Cog):
         """Remove the bracket roles from members who currently have it."""
         with ctx.typing():
             # Create list of applicable champion roles
-            roles = utils.roles.get(ctx,
+            roles = self.get_roles(ctx,
                 "Alpha",
                 "Beta",
                 "Gamma"
@@ -51,7 +51,7 @@ class Roles(commands.Cog):
         """Add the Champion role to members."""
         with ctx.typing():
             # Create list of applicable champion roles
-            roles = utils.roles.get(ctx,
+            roles = self.get_roles(ctx,
                 "Past Low Ink Winner",
                 "Low Ink Current Champions"
             )
@@ -71,7 +71,7 @@ class Roles(commands.Cog):
         """Remove the champion roles from members who currently have it."""
         with ctx.typing():
             # Create list of applicable champion roles
-            roles = utils.roles.get(ctx,
+            roles = self.get_roles(ctx,
                 "Low Ink Current Champions",
                 "Beta Bracket Champions",
                 "Gamma Bracket Champions"
@@ -90,6 +90,15 @@ class Roles(commands.Cog):
             description=utils.Embed.list(
                 [member.mention for member in all_champions]))
         await ctx.send(embed=embed)
+
+    @staticmethod
+    def get_roles(ctx, *names):
+        """Get a list of all the roles with the given role names."""
+        return [
+            role
+            for name in names
+            if (role := discord.utils.get(ctx.guild.roles, name=name))
+        ]
 
 
 def setup(bot):
