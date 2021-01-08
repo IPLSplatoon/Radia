@@ -6,8 +6,9 @@
 
 ## Contributing
 
-1. Fork the repository or use the source repository.
+1. Fork the repository, do NOT create any branches on the source repository.
 1. Make a new branch to submit your pull request from.
+1. Submit a pull request to the `master` branch. Please make sure you select "Allow edits from contributors".
 
 ### Running locally
 
@@ -21,7 +22,7 @@
 1. Enable the following API
    - [Google Sheets API](https://console.developers.google.com/apis/api/sheets.googleapis.com)
    - [Google Drive API](https://console.developers.google.com/apis/api/drive.googleapis.com)
-1. Got to the [API & Services](https://console.developers.google.com/apis/credentials) and navigate to `credentials` tab
+1. Go to the [API & Services](https://console.developers.google.com/apis/credentials) and navigate to `credentials` tab
 1. Click on `+ create credentials` and create a new `Service Accounts` fill in the necessary field.
    - When you get to **Role** give it `editor`.
 1. Download the `credentials` files and rename it `google.json`
