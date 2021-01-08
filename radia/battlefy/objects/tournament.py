@@ -22,23 +22,22 @@ class Tournament:
     @classmethod
     def get_field_ids(cls, battlefy_teams):
         """Use regex to identify and return the field ids for battlefy fields."""
-        if not battlefy_teams:
+        if not battlefy_teams:  # No teams signed up
             return None, None
         custom_fields = battlefy_teams[0]["customFields"]
+        # Loop over each field attempting to detect if it's a discord field or not.
         for i, field in enumerate(custom_fields):
-            fields = custom_fields.copy()
+            fields = custom_fields.copy()  # Makes sure using .pop() doesn't mess with the actual team fields
             # Regex pattern matches valid discord usernames
             if re.match(r'.{1,}#\d{4}$', field["value"]):
                 discord_field = fields.pop(i)
+                # If there are still more fields, other field must be fc
                 if fields:
-                    # Other field must be fc
                     fc_field = fields.pop(0)
-                else:
-                    # There is no other field
+                else:  # Otherwise, there's no fc field
                     fc_field = {"_id": None}
-
                 # Return field ids
                 return discord_field["_id"], fc_field["_id"]
         else:
-            # Try it with the next team
+            # Detecting the field ID's failed, try it with the next team
             return cls.get_field_ids(battlefy_teams[1:])

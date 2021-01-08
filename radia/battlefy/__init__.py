@@ -23,6 +23,7 @@ class Connector:
 
     async def get_tournament(self, tournament):
         """ Get tournament object from battlefy api.
+
         :param tournament str: Battlefy Tournament ID
         :return Tournament: A Tournament object
         """

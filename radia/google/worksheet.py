@@ -32,7 +32,10 @@ class Responses(Worksheet):
         return self.dataframe["prefix0"]
 
     def get(self, prefix):
-        """Return the responses section with the given prefix."""
+        """ Return the responses section with the given prefix.
+
+        :return tuple: (Prefix, Response, Image)
+        """
         for i, row in self.dataframe.iterrows():
             if prefix in [p for p in row[:5] if p != '']:
                 return row["prefix0"], row["Response"], row["ImageLink"]

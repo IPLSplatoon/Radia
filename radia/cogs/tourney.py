@@ -12,7 +12,7 @@ class Tourney(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-    
+
     # Agenda Command Group:
 
     @commands.has_role("Staff")
@@ -20,6 +20,7 @@ class Tourney(commands.Cog):
     async def agenda(self, ctx, index: int = None):
         """View the agenda."""
         if index is None:
+            # Send an embedded list of all of the agenda events
             await ctx.send(embed=utils.Embed(
                 title="🗓️ Agenda",
                 description=utils.Embed.list(
@@ -27,6 +28,7 @@ class Tourney(commands.Cog):
                     ordered=True)
             ))
         else:
+            # Send an embed of the event at index, send an error if it fails
             try:
                 tourney = utils.agenda.tourney_at(index)
             except IndexError:
@@ -34,8 +36,7 @@ class Tourney(commands.Cog):
             else:
                 await ctx.send(embed=utils.Embed(
                     title=f"📅 Event Name: `{tourney.event.name}`",
-                    description=self.tourney_desc(ctx, tourney),
-                ))
+                    description=self.tourney_desc(ctx, tourney)))
 
     @agenda.command(aliases=["upcoming"])
     async def next(self, ctx):
@@ -52,7 +53,7 @@ class Tourney(commands.Cog):
             title=f"📆 Event Name: `{tourney.event.name}`",
             description=self.tourney_desc(ctx, tourney),
         ))
-    
+
     @staticmethod
     def tourney_desc(ctx, tourney):
         format_str = 'MMM DD, YYYY h:mm A UTC'
@@ -86,7 +87,8 @@ class Tourney(commands.Cog):
             team for team in teams
             if not await team.captain.get_discord(ctx)
         ] if not _invalid_captains else _invalid_captains
-        # Send Status Check
+
+        # Send status check
         embed = utils.Embed(
             title=f"🗒️ Captain status check for `{tourney.event.name}`",
             description=f"Invalid Captains / Total Teams: `{len(invalid_captains)}/{len(teams)}`")
@@ -104,7 +106,7 @@ class Tourney(commands.Cog):
         async with ctx.typing():
             teams: List[battlefy.Team] = await battlefy.connector.get_teams(tourney.battlefy)
             for team in teams:
-                # Add captain role to members
+                # Attempt to add captain role to members
                 try:
                     if (member := await team.captain.get_discord(ctx)) is None:
                         raise discord.DiscordException
@@ -113,7 +115,7 @@ class Tourney(commands.Cog):
                 # Adding role failed, append team to the list of invalid captains
                 except discord.DiscordException:
                     invalid_captains.append(team)
-                # Adding captain role was successful, edit captain nickname
+                # Adding captain role was successful, optionally edit captain nickname
                 else:
                     if nick:
                         await member.edit(nick=team.name[:32])
@@ -145,16 +147,20 @@ class Tourney(commands.Cog):
         await ctx.send(embed=embed)
 
     @staticmethod
-    def embed_invalid_captains(embed, invalid_captains, **kwargs):
+    def embed_invalid_captains(embed, invalid_captains, name):
         """Add fields to embed to display number of invalid captains and list their details."""
-        embed.add_field(**{
-            "value": (
+        embed.add_field(
+            name=name,
+            value=(
+                # Embed a list of invalid captains
                 utils.Embed.list(
-                    f"`{team.captain.discord}` | `{team.name}`"
-                    for team in invalid_captains)
-                if invalid_captains else "> ✨ **~ No invalid captains! ~**"),
-            "inline": False,
-            **kwargs})
+                    # List comprehension!
+                    f"`{team.captain.discord}` | `{team.name}`" for team in invalid_captains)
+                # If there are any invalid captains, else, return a simple string
+                if invalid_captains
+                else "> ✨ **~ No invalid captains! ~**"),
+            inline=False,
+        )
 
 
 def setup(bot):

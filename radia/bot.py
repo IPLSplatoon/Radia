@@ -33,6 +33,7 @@ class Bot(commands.Bot):
 
     @tasks.loop(minutes=1)
     async def update_presence(self):
+        """Loop to update the bot presence by selecting one of the strings at random."""
         await self.change_presence(activity=discord.Game(random.choice([
             "!help to get started",
             # Signup!

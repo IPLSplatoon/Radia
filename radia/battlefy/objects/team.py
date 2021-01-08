@@ -22,6 +22,7 @@ class Team:
 
     def __get_custom_field_by_id(self, _id: str, default=None):
         """ Return a custom field
+
         :param _id: The id of the custom field.
         :return:
             The value of the custom field, or default/None if the custom field doesn't exist.

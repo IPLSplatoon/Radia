@@ -23,7 +23,9 @@ class Captain(Player):
 
     async def get_discord(self, ctx):
         """ Return the discord member object using the discord field provided.
-        Can return None if the discord member object is not found in the server.
+
+        :return Optional[discord.Member]:
+            Returns None if the member isn't found in the server.
         """
         if not self.discord:
             return None

@@ -1,4 +1,4 @@
-""" cog."""
+"""Roles cog."""
 
 import discord
 from discord.ext import commands, tasks
@@ -45,7 +45,7 @@ class Roles(commands.Cog):
     @commands.group()
     async def champion(self, ctx):
         """Group of commands handling the champion roles."""
-    
+
     @champion.command(aliases=["coronate", "crown"])
     async def add(self, ctx):
         """Add the Champion role to members."""

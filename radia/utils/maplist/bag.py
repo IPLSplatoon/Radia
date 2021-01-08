@@ -5,6 +5,7 @@ import random
 
 class Bag:
     """ Implemented algorithm to create balanced random picking.
+
     :param set items: A list of items to be placed in the bag.
     :param int div:
         The fraction of items that are the maximum number of recents at a time.

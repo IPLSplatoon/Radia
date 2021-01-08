@@ -10,7 +10,7 @@ class Pools:
 
     class NotEnoughMaps(Exception):
         """ There aren't enough maps in the map pool.
-        
+
         Contains 5 different bags:
         - 1 bag for each pool
         - 1 bag for all maps
@@ -20,13 +20,14 @@ class Pools:
             Pool[mode]: Gets the bag for the pool
             Pool.maps: Gets the bag for all maps
             Pool.modes: Gets the bag for modes
-        
+
         Methods:
             Pool.pick(): Returns a new tuple(map, mode) pick
         """
 
     def __init__(self, *, sz, tc, rm, cb) -> dict:
         """ Create a class to represent map pools.
+
         :params set: A :set: of :str maps:
         :return dict: A dictionary with modes as keys and a Bag of :maps: as values.
             {"Splat Zones": [maps]}
@@ -34,7 +35,7 @@ class Pools:
         # Check if any map pool has less than the minimum allowed maps
         if any(len(pool) < self.MIN_MAPS for pool in [sz, tc, rm, cb]):
             raise self.NotEnoughMaps(f"Map pool must have {self.MIN_MAPS} or more maps.")
-        
+
         # Create bags
         self.pools = {
             "Splat Zones": Bag(sz),
@@ -56,7 +57,7 @@ class Pools:
         mode = next(iter(self.modes))
         self.modes.pick(mode)
         return mode
-    
+
     def pick_map(self, mode):
         """Pick a map."""
         # Pick a new map from the bag

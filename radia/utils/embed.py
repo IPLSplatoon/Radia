@@ -15,10 +15,10 @@ class Embed(discord.Embed):
 
     @staticmethod
     def list(items: list, *, ordered=False) -> str:
-        """
-        Return a formatted list
-        :param list items:
-            List of items to format
+        """ Return a formatted list
+
+        :param list items: List of items to format
+        :param bool ordered: Whether the list should be ordered or not
         :return str:
             The list codeblock
         """
@@ -35,7 +35,7 @@ class Embed(discord.Embed):
 
     @staticmethod
     def emoji_bool(value: bool) -> str:
-        """Return an emoji based the Boolean value to display to the user instead of text."""
+        """Return an emoji based the Boolean value to display to the user instead of boring text."""
         return {
             True: "\u2705",
             False: "\u274c"
