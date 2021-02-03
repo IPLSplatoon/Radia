@@ -55,6 +55,10 @@ class Tourney(commands.Cog):
 
     @staticmethod
     def tourney_desc(ctx, tourney):
+        """ Format tournament description.
+
+        :param utils.Event tourney: the tournament event object
+        """
         format_str = 'MMM DD, YYYY h:mm A UTC'
         return "\n".join([
             f"Event Begin Time: `{tourney.event.begin.format(format_str)}`",
