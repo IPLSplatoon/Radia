@@ -7,7 +7,7 @@ from . import Team
 
 class Tournament:
     """ Function and utilities for managing tournaments from the battlefy api.
-    
+
     :param dict battlefy: The raw battlefy api tournament data
     :param list battlefy_teams: The raw battlefy api teams data
     """

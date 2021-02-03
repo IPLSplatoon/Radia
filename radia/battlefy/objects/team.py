@@ -7,7 +7,7 @@ from .player import Player, Captain
 
 class Team:
     """ Function and utilities for managing teams from the battlefy api.
-    
+
     :param dict battlefy: The raw battlefy data
     :param str discord_field_id: The battlefy field id of the discord field
     :param str fc_field_id: The battlefy field id of the friend-code field

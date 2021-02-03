@@ -29,7 +29,7 @@ class HelpCommand(commands.DefaultHelpCommand):
 
     async def send_cog_help(self, cog):
         """ Send cog command page.
-        
+
         The most beautiful function I've ever written in python
         """
         embed = self.create_embed(

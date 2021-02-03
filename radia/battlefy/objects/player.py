@@ -6,7 +6,7 @@ from discord.ext import commands
 
 class Player:
     """ Function and utilities for managing players from the battlefy api.
-    
+
     :param dict battlefy: The raw battlefy api data
     """
 

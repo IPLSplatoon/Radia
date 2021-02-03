@@ -26,7 +26,7 @@ class Refresh(commands.Cog):
         with ctx.typing():
             await self.run_refresh()
         await ctx.send("♻ **Refreshed!**")
-    
+
     @tasks.loop(hours=1)
     async def refresh_loop(self):
         """Loop that refreshes worksheets and agenda."""

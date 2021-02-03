@@ -15,7 +15,7 @@ class Connector:
 
     async def query(self, url: str):
         """ Get a response at url.
-        
+
         :param str url: The battlefy tournament id
         """
         async with self.session.get("https://dtmwra1jsgyb0.cloudfront.net/" + url) as response:
@@ -28,7 +28,7 @@ class Connector:
         """ Get tournament object from battlefy api.
 
         :param tournament str: The battlefy tournament ID
-        :rtype: Tournament 
+        :rtype: Tournament
         """
         battlefy_tournament = await self.query(f"tournaments/{tournament}")
         battlefy_teams = await self.query(f"tournaments/{tournament}/teams")
@@ -36,7 +36,7 @@ class Connector:
 
     async def get_teams(self, *args):
         """ Helper function that simply returns the ".teams" attribute of a tournament.
-        
+
         :return: List[Team]
         """
         tourney = await self.get_tournament(*args)
