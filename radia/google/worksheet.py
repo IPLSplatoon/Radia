@@ -5,7 +5,11 @@ import pandas as pd
 
 
 class Worksheet:
-    """Represents a google sheets worksheet."""
+    """ Represents a google sheets worksheet.
+
+    :param gspread.models.Spreadsheet gsheet: The google sheets object
+    :param str name: The name of a specific sheet
+    """
 
     def __init__(self, gsheet, name):
         self.gsheet = gsheet
