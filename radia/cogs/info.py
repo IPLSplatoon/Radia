@@ -59,7 +59,6 @@ class Info(commands.Cog):
         return random.choice([
             f"WHAT IS {prefix.upper()}??",
             "Doesn't exist",
-            "a social construct",
             ""
         ])
 
