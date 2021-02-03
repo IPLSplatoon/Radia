@@ -35,9 +35,10 @@ class Responses(Worksheet):
         """Return the response options."""
         return self.dataframe["prefix0"]
 
-    def get(self, prefix):
+    def get(self, prefix: str):
         """ Return the responses section with the given prefix.
 
+        :param str prefix: One of the possible prefixes of the response
         :return tuple: (Prefix, Response, Image)
         """
         for i, row in self.dataframe.iterrows():
