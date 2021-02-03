@@ -48,3 +48,10 @@ if sentry_env := os.getenv("SENTRY"):
     logging.info(".env - 'SENTRY' key found. Initializing Sentry")
 else:
     logging.info(".env - 'SENTRY' key not found. Skipping Sentry.")
+
+
+# Log ical environment variable
+if ical := os.getenv("ICAL"):
+    logging.info(".env - 'ICAL' key found (%s). This url will be used in the agenda.", ical)
+else:
+    logging.info(".env - 'ICAL' key not found. The agenda command will not work.")

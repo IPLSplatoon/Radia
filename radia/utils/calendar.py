@@ -1,5 +1,6 @@
 """Contains the Calendar class."""
 
+import os
 import logging
 import aiohttp
 import arrow
@@ -55,8 +56,11 @@ class Agenda:
             if event.description
         ]
 
-    async def query(self, url="fi2493cmq5k867spkca48be37o%40group.calendar.google.com/private-81bf777d88e7c877b4aa735a45f676da/basic.ics"):
-        """Make a get request to the ical link url."""
+    async def query(self, url=os.getenv("ICAL")):
+        """ Make a get request to the ical link url.
+
+        :param str url: The url to the ical file, defaults to the environment provided one.
+        """
         async with self.session.get("https://calendar.google.com/calendar/ical/" + url) as response:
             if response.status == 200:
                 return await response.text()
