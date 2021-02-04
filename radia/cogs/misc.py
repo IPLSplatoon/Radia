@@ -29,6 +29,17 @@ class Misc(commands.Cog):
         embed.set_image(url=f"https://cdn.vlee.me.uk/TurnipBot/pets/{num if num != None else randint(0, 140)}.png")
         await ctx.send(embed=embed)
 
+    @commands.command()
+    async def scrim(self, ctx):
+        """Toggle the scrim role."""
+        scrim_role = ctx.guild.get_role(722264366124105809)
+        if scrim_role in ctx.author.roles:
+            await ctx.author.remove_roles(scrim_role)
+            await ctx.message.add_reaction('❎')
+        else:
+            await ctx.author.add_roles(scrim_role)
+            await ctx.message.add_reaction('✅')
+
     @tasks.loop(hours=24)
     async def kraken(self):
         """Remove all of Kraken Mare's roles occasionally."""
