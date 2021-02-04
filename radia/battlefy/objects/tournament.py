@@ -33,7 +33,7 @@ class Tournament:
         for i, field in enumerate(custom_fields):
             fields = custom_fields.copy()  # Makes sure using .pop() doesn't mess with the actual team fields
             # Regex pattern matches valid discord usernames
-            if re.match(r'.{1,}#\d{4}$', field["value"]):
+            if re.match(r'^[^@#:]{1,}#\d{4}$', field["value"]):
                 discord_field = fields.pop(i)
                 # If there are still more fields, other field must be fc
                 if fields:
