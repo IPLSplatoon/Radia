@@ -108,9 +108,9 @@ class Tourney(commands.Cog):
         await ctx.send(embed=embed)
 
     @captain.command()
-    async def assign(self, ctx, nick: bool = False):
+    async def assign(self, ctx, index: int = 0, nick: bool = False):
         """Assign captain role to members."""
-        tourney = utils.agenda.next_tourney()
+        tourney = utils.agenda.tourney_at(index)
         invalid_captains = []
         assigned_to = 0
 
@@ -137,7 +137,7 @@ class Tourney(commands.Cog):
             title=f"✅ **Success:** roles assigned for `{tourney.event.name}`",
             description=f"{tourney.get_role(ctx).mention} assigned to `{assigned_to}` members.")
         await ctx.send(embed=embed)
-        await ctx.invoke(self.check, 0, invalid_captains)  # Run 'captain check' command
+        await ctx.invoke(self.check, index, invalid_captains)  # Run 'captain check' command
 
     @captain.command()
     async def remove(self, ctx, index: int = 0, nick: bool = False):
@@ -154,7 +154,7 @@ class Tourney(commands.Cog):
 
         # Display embed
         embed = utils.Embed(
-            title=f"✅ **Success:** roles removed for `{tourney.event.name}`",
+            title=f"❎ **Success:** roles removed for `{tourney.event.name}`",
             description=f"{tourney.get_role(ctx).mention} removed from `{removed_from}` members.")
         await ctx.send(embed=embed)
 
