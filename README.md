@@ -28,7 +28,7 @@ You can append the index of any tournament to these commands / subcommands to sp
 > `!agenda 1`  
 > `!captain 2`
 
-#### Agenda management
+##### Agenda management
 - To get the upcoming tournament, you can run `!agenda next` or `!agenda 0`. This will be the default tournament used by the `!captain` command.
 - To get the previous tournament, you can run `!agenda prev` or `!agenda -1`. This can be helpful when removing captains.
 
