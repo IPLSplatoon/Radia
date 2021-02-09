@@ -40,7 +40,7 @@ Running `!captain` will only check the status of captains, to assign roles, you 
 As said before, you can append the index of a tournament to use that tournament instead of the default.
 
 - `!captain assign` Assigns the captain role for the next tournament. This command automatically send a status check after it is complete.
-- `!captain remove` Removes the captain role for the next tournament. Be careful, if you're running this command after the tournament has ended, make sure to specify it to use the previous tournament with `!captain assign -1`.
+- `!captain remove` Removes the captain role for the next tournament. Be careful, if you're running this command after the tournament has ended, make sure to specify it to use the previous tournament with `!captain remove -1`.
 - `!captain check` This is simply an alias for `!captain`.
 
 ### Final words
