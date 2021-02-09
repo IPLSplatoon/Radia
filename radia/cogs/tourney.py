@@ -81,6 +81,8 @@ class Tourney(commands.Cog):
     @captain.command()
     async def check(self, ctx, index: int = 0, _invalid_captains=None):
         """Show the current status of captains."""
+        await ctx.trigger_typing()
+
         # Get the tournament teams
         tourney = utils.agenda.tourney_at(index)
         teams = await battlefy.connector.get_teams(tourney.battlefy)
