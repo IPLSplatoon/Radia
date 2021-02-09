@@ -20,7 +20,7 @@ class Refresh(commands.Cog):
         await google.connector.rules.refresh()
         await google.connector.whatis.refresh()
 
-    @commands.command()
+    @commands.command(aliases=["sync"])
     async def refresh(self, ctx):
         """Refresh data for Info and Tourney."""
         with ctx.typing():
