@@ -25,7 +25,7 @@ This is for staff members, for non-staff members, type `!help`.
 - You can run `!captain` to check the current status of captains. This command does NOT assign roles.
 
 You can append the index of any tournament to these commands / subcommands to specify a specific tournament.
-> `!agenda 1`
+> `!agenda 1`  
 > `!captain 2`
 
 #### Agenda management
