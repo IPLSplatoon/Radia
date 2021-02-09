@@ -47,20 +47,16 @@ As said before, you can append the index of a tournament to use that tournament 
 Thanks for reading, I hope this documentation section was helpful to you. If you have any questions, feel free to ask me [@LeptoFlare](https://github.com/LeptoFlare).
 
 ## Contributing
-
 1. Fork the repository, do NOT create any branches on the source repository.
 1. Make a new branch to submit your pull request from.
 1. Submit a pull request to the `master` branch. Please make sure you select "Allow edits from contributors".
 
 ### Running locally
-
 #### Prerequisites
-
 1. Make sure you have Docker installed.
 1. A Google API project for the bot.
 
 #### Google setup
-
 1. Enable the following API
    - [Google Sheets API](https://console.developers.google.com/apis/api/sheets.googleapis.com)
    - [Google Drive API](https://console.developers.google.com/apis/api/drive.googleapis.com)
@@ -72,7 +68,6 @@ Thanks for reading, I hope this documentation section was helpful to you. If you
 1. Copy the gsheet key from the url at `https://docs.google.com/spreadsheets/d/`**`{key}`**`/edit`, you will use this in the `.env`
 
 #### Bot Setup
-
 1. Create a `.env` in the repository root:
 
    ```py
