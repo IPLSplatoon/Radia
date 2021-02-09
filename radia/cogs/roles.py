@@ -3,10 +3,10 @@
 import discord
 from discord.ext import commands, tasks
 
-from radia import utils, google
+from radia import utils
 
 
-class Roles(commands.Cog):
+class Roles(commands.Cog, command_attrs={"hidden": True}):
     """Utility commands for handling roles."""
 
     def __init__(self, bot):

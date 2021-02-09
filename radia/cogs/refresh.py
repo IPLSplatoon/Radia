@@ -6,7 +6,7 @@ from discord.ext import commands, tasks
 from radia import utils, google
 
 
-class Refresh(commands.Cog):
+class Refresh(commands.Cog, command_attrs={"hidden": True}):
     """All the miscellaneous commands."""
 
     def __init__(self, bot):

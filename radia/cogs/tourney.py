@@ -6,7 +6,7 @@ from discord.ext import commands
 from radia import utils, battlefy
 
 
-class Tourney(commands.Cog):
+class Tourney(commands.Cog, command_attrs={"hidden": True}):
     """Tourney related commands."""
 
     def __init__(self, bot):
