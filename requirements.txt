@@ -1,18 +1,17 @@
-discord.py
-gspread
-oauth2client
-numpy
+# Bot
+discord
 asyncio
-python-dotenv
-setuptools
-setuptools_scm
-sentry-sdk
-google-api-python-client
-emoji
+sentry_sdk
 aiohttp
+
+# Database
 sqlalchemy
-python-dateutil
 psycopg2
-aiocontextvars
-gitpython
-boto3
+
+# Google
+gspread
+pandas
+
+# Calendar
+ics
+pyyaml
