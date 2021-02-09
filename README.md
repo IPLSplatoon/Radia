@@ -36,6 +36,7 @@
    ```py
    TOKEN = discord.bot.token
    GSHEET = gsheet_key
+   ICAL = 43cm%40group.calendar.google.com/private-1b6d/basic.ics
    SENTRY = "System Environment"  # Optional
    DEBUG = 1  # Optional
    ```
