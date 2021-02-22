@@ -22,7 +22,7 @@ class Agenda:
     def next_tourney(self):
         """Return the upcoming tournament, or None if there isn't one."""
         if self.agenda:
-            return self.agenda[0]
+            self.tourney_at(0)
 
     def prev_tourney(self):
         """Return the previous tournament, or None if there isn't one."""
@@ -43,7 +43,10 @@ class Agenda:
         """Return the tournament at the given index."""
         if index == -1:
             return self.prev_tourney()
-        return self.agenda[index]
+        try:
+            return self.agenda[index]
+        except IndexError:
+            return None
 
     async def refresh(self, *args, **kwargs):
         """Refresh the calendar and tournament events by reinitializing them."""
