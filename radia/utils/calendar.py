@@ -56,7 +56,7 @@ class Agenda:
             Event(event, **load_yaml(event.description))
             # Repeats this for every event that's a valid tournament
             for event in self.filter_cal()
-            if event.description
+            if event.description and isinstance(load_yaml(event.description), dict)
         ]
 
     async def query(self, url=os.getenv("ICAL")):
