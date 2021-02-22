@@ -61,7 +61,7 @@ class Agenda:
 
         :param str url: The url to the ical file, defaults to the environment provided one.
         """
-        async with self.session.get("https://calendar.google.com/calendar/ical/" + url) as response:
+        async with self.session.get(url) as response:
             if response.status == 200:
                 return await response.text()
             logging.error("Unable to fetch google calendar file, Status Code: %s", response.status)
