@@ -93,10 +93,13 @@ class Tourney(commands.Cog, command_attrs={"hidden": True}):
         teams = await battlefy.connector.get_teams(tourney.battlefy)
 
         # Create list of invalid captains
-        invalid_captains = [
-            team for team in teams
-            if not await team.captain.get_discord(ctx)
-        ] if not _invalid_captains else _invalid_captains
+        if not _invalid_captains:
+            invalid_captains = utils.Embed.list([
+                f"`{team.captain.discord}` | `{team.name}`" for team in teams
+                if not await team.captain.get_discord(ctx)
+            ])
+        else:
+            invalid_captains = utils.Embed.list([f"`{team.captain.discord}` | `{team.name}`" for team in _invalid_captains])
 
         # Send status check embed
         embed = utils.Embed(
@@ -104,12 +107,7 @@ class Tourney(commands.Cog, command_attrs={"hidden": True}):
             description=f"Invalid Captains / Total Teams: `{len(invalid_captains)}/{len(teams)}`")
         embed.add_field(
             name="List of invalid captains:",
-            value=(
-                # Embed a list of invalid captains
-                utils.Embed.list(
-                    f"`{team.captain.discord}` | `{team.name}`" for team in invalid_captains)
-                # If there are any invalid captains, else, return a simple string
-                if teams else "> ✨ **~ No invalid captains! ~**"))
+            value=invalid_captains if invalid_captains else "> ✨ **~ No invalid captains! ~**")
         await ctx.send(embed=embed)
 
     @captain.command()
