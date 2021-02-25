@@ -40,7 +40,8 @@ class HelpCommand(commands.DefaultHelpCommand):
                 "value": "\n".join([
                     self.short(command)
                     for command in cog.get_commands()])
-            }]} if cog.get_commands() else {}))
+            }]} if cog.get_commands() else {})
+        )
 
         await self.get_destination().send(embed=embed)
 
@@ -49,13 +50,13 @@ class HelpCommand(commands.DefaultHelpCommand):
         embed = self.create_embed(
             title=self.short(group, False),
             description=group.help,
-            fields=[{
+            **({"fields": [{
                 "name": f"Subcommands:",
                 "value": "\n".join([
                     self.short(command)
                     for command in await self.filter_commands(group.commands)
                 ])
-            }]
+            }]} if await self.filter_commands(group.commands) else {})
         )
         await self.get_destination().send(embed=embed)
 
