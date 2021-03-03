@@ -28,10 +28,9 @@ class Tourney(commands.Cog, command_attrs={"hidden": True}):
             ))
         else:
             # Send an embed of the event at index, send an error if it fails
-            try:
-                tourney = utils.agenda.tourney_at(index)
-            except IndexError:
-                await ctx.send("⛔ **Invalid tournament index**")
+            tourney = utils.agenda.tourney_at(index)
+            if not tourney:
+                await ctx.send("⛔ **No event found**")
             else:
                 await ctx.send(embed=utils.Embed(
                     title=f"📅 Event Name: `{tourney.event.name}`",
@@ -40,6 +39,8 @@ class Tourney(commands.Cog, command_attrs={"hidden": True}):
     @agenda.command(aliases=["upcoming"])
     async def next(self, ctx):
         tourney = utils.agenda.next_tourney()
+        if not tourney:
+            return await ctx.send("⛔ **No event found**")
         await ctx.send(embed=utils.Embed(
             title=f"📅 Event Name: `{tourney.event.name}`",
             description=self.tourney_desc(ctx, tourney),
@@ -48,6 +49,8 @@ class Tourney(commands.Cog, command_attrs={"hidden": True}):
     @agenda.command(aliases=["previous"])
     async def prev(self, ctx):
         tourney = utils.agenda.prev_tourney()
+        if not tourney:
+            return await ctx.send("⛔ **No event found**")
         await ctx.send(embed=utils.Embed(
             title=f"📆 Event Name: `{tourney.event.name}`",
             description=self.tourney_desc(ctx, tourney),
@@ -85,13 +88,18 @@ class Tourney(commands.Cog, command_attrs={"hidden": True}):
 
         # Get the tournament teams
         tourney = utils.agenda.tourney_at(index)
+        if not tourney:
+            return await ctx.send("⛔ **No event found**")
         teams = await battlefy.connector.get_teams(tourney.battlefy)
 
         # Create list of invalid captains
-        invalid_captains = [
-            team for team in teams
-            if not await team.captain.get_discord(ctx)
-        ] if not _invalid_captains else _invalid_captains
+        if not _invalid_captains:
+            invalid_captains = [
+                f"`{team.captain.discord}` | `{team.name}`" for team in teams
+                if not await team.captain.get_discord(ctx)
+            ]
+        else:
+            invalid_captains = [f"`{team.captain.discord}` | `{team.name}`" for team in _invalid_captains]
 
         # Send status check embed
         embed = utils.Embed(
@@ -99,18 +107,15 @@ class Tourney(commands.Cog, command_attrs={"hidden": True}):
             description=f"Invalid Captains / Total Teams: `{len(invalid_captains)}/{len(teams)}`")
         embed.add_field(
             name="List of invalid captains:",
-            value=(
-                # Embed a list of invalid captains
-                utils.Embed.list(
-                    f"`{team.captain.discord}` | `{team.name}`" for team in invalid_captains)
-                # If there are any invalid captains, else, return a simple string
-                if teams else "> ✨ **~ No invalid captains! ~**"))
+            value=utils.Embed.list(invalid_captains) if invalid_captains else "> ✨ **~ No invalid captains! ~**")
         await ctx.send(embed=embed)
 
     @captain.command()
     async def assign(self, ctx, index: int = 0, nick: bool = False):
         """Assign captain role to members."""
         tourney = utils.agenda.tourney_at(index)
+        if not tourney:
+            return await ctx.send("⛔ **No event found**")
         invalid_captains = []
         assigned_to = 0
 
@@ -143,6 +148,8 @@ class Tourney(commands.Cog, command_attrs={"hidden": True}):
     async def remove(self, ctx, index: int = 0, nick: bool = False):
         """Remove captain role from members."""
         tourney = utils.agenda.tourney_at(index)
+        if not tourney:
+            return await ctx.send("⛔ **No event found**")
         removed_from = len(tourney.get_role(ctx).members)
 
         async with ctx.typing():

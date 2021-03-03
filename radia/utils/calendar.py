@@ -22,7 +22,7 @@ class Agenda:
     def next_tourney(self):
         """Return the upcoming tournament, or None if there isn't one."""
         if self.agenda:
-            return self.agenda[0]
+            self.tourney_at(0)
 
     def prev_tourney(self):
         """Return the previous tournament, or None if there isn't one."""
@@ -43,7 +43,10 @@ class Agenda:
         """Return the tournament at the given index."""
         if index == -1:
             return self.prev_tourney()
-        return self.agenda[index]
+        try:
+            return self.agenda[index]
+        except IndexError:
+            return None
 
     async def refresh(self, *args, **kwargs):
         """Refresh the calendar and tournament events by reinitializing them."""
@@ -53,7 +56,7 @@ class Agenda:
             Event(event, **load_yaml(event.description))
             # Repeats this for every event that's a valid tournament
             for event in self.filter_cal()
-            if event.description
+            if event.description and isinstance(load_yaml(event.description), dict)
         ]
 
     async def query(self, url=os.getenv("ICAL")):
@@ -61,7 +64,7 @@ class Agenda:
 
         :param str url: The url to the ical file, defaults to the environment provided one.
         """
-        async with self.session.get("https://calendar.google.com/calendar/ical/" + url) as response:
+        async with self.session.get(url) as response:
             if response.status == 200:
                 return await response.text()
             logging.error("Unable to fetch google calendar file, Status Code: %s", response.status)
