@@ -111,7 +111,7 @@ class Tourney(commands.Cog, command_attrs={"hidden": True}):
         await ctx.send(embed=embed)
 
     @captain.command()
-    async def assign(self, ctx, index: int = 0, nick: bool = False):
+    async def assign(self, ctx, index: int = 0, nick: bool = True):
         """Assign captain role to members."""
         tourney = utils.agenda.tourney_at(index)
         if not tourney:
@@ -145,7 +145,7 @@ class Tourney(commands.Cog, command_attrs={"hidden": True}):
         await ctx.invoke(self.check, index, invalid_captains)  # Run 'captain check' command
 
     @captain.command()
-    async def remove(self, ctx, index: int = 0, nick: bool = False):
+    async def remove(self, ctx, index: int = 0, nick: bool = True):
         """Remove captain role from members."""
         tourney = utils.agenda.tourney_at(index)
         if not tourney:
