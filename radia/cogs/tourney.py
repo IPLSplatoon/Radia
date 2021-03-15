@@ -111,11 +111,13 @@ class Tourney(commands.Cog, command_attrs={"hidden": True}):
         await ctx.send(embed=embed)
 
     @captain.command()
-    async def assign(self, ctx, index: int = 0, nick: bool = False):
+    async def assign(self, ctx, index: int = 0, nick: bool = True):
         """Assign captain role to members."""
         tourney = utils.agenda.tourney_at(index)
         if not tourney:
             return await ctx.send("⛔ **No event found**")
+        role = tourney.get_role(ctx)
+        valid_captains = []
         invalid_captains = []
         assigned_to = 0
 
@@ -127,7 +129,8 @@ class Tourney(commands.Cog, command_attrs={"hidden": True}):
                 try:
                     if (member := await team.captain.get_discord(ctx)) is None:
                         raise discord.DiscordException
-                    await member.add_roles(tourney.get_role(ctx))
+                    await member.add_roles(role)
+                    valid_captains.append(member)
                     assigned_to += 1
                 # Adding role failed, append team to the list of invalid captains
                 except discord.DiscordException:
@@ -137,6 +140,11 @@ class Tourney(commands.Cog, command_attrs={"hidden": True}):
                     if nick:
                         await member.edit(nick=team.name[:32])
 
+        # Remove those with the captain role that are not a valid captain
+        for member in role.members:
+            if member not in valid_captains:
+                await member.remove_roles(role)
+
         # Send Report Embed
         embed = utils.Embed(
             title=f"✅ **Success:** roles assigned for `{tourney.event.name}`",
@@ -145,7 +153,7 @@ class Tourney(commands.Cog, command_attrs={"hidden": True}):
         await ctx.invoke(self.check, index, invalid_captains)  # Run 'captain check' command
 
     @captain.command()
-    async def remove(self, ctx, index: int = 0, nick: bool = False):
+    async def remove(self, ctx, index: int = 0, nick: bool = True):
         """Remove captain role from members."""
         tourney = utils.agenda.tourney_at(index)
         if not tourney:
