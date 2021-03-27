@@ -36,6 +36,7 @@ class Tourney(commands.Cog, command_attrs={"hidden": True}):
                     title=f"📅 Event Name: `{tourney.event.name}`",
                     description=self.tourney_desc(ctx, tourney)))
 
+    @commands.has_role("Staff")
     @agenda.command(aliases=["upcoming"])
     async def next(self, ctx):
         tourney = utils.agenda.next_tourney()
@@ -46,6 +47,7 @@ class Tourney(commands.Cog, command_attrs={"hidden": True}):
             description=self.tourney_desc(ctx, tourney),
         ))
 
+    @commands.has_role("Staff")
     @agenda.command(aliases=["previous"])
     async def prev(self, ctx):
         tourney = utils.agenda.prev_tourney()
@@ -81,6 +83,7 @@ class Tourney(commands.Cog, command_attrs={"hidden": True}):
         """
         await ctx.invoke(self.check, index)  # Run 'captain check' command
 
+    @commands.has_role("Staff")
     @captain.command()
     async def check(self, ctx, index: int = 0, _invalid_captains=None):
         """Show the current status of captains."""
@@ -110,6 +113,7 @@ class Tourney(commands.Cog, command_attrs={"hidden": True}):
             value=utils.Embed.list(invalid_captains) if invalid_captains else "> ✨ **~ No invalid captains! ~**")
         await ctx.send(embed=embed)
 
+    @commands.has_role("Staff")
     @captain.command()
     async def assign(self, ctx, index: int = 0, nick: bool = True):
         """Assign captain role to members."""
@@ -152,6 +156,7 @@ class Tourney(commands.Cog, command_attrs={"hidden": True}):
         await ctx.send(embed=embed)
         await ctx.invoke(self.check, index, invalid_captains)  # Run 'captain check' command
 
+    @commands.has_role("Staff")
     @captain.command()
     async def remove(self, ctx, index: int = 0, nick: bool = True):
         """Remove captain role from members."""

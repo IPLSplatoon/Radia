@@ -17,6 +17,7 @@ class Roles(commands.Cog, command_attrs={"hidden": True}):
     async def champion(self, ctx):
         """Group of commands handling the champion roles."""
 
+    @commands.has_role("Staff")
     @champion.command(aliases=["coronate", "crown"])
     async def add(self, ctx):
         """Add the Champion role to members."""
@@ -37,6 +38,7 @@ class Roles(commands.Cog, command_attrs={"hidden": True}):
                 [member.mention for member in ctx.message.mentions]))
         await ctx.send(embed=embed)
 
+    @commands.has_role("Staff")
     @champion.command(aliases=["dethrone"])
     async def remove(self, ctx):
         """Remove the champion roles from members who currently have it."""
