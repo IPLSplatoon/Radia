@@ -10,7 +10,7 @@ from radia import utils
 
 
 class Misc(commands.Cog):
-    """All the miscellaneous commands."""
+    """Miscellaneous commands."""
 
     def __init__(self, bot):
         self.bot = bot

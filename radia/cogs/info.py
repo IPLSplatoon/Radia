@@ -9,7 +9,7 @@ from radia import utils, google
 
 
 class Info(commands.Cog):
-    """All of the commands that send the user info."""
+    """Commands that send information to the invoker."""
 
     def __init__(self, bot):
         self.bot = bot

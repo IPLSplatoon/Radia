@@ -7,7 +7,11 @@ from radia import utils, battlefy
 
 
 class Tourney(commands.Cog, command_attrs={"hidden": True}):
-    """Tourney related commands."""
+    """ Commands for staff members to manage upcoming and ongoing tournaments.
+
+    - View dates and ordering of tournament events with the agenda commands.
+    - Manage assigning and removing of the captain role for tournaments with the captain commands.
+    """
 
     def __init__(self, bot):
         self.bot = bot

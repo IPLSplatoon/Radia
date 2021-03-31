@@ -8,7 +8,7 @@ from radia import utils, google
 
 
 class Refresh(commands.Cog, command_attrs={"hidden": True}):
-    """All the miscellaneous commands."""
+    """Refetch all of the cached data from web api's."""
 
     def __init__(self, bot):
         self.bot = bot
