@@ -85,7 +85,7 @@ class Misc(commands.Cog):
         """Remove all of Kraken Mare's roles occasionally."""
         guild = discord.utils.get(self.bot.guilds, id=406137039285649428)
         if guild is None:
-            return logging.warning("Cannot run update_roles, is the bot in the Low Ink server?")
+            return logging.warning("Cannot run update_roles, is the bot in the correct server?")
         kraken = discord.utils.get(guild.members, id=158733178713014273)
         role_ids = [
             471466333771399168, 563484622717976606, 722500918485975040,
@@ -98,8 +98,7 @@ class Misc(commands.Cog):
         try:
             await kraken.remove_roles(*[guild.get_role(role_id) for role_id in role_ids])
         except discord.errors.Forbidden:
-            logging.warning("Cannot remove Kraken's roles -- Forbidden response.")
-
+            logging.warning("Cannot remove kraken's roles, does the bot have the proper permissions?")
 
     @kraken.before_loop
     async def before_kraken(self):
