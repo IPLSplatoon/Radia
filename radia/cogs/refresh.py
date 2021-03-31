@@ -1,4 +1,5 @@
 """Refresh cog."""
+import logging
 
 import discord
 from discord.ext import commands, tasks
@@ -11,7 +12,10 @@ class Refresh(commands.Cog, command_attrs={"hidden": True}):
 
     def __init__(self, bot):
         self.bot = bot
-        self.refresh_loop.start()
+        if google.connector.initialized:
+            self.refresh_loop.start()
+        else:
+            logging.error("Not beginning the Refresh Cog because google.connector was not successfully initialized.")
 
     @staticmethod
     async def run_refresh():

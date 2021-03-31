@@ -33,12 +33,19 @@ class Misc(commands.Cog):
     async def scrim(self, ctx):
         """Toggle the scrim role."""
         scrim_role = ctx.guild.get_role(722264366124105809)
-        if scrim_role in ctx.author.roles:
-            await ctx.author.remove_roles(scrim_role)
-            await ctx.message.add_reaction('❎')
-        else:
-            await ctx.author.add_roles(scrim_role)
-            await ctx.message.add_reaction('✅')
+
+        try:
+            if scrim_role in ctx.author.roles:
+                await ctx.author.remove_roles(scrim_role)
+                await ctx.message.add_reaction('❎')
+            else:
+                await ctx.author.add_roles(scrim_role)
+                await ctx.message.add_reaction('✅')
+        except discord.errors.Forbidden:
+            await ctx.send(embed=utils.Embed(
+                title="Error: Permissions missing",
+                description=f"Please find an IPL Staff member!")
+            )
 
     @tasks.loop(hours=24)
     async def kraken(self):
@@ -55,7 +62,11 @@ class Misc(commands.Cog):
             717476155590180876, 726243712908263484, 726904603756462080,
             726904633720832100, 725146685684056097
         ]
-        await kraken.remove_roles(*[guild.get_role(role_id) for role_id in role_ids])
+        try:
+            await kraken.remove_roles(*[guild.get_role(role_id) for role_id in role_ids])
+        except discord.errors.Forbidden:
+            logging.warning("Cannot remove Kraken's roles -- Forbidden response.")
+
 
     @kraken.before_loop
     async def before_kraken(self):
