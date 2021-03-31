@@ -12,10 +12,7 @@ class Refresh(commands.Cog, command_attrs={"hidden": True}):
 
     def __init__(self, bot):
         self.bot = bot
-        if google.connector.initialized:
-            self.refresh_loop.start()
-        else:
-            logging.error("Not beginning the Refresh Cog because google.connector was not successfully initialized.")
+        self.refresh_loop.start()
 
     @staticmethod
     async def run_refresh():
@@ -27,9 +24,12 @@ class Refresh(commands.Cog, command_attrs={"hidden": True}):
     @commands.command(aliases=["sync"])
     async def refresh(self, ctx):
         """Refresh data for Info and Tourney."""
-        with ctx.typing():
-            await self.run_refresh()
-        await ctx.send("♻ **Refreshed!**")
+        try:
+            with ctx.typing():
+                await self.run_refresh()
+            await ctx.send("♻ **Refreshed!**")
+        except google.HollowSheet as e:
+            await ctx.send(e)
 
     @tasks.loop(hours=1)
     async def refresh_loop(self):

@@ -26,13 +26,19 @@ class Info(commands.Cog):
                 await ctx.send(embed=embed)
             except TypeError:
                 await ctx.send("Section could not be found, try a different prefix.")
+            except google.HollowSheet as e:
+                await ctx.send(e)
 
         else:
-            embed = utils.Embed(title="Rules")
-            embed.add_field(
-                name="Options:",
-                value=utils.Embed.list(google.connector.rules.options()))
-            await ctx.send(embed=embed)
+            try:
+                embed = utils.Embed(title="Rules")
+                embed.add_field(
+                    name="Options:",
+                    value=utils.Embed.list(google.connector.rules.options()))
+            except google.HollowSheet as e:
+                await ctx.send(e)
+            else:
+                await ctx.send(embed=embed)
 
     @commands.command(aliases=["canned"])
     async def whatis(self, ctx, prefix=None, image: bool = False):
@@ -42,17 +48,23 @@ class Info(commands.Cog):
                 name, response, image_link = google.connector.whatis.get(prefix.lower())
             except TypeError:
                 await ctx.send(self.invalid_whatis(prefix))
+            except google.HollowSheet as e:
+                await ctx.send(e)
             else:
                 embed = utils.Embed(title=f"What Is... {name.capitalize()}?", description=response)
                 if image:
                     embed.set_image(url=image_link)
                 await ctx.send(embed=embed)
         else:
-            embed = utils.Embed(title="What Is...")
-            embed.add_field(
-                name="Options:",
-                value=utils.Embed.list(google.connector.whatis.options()))
-            await ctx.send(embed=embed)
+            try:
+                embed = utils.Embed(title="What Is...")
+                embed.add_field(
+                    name="Options:",
+                    value=utils.Embed.list(google.connector.whatis.options()))
+            except google.HollowSheet as e:
+                await ctx.send(e)
+            else:
+                await ctx.send(embed=embed)
 
     def invalid_whatis(self, prefix):
         """Send a random error message when the prefix doesn't exist."""
