@@ -6,7 +6,6 @@ import discord
 from discord.ext import commands, tasks
 
 from radia import utils
-from radia.presence_messages import get_presence_message
 
 
 class Bot(commands.Bot):
@@ -29,8 +28,3 @@ class Bot(commands.Bot):
         else:
             logging.error(error)
             raise error
-
-    @tasks.loop(minutes=1)
-    async def update_presence(self):
-        """Loop to update the bot presence by selecting one of the strings at random."""
-        await self.change_presence(activity=discord.Game(get_presence_message()))
