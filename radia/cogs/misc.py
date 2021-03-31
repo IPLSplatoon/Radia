@@ -34,19 +34,12 @@ class Misc(commands.Cog):
     async def scrim(self, ctx):
         """Toggle the scrim role."""
         scrim_role = ctx.guild.get_role(722264366124105809)
-
-        try:
-            if scrim_role in ctx.author.roles:
-                await ctx.author.remove_roles(scrim_role)
-                await ctx.message.add_reaction('❎')
-            else:
-                await ctx.author.add_roles(scrim_role)
-                await ctx.message.add_reaction('✅')
-        except discord.errors.Forbidden:
-            await ctx.send(embed=utils.Embed(
-                title="Error: Permissions missing",
-                description=f"Please find an IPL Staff member!")
-            )
+        if scrim_role in ctx.author.roles:
+            await ctx.author.remove_roles(scrim_role)
+            await ctx.message.add_reaction('❎')
+        else:
+            await ctx.author.add_roles(scrim_role)
+            await ctx.message.add_reaction('✅')
 
     @tasks.loop(minutes=1)
     async def update_presence(self):
