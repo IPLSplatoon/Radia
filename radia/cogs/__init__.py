@@ -7,5 +7,6 @@ names = [
     # Other
     "roles",
     "refresh",
+    "server",
     "misc",
 ]
