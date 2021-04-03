@@ -74,6 +74,7 @@ class Info(commands.Cog):
             "\*poof*",
             "???",
             "¯\_(ツ)_/¯",
+            "a collection of subatomic particles",
         ])
 
 
