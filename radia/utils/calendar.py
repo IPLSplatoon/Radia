@@ -56,7 +56,7 @@ class Agenda:
         for event in self.filter_cal():
             # Make sure event is even supposed to be for a tournament
             if not event.description or not isinstance(load_yaml(event.description), dict):
-                return
+                continue
             # Attempt to load event with parsed yaml of event desc as __init__ parameters
             try:
                 self.agenda.append(Event(event, **load_yaml(event.description)))
