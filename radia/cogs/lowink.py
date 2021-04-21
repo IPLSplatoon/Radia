@@ -2,7 +2,7 @@
 
 import sys
 import discord
-from discord.ext import commands, tasks
+from discord.ext import commands
 
 from radia import utils
 
@@ -17,6 +17,11 @@ class LowInk(commands.Cog, command_attrs={"hidden": True}):
     @commands.group()
     async def checkin(self, ctx):
         """Group of commands handling Low Ink day 2 check-in."""
+
+    @commands.has_role("Staff")
+    @commands.command()
+    async def ___(self, ctx):
+        """___"""
 
     @commands.has_role("Staff")
     @commands.command(aliases=["clean", "purge"])
