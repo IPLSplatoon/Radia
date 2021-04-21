@@ -51,13 +51,18 @@ class Agenda:
     async def refresh(self, *args, **kwargs):
         """Refresh the calendar and tournament events by reinitializing them."""
         self.calendar = Calendar(await self.query(*args, **kwargs))
-        self.agenda = [
-            # Loads the parsed yaml of event desc as __init__ parameters
-            Event(event, **load_yaml(event.description))
-            # Repeats this for every event that's a valid tournament
-            for event in self.filter_cal()
-            if event.description and isinstance(load_yaml(event.description), dict)
-        ]
+        self.agenda = []
+
+        for event in self.filter_cal():
+            # Make sure event is even supposed to be for a tournament
+            if not event.description or not isinstance(load_yaml(event.description), dict):
+                return
+            # Attempt to load event with parsed yaml of event desc as __init__ parameters
+            try:
+                self.agenda.append(Event(event, **load_yaml(event.description)))
+            # Skip event, log exception to console
+            except Exception as e:
+                logging.warning("Unable to parse Event: %s", e)
 
     async def query(self, url=os.getenv("ICAL")):
         """ Make a get request to the ical link url.
