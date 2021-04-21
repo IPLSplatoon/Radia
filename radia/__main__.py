@@ -15,7 +15,7 @@ from radia.bot import Bot
 # Create Bot
 intents = Intents.default()
 intents.members = True
-bot = Bot(command_prefix="!", intents=intents)
+bot = Bot(command_prefix="!" if not os.getenv("DEBUG") else "^", intents=intents)
 
 # Load Cogs
 for cog in cogs.names:
