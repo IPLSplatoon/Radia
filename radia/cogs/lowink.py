@@ -19,12 +19,12 @@ class LowInk(commands.Cog, command_attrs={"hidden": True}):
         """Group of commands handling Low Ink day 2 check-in."""
 
     @commands.has_role("Staff")
-    @commands.command()
+    @checkin.command()
     async def ___(self, ctx):
         """___"""
 
     @commands.has_role("Staff")
-    @commands.command(aliases=["clean", "purge"])
+    @checkin.command(aliases=["clean", "purge"])
     async def clear(self, ctx):
         """Clear the current check-in channel of messages."""
         if 'check-in' in ctx.channel.name:
