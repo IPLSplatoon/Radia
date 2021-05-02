@@ -13,6 +13,8 @@ class LowInk(commands.Cog, command_attrs={"hidden": True}):
     def __init__(self, bot):
         self.bot = bot
 
+    # Checkin
+
     @commands.has_role("Staff")
     @commands.group()
     async def checkin(self, ctx):
@@ -31,6 +33,8 @@ class LowInk(commands.Cog, command_attrs={"hidden": True}):
             await ctx.channel.purge(limit=sys.maxsize)
         else:
             await ctx.channel.send(embed=utils.Embed(title="You'd better be careful throwing that command around."))
+
+    # Champion
 
     @commands.has_role("Staff")
     @commands.group()
@@ -83,6 +87,20 @@ class LowInk(commands.Cog, command_attrs={"hidden": True}):
             description=utils.Embed.list(
                 [member.mention for member in all_champions]))
         await ctx.send(embed=embed)
+
+    # Bracket
+
+    @commands.has_role("Staff")
+    @commands.group()
+    async def bracket(self, ctx):
+        """Group of commands handling the bracket roles."""
+
+    @commands.has_role("Staff")
+    @bracket.command()
+    async def ___(self, ctx):
+        """___"""
+
+    # Utils
 
     @staticmethod
     def get_roles(ctx, *names):
