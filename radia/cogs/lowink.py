@@ -1,16 +1,40 @@
-"""Roles cog."""
+"""LowInk cog."""
 
+import sys
 import discord
-from discord.ext import commands, tasks
+from discord.ext import commands
 
 from radia import utils
 
 
-class Roles(commands.Cog, command_attrs={"hidden": True}):
-    """Utility commands for handling roles."""
+class LowInk(commands.Cog, command_attrs={"hidden": True}):
+    """Commands specific to Low Ink to handle champion roles and check in."""
 
     def __init__(self, bot):
         self.bot = bot
+
+    # Checkin
+
+    @commands.has_role("Staff")
+    @commands.group()
+    async def checkin(self, ctx):
+        """Group of commands handling Low Ink day 2 check-in."""
+
+    @commands.has_role("Staff")
+    @checkin.command()
+    async def ___(self, ctx):
+        """___"""
+
+    @commands.has_role("Staff")
+    @checkin.command(aliases=["clean", "purge"])
+    async def clear(self, ctx):
+        """Clear the current check-in channel of messages."""
+        if 'check-in' in ctx.channel.name:
+            await ctx.channel.purge(limit=sys.maxsize)
+        else:
+            await ctx.channel.send(embed=utils.Embed(title="You'd better be careful throwing that command around."))
+
+    # Champion
 
     @commands.has_role("Staff")
     @commands.group()
@@ -64,6 +88,20 @@ class Roles(commands.Cog, command_attrs={"hidden": True}):
                 [member.mention for member in all_champions]))
         await ctx.send(embed=embed)
 
+    # Bracket
+
+    @commands.has_role("Staff")
+    @commands.group()
+    async def bracket(self, ctx):
+        """Group of commands handling the bracket roles."""
+
+    @commands.has_role("Staff")
+    @bracket.command()
+    async def ___(self, ctx):
+        """___"""
+
+    # Utils
+
     @staticmethod
     def get_roles(ctx, *names):
         """Get a list of all the roles with the given role names."""
@@ -75,4 +113,4 @@ class Roles(commands.Cog, command_attrs={"hidden": True}):
 
 
 def setup(bot):
-    bot.add_cog(Roles(bot))
+    bot.add_cog(LowInk(bot))
