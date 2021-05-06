@@ -71,6 +71,10 @@ class Info(commands.Cog):
         return random.choice([
             f"WHAT IS {prefix.upper()}??",
             "doesn't exist",
+            "under rules?",
+            "it's a social construct",
+            "your parent/guardian",
+            "gay gay homosexual gay",
             "\*poof*",
             "???",
             "¯\_(ツ)_/¯",
@@ -78,6 +82,20 @@ class Info(commands.Cog):
             "a collection of subatomic particles",
             "an empty void",
             "probably mostly hydrogen",
+            "the information has been lost to a black hole",
+            "it's in elon musk's spaceship",
+            f"{prefix.lower()[:int(len(prefix)/2)]} with no {prefix.lower()[int(len(prefix)/2):]}",
+            "in it's natural habitat",
+            "a reminent of a simpler time",
+            "a harsh reminder of the truely cruel society we live in",
+            "ask my cousin",
+            "it was inside your heart all along",
+            f"have you ever asked 'how is {prefix}?'",
+            "look up",
+            "trust me, i wish i knew",
+            "your future d&d character",
+            "you leave them out in the sun too long and they get all brown and stuff",
+            "you're joking right?",
         ])
 
 
