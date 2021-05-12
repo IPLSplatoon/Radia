@@ -16,10 +16,10 @@ class Connector:
         try:
             self.service = gspread.service_account(filename='google.json')
         except FileNotFoundError:
-            self.gsheet = self.service.open_by_key(os.getenv("GSHEET"))
             logging.error("google.json - file not found, google sheet will be hollow.")
-        else:
             self.gsheet = None
+        else:
+            self.gsheet = self.service.open_by_key(os.getenv("GSHEET"))
 
         self.rules = Responses(self.gsheet, "Rules")
         self.whatis = Responses(self.gsheet, "Canned Responses")
