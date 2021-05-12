@@ -25,19 +25,21 @@ class LowInk(commands.Cog):
         Specify a team_name to override checkin for a team.
         Group of commands handling Low Ink day 2 check-in.
         """
-        if team_name and not discord.utils.get(ctx.author.roles, "Staff"):
+        if team_name and not discord.utils.get(ctx.author.roles, name="Staff"):
             raise commands.MissingRole
 
         for team in self.battlefy_teams:
             # Check if team is allowed to check in
             if await team.get_bracket(ctx):
-                if all(  # No team_name provided, check if captain discord == author discord
+                if all([  # No team_name provided, check if captain discord == author discord
                     not team_name,
-                    getattr(await team.captain.get_discord(), "id", None) == self.ctx.author.id,
-                ) or all(  # team_name provided, check if the team names match
+                    getattr(await team.captain.get_discord(ctx), "id", None) == ctx.author.id,
+                ]) or all([  # team_name provided, check if the team names match
                     team_name,
                     team.name == team_name,
-                ):
+                ]):
+                    if team in self.checkedin_teams:
+                        return await ctx.send("⛔ **Check-in failed, you're already checked in!**")
                     self.checkedin_teams.append(team)
                     await ctx.message.add_reaction("✅")
                     break
@@ -50,11 +52,11 @@ class LowInk(commands.Cog):
         """Load battlefy teams data."""
         async with ctx.typing():
             tourney = utils.agenda.tourney_at(tourney)
-            if not tourney:
-                return await ctx.send("⛔ **No event found**")
+        if not tourney:
+            return await ctx.send("⛔ **No event found**")
 
-            self.battlefy_teams = await battlefy.connector.get_teams(tourney.battlefy)
-            self.checkedin_teams = []
+        self.battlefy_teams = await battlefy.connector.get_teams(tourney.battlefy)
+        self.checkedin_teams = []
         embed = utils.Embed(
             title=f"✅ **Success:** teams loaded for `{tourney.event.name}` checkin",
             description=f"Loaded `{len(self.battlefy_teams)}` teams.")
@@ -73,7 +75,7 @@ class LowInk(commands.Cog):
                     team.captain = team.captain.__class__(
                         battlefy=team.captain.raw,
                         fc_field=team.captain.fc,
-                        discord_field=captain.id)
+                        discord_field=str(captain.id))
                 try:
                     await team.assign_bracket(ctx, bracket)
                 except ValueError as e:
@@ -97,7 +99,7 @@ class LowInk(commands.Cog):
             bracket = None
         async with ctx.typing():
             for team in self.checkedin_teams:
-                captain_mention = getattr(await team.captain.get_discord(), 'mention', None)
+                captain_mention = getattr(await team.captain.get_discord(ctx), 'mention', None)
                 team_bracket = await team.get_bracket(ctx)
                 if bracket:
                     if bracket != "false" and team_bracket != bracket:

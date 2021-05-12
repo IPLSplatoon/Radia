@@ -72,6 +72,6 @@ class Team:
         captain_discord = await self.captain.get_discord(ctx)
         if captain_discord:
             for bracket in self.Bracket:
-                bracket_role = self.Bracket.find(bracket).role(ctx)
+                bracket_role = bracket.role(ctx)
                 if bracket_role in captain_discord.roles:
                     return bracket
