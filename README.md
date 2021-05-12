@@ -54,9 +54,9 @@ Thanks for reading, I hope this documentation section was helpful to you. If you
 ##### Checkin management
 The checkin command group helps with day 2 checkin and bracket management.
 
-In order to check-in, you do `!checkin [<captain>]`, here are some things to note.
+In order to check-in, you do `!checkin [<team name>]`, here are some things to note.
 - This command is only avaliable to those with a valid bracket role.
-- Staff members can check in for a team by specifying the captain that they want to check in for.
+- Staff members can check in for a team by specifying team name of the team they want to check in.
 
 Managing the check-in command staff can use these subcommands:
 
