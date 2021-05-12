@@ -19,28 +19,28 @@ class LowInk(commands.Cog):
     # Checkin
 
     @commands.group(hidden=True, invoke_without_command=True, aliases=["bracket", "b"])
-    async def checkin(self, ctx, captain: discord.Member = None):
+    async def checkin(self, ctx, team_name: str = None):
         """ Check in your team for Low Ink day 2!
 
+        Specify a team_name to override checkin for a team.
         Group of commands handling Low Ink day 2 check-in.
         """
-        # Set up player object, and validate permissions for manual checkin
-        if captain is None:
-            captain = ctx.author
-        else:
-            if not discord.utils.get(ctx.author.roles, "Staff"):
-                raise commands.MissingRole
+        if team_name and not discord.utils.get(ctx.author.roles, "Staff"):
+            raise commands.MissingRole
 
-        # Find the team that checked in
         for team in self.battlefy_teams:
-            team_captain = await team.captain.get_discord()
-            if all(
-                getattr(team_captain, "id", None) == captain.id,
-                await team.get_bracket(ctx) != None
-            ):
-                self.checkedin_teams.append(team)
-                await ctx.message.add_reaction("✅")
-                break
+            # Check if team is allowed to check in
+            if await team.get_bracket(ctx):
+                if all(  # No team_name provided, check if captain discord == author discord
+                    not team_name,
+                    getattr(await team.captain.get_discord(), "id", None) == self.ctx.author.id,
+                ) or all(  # team_name provided, check if the team names match
+                    team_name,
+                    team.name == team_name,
+                ):
+                    self.checkedin_teams.append(team)
+                    await ctx.message.add_reaction("✅")
+                    break
         else:
             await ctx.send("⛔ **Check-in failed, unable to find team**")
 
