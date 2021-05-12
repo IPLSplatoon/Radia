@@ -8,17 +8,17 @@ from discord.ext import commands
 from radia import utils, battlefy
 
 
-class LowInk(commands.Cog, command_attrs={"hidden": True}):
+class LowInk(commands.Cog):
     """Commands specific to Low Ink to handle champion roles, bracket roles and day 2."""
 
     def __init__(self, bot):
         self.bot = bot
-        self.battlefy_teams = None
+        self.battlefy_teams = []
         self.checkedin_teams = []
 
     # Checkin
 
-    @commands.group(invoke_without_command=True, aliases=["bracket", "b"])
+    @commands.group(hidden=True, invoke_without_command=True, aliases=["bracket", "b"])
     async def checkin(self, ctx, captain: discord.Member = None):
         """ Check in your team for Low Ink day 2!
 
@@ -111,8 +111,8 @@ class LowInk(commands.Cog, command_attrs={"hidden": True}):
         ))
 
     @commands.has_role("Staff")
-    @checkin.command(aliases=["clear"])
-    async def remove(self, ctx):
+    @checkin.command(aliases=["remove"])
+    async def clear(self, ctx):
         """Remove all of the bracket roles."""
         async with ctx.typing():
             counter = 0
@@ -138,7 +138,7 @@ class LowInk(commands.Cog, command_attrs={"hidden": True}):
     # Champion
 
     @commands.has_role("Staff")
-    @commands.group()
+    @commands.group(hidden=True)
     async def champion(self, ctx):
         """Group of commands handling the champion roles."""
 
