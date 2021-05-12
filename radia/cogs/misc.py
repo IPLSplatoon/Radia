@@ -44,7 +44,8 @@ class Misc(commands.Cog):
     @tasks.loop(minutes=1)
     async def update_presence(self):
         """Loop to update the bot presence by selecting one of the strings at random."""
-        await self.change_presence(activity=discord.Game(random.choice([
+        await self.bot.wait_until_ready()
+        await self.bot.change_presence(activity=discord.Game(random.choice([
             "!help to get started",
             # Signup!
             "Signup for Low Ink!",
