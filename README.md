@@ -25,7 +25,7 @@ This is for staff members, for non-staff members, type `!help`.
 - You can run `!captain` to check the current status of captains. This command does NOT assign roles.
 
 You can append the index of any tournament to these commands / subcommands to specify a specific tournament.
-> `!agenda 1`  
+> `!agenda 1`
 > `!captain 2`
 
 ##### Agenda management
@@ -50,6 +50,24 @@ Thanks for reading, I hope this documentation section was helpful to you. If you
 1. Fork the repository, do NOT create any branches on the source repository.
 1. Make a new branch to submit your pull request from.
 1. Submit a pull request to the `master` branch. Please make sure you select "Allow edits from contributors".
+
+##### Checkin management
+The checkin command group helps with day 2 checkin and bracket management.
+
+In order to check-in, you do `!checkin [<captain>]`, here are some things to note.
+- This command is only avaliable to those with a valid bracket role.
+- Staff members can check in for a team by specifying the captain that they want to check in for.
+
+Managing the check-in command staff can use these subcommands:
+
+- `!checkin load [<agenda id>]` Loads the battlefy teams using the agenda specified, defaults to the next tournament, see [Agenda management](#agenda-management) for information on how agenda id's work.
+- `!checkin assign <bracket> <team name> [<captain>]` Assigns a bracket to a team.
+  - `<bracket>` This corresponds to `ALPHA`, `BETA`, and `GAMMA`, you can also use the first letter.
+  - `<team name>` The name of the team you are assigning to the bracket, make sure to surround the name in quotes.
+  - `[<captain>]` You can optionally specify a different user to assign the role to, incase the battlefy field is invalid.
+- `!checkin list [<bracket>]` List all of the teams who have checked in, you can optionally filter by bracket.
+- `!checkin remove` Removes the bracket roles from every member, this effectively closes check-in.
+- `!checkin purge` A utility command that purges a channel of every message, only avaliable in a check-in channel.
 
 ### Running locally
 #### Prerequisites
