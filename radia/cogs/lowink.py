@@ -18,23 +18,26 @@ class LowInk(commands.Cog, command_attrs={"hidden": True}):
 
     # Checkin
 
-    @commands.group(invoke_without_command=True)
-    async def checkin(self, ctx, player: discord.Member = None):
+    @commands.group(invoke_without_command=True, aliases=["bracket", "b"])
+    async def checkin(self, ctx, captain: discord.Member = None):
         """ Check in your team for Low Ink day 2!
 
         Group of commands handling Low Ink day 2 check-in.
         """
         # Set up player object, and validate permissions for manual checkin
-        if player is None:
-            player = ctx.author
+        if captain is None:
+            captain = ctx.author
         else:
             if not discord.utils.get(ctx.author.roles, "Staff"):
                 raise commands.MissingRole
 
         # Find the team that checked in
         for team in self.battlefy_teams:
-            captain = await team.captain.get_discord()
-            if getattr(captain, "id", None) == player.id:
+            team_captain = await team.captain.get_discord()
+            if all(
+                getattr(team_captain, "id", None) == captain.id,
+                await team.get_bracket(ctx) != None
+            ):
                 self.checkedin_teams.append(team)
                 await ctx.message.add_reaction("✅")
                 break
@@ -58,46 +61,12 @@ class LowInk(commands.Cog, command_attrs={"hidden": True}):
         await ctx.send(embed=embed)
 
     @commands.has_role("Staff")
-    @checkin.command(aliases=["list"])
-    async def view(self, ctx, bracket: str = None):
-        """List all of the teams that have checked in."""
-        display_list = []
-        if bracket:
-            bracket = battlefy.Team.Bracket.find(bracket)
-        else:
-            bracket = None
-        async with ctx.typing():
-            for team in self.checkedin_teams:
-                captain_mention = getattr(await team.captain.get_discord(), 'mention', None)
-                team_bracket = await team.get_bracket(ctx)
-                if bracket and team_bracket != bracket:
-                    continue
-                display_list.append(f"`{team_bracket.value}` `{team.name}` {captain_mention}")
-        await ctx.send(embed=utils.Embed(
-            title=f"Checked-in teams for {bracket.name.capitalize() if bracket else 'all brackets'}",
-            description=utils.Embed.list(display_list)
-        ))
-
-    @commands.has_role("Staff")
-    @checkin.command(aliases=["clean", "purge"])
-    async def clear(self, ctx):
-        """Clear the current check-in channel of messages, and clear the list of checked in players."""
-        if 'check-in' in ctx.channel.name:
-            await ctx.channel.purge(limit=sys.maxsize)
-        else:
-            await ctx.channel.send("⛔ **You'd better be careful throwing that command around**")
-
-    # Bracket
-
-    @commands.has_role("Staff")
-    @commands.group(aliases=["b"])
-    async def bracket(self, ctx):
-        """Group of commands handling the bracket roles."""
-
-    @commands.has_role("Staff")
-    @bracket.command(aliases=["a"])
+    @checkin.command(aliases=["a"])
     async def assign(self, ctx, bracket, team_name, captain: discord.Member = None):
-        """Assign bracket role to team based on team name."""
+        """Assign bracket role to team based on team name.
+
+        You can optionally specify a captain in case the battlefy one is incorrect.
+        """
         for team in self.battlefy_teams:
             if team.name == team_name:
                 if captain:
@@ -118,9 +87,33 @@ class LowInk(commands.Cog, command_attrs={"hidden": True}):
             await ctx.send("⛔ **Bracket assign failed, unable to find team**")
 
     @commands.has_role("Staff")
-    @bracket.command(aliases=["remove"])
-    async def clear(self, ctx):
-        """Clear all of the bracket roles."""
+    @checkin.command(aliases=["list"])
+    async def view(self, ctx, bracket: str = None):
+        """List all of the teams that have checked in."""
+        display_list = []
+        if bracket:
+            bracket = battlefy.Team.Bracket.find(bracket)
+        else:
+            bracket = None
+        async with ctx.typing():
+            for team in self.checkedin_teams:
+                captain_mention = getattr(await team.captain.get_discord(), 'mention', None)
+                team_bracket = await team.get_bracket(ctx)
+                if bracket:
+                    if bracket != "false" and team_bracket != bracket:
+                        continue
+                    elif bracket == "false" and team_bracket != None:
+                        continue
+                display_list.append(f"`{team_bracket.value}` `{team.name}` {captain_mention}")
+        await ctx.send(embed=utils.Embed(
+            title=f"Checked-in teams for {bracket.name.capitalize() if bracket else 'all brackets'}",
+            description=utils.Embed.list(display_list)
+        ))
+
+    @commands.has_role("Staff")
+    @checkin.command(aliases=["clear"])
+    async def remove(self, ctx):
+        """Remove all of the bracket roles."""
         async with ctx.typing():
             counter = 0
             for bracket in battlefy.Team.Bracket:
@@ -132,6 +125,15 @@ class LowInk(commands.Cog, command_attrs={"hidden": True}):
             title=f"✅ **Success:** bracket roles cleared from all members",
             description=f"Cleared `{str(counter)}` roles.")
         await ctx.send(embed=embed)
+
+    @commands.has_role("Staff")
+    @checkin.command(aliases=["clean"])
+    async def purge(self, ctx):
+        """Purge the current check-in channel of messages, and clear the list of checked in players."""
+        if 'check-in' in ctx.channel.name:
+            await ctx.channel.purge(limit=sys.maxsize)
+        else:
+            await ctx.channel.send("⛔ **You'd better be careful throwing that command around**")
 
     # Champion
 
