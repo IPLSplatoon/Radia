@@ -65,6 +65,7 @@ Managing the check-in command staff can use these subcommands:
   - `<bracket>` This corresponds to `ALPHA`, `BETA`, and `GAMMA`, you can also use the first letter.
   - `<team name>` The name of the team you are assigning to the bracket, make sure to surround the name in quotes.
   - `[<captain>]` You can optionally specify a different user to assign the role to, incase the battlefy field is invalid.
+  - You can use `!b a` as a shorthand for the command name, and `a`, `b`, `g` are shorthands for the bracket names.
 - `!checkin list [<bracket>]` List all of the teams who have checked in, you can optionally filter by bracket.
 - `!checkin remove` Removes the bracket roles from every member, this effectively closes check-in.
 - `!checkin purge` A utility command that purges a channel of every message, only avaliable in a check-in channel.
