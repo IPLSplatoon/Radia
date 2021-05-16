@@ -73,30 +73,31 @@ class Tourney(commands.Cog, command_attrs={"hidden": True}):
         if not tourney:
             return await ctx.send("⛔ **No event found**")
         async with ctx.typing():
-            battlefy = await battlefy.connector.get_tournament(tourney.battlefy)
+            battlefy_tourney = await battlefy.connector.get_tournament(tourney.battlefy)
             # Build exported data dictionary, to dump to json file
             exported_data = {
                 "name": tourney.event.name,
                 "role": tourney.role,
-                "battlefy": battlefy.raw,
-                "start_time": battlefy.start_time,
+                "battlefy": battlefy_tourney.raw,
+                "start_time": str(battlefy_tourney.start_time),
                 "teams": [
                     {
                         "raw": team.raw,
                         "name": team.name,
                         "logo": team.logo,
-                        "created_at": team.created_at,
+                        "created_at": str(team.created_at),
                         "captain": {
                             "fc": team.captain.fc,
-                            "discord": discord.id if discord := await team.captain.get_discord(ctx) else team.captain.discord,
+                            "discord": d.id if (d := await team.captain.get_discord(ctx)) else team.captain.discord,
                         },
                         "players": [{
                             "raw": player.raw,
-                            "created_at": player.created_at,
+                            "created_at": str(player.created_at),
                         } for player in team.players]
-                    } for team in battlefy.teams
+                    } for team in battlefy_tourney.teams
                 ]
             }
+            print(exported_data)
             # Create a file in memory and dump the dictionary into it
             file = StringIO()
             json.dump(exported_data, file)
@@ -105,8 +106,8 @@ class Tourney(commands.Cog, command_attrs={"hidden": True}):
         # Send the file with an embed
         await ctx.send(
             embed=utils.Embed(
-                title=f"📅 Event Name: `{tourney.event.name}`",
-                description="📥 **Success:** froze and exported a compiled report of the tournament data!"),
+                title=f"📥 **Success:** Exported data for `{tourney.event.name}`",
+                description="Froze and exported a compiled report of the tournament data!"),
             file=discord.File(file, filename="export.json"))
 
     @staticmethod
