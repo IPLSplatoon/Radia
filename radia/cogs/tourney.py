@@ -74,6 +74,7 @@ class Tourney(commands.Cog, command_attrs={"hidden": True}):
             return await ctx.send("⛔ **No event found**")
         async with ctx.typing():
             battlefy = await battlefy.connector.get_tournament(tourney.battlefy)
+            # Build exported data dictionary, to dump to json file
             exported_data = {
                 "name": tourney.event.name,
                 "role": tourney.role,
@@ -96,14 +97,17 @@ class Tourney(commands.Cog, command_attrs={"hidden": True}):
                     } for team in battlefy.teams
                 ]
             }
+            # Create a file in memory and dump the dictionary into it
             file = StringIO()
             json.dump(exported_data, file)
             file.seek(0)
-            await ctx.send(
-                file=discord.File(file, filename="export.json"),
-                embed=utils.Embed(
-                    title=f"📅 Event Name: `{tourney.event.name}`",
-                    description="📥 **Success:** froze and exported a compiled report of the tournament data!"))
+
+        # Send the file with an embed
+        await ctx.send(
+            embed=utils.Embed(
+                title=f"📅 Event Name: `{tourney.event.name}`",
+                description="📥 **Success:** froze and exported a compiled report of the tournament data!"),
+            file=discord.File(file, filename="export.json"))
 
     @staticmethod
     def tourney_desc(ctx, tourney):
