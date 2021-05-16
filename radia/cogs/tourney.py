@@ -1,5 +1,8 @@
 """Tourney cog."""
 
+import json
+from io import StringIO
+
 import discord
 from discord.ext import commands
 
@@ -61,6 +64,46 @@ class Tourney(commands.Cog, command_attrs={"hidden": True}):
             title=f"📆 Event Name: `{tourney.event.name}`",
             description=self.tourney_desc(ctx, tourney),
         ))
+
+    @commands.has_role("Staff")
+    @agenda.command(aliases=["download"])
+    async def export(self, ctx, index: int = 0):
+        """Freeze and download a compiled report of the team data for a tournament."""
+        tourney = utils.agenda.tourney_at(index)
+        if not tourney:
+            return await ctx.send("⛔ **No event found**")
+        async with ctx.typing():
+            battlefy = await battlefy.connector.get_tournament(tourney.battlefy)
+            exported_data = {
+                "name": tourney.event.name,
+                "role": tourney.role,
+                "battlefy": battlefy.raw,
+                "start_time": battlefy.start_time,
+                "teams": [
+                    {
+                        "raw": team.raw,
+                        "name": team.name,
+                        "logo": team.logo,
+                        "created_at": team.created_at,
+                        "captain": {
+                            "fc": team.captain.fc,
+                            "discord": discord.id if discord := await team.captain.get_discord(ctx) else team.captain.discord,
+                        },
+                        "players": [{
+                            "raw": player.raw,
+                            "created_at": player.created_at,
+                        } for player in team.players]
+                    } for team in battlefy.teams
+                ]
+            }
+            file = StringIO()
+            json.dump(exported_data, file)
+            file.seek(0)
+            await ctx.send(
+                file=discord.File(file, filename="export.json"),
+                embed=utils.Embed(
+                    title=f"📅 Event Name: `{tourney.event.name}`",
+                    description="📥 **Success:** froze and exported a compiled report of the tournament data!"))
 
     @staticmethod
     def tourney_desc(ctx, tourney):
