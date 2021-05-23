@@ -47,7 +47,12 @@ class Info(commands.Cog):
             try:
                 name, response, image_link = google.connector.whatis.get(prefix.lower())
             except TypeError:
-                await ctx.send(self.invalid_whatis(prefix))
+                if ctx.guild and ctx.guild.id == 726963775927746650:
+                    await ctx.send(self.invalid_whatis(prefix))
+                else:
+                    await ctx.send(embed=utils.Embed(
+                        title="Error: **Invalid Whatis**",
+                        description=f"To view all the options, type `{ctx.prefix}whatis`."))
             except google.HollowSheet as e:
                 await ctx.send(e)
             else:
