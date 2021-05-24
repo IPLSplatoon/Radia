@@ -5,7 +5,7 @@ names = [
     "info",
     "tourney",
     # Other
-    "roles",
+    "lowink",
     "refresh",
     "misc",
 ]

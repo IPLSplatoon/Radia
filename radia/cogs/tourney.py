@@ -1,5 +1,8 @@
 """Tourney cog."""
 
+import json
+from io import StringIO
+
 import discord
 from discord.ext import commands
 
@@ -7,7 +10,11 @@ from radia import utils, battlefy
 
 
 class Tourney(commands.Cog, command_attrs={"hidden": True}):
-    """Tourney related commands."""
+    """ Commands for staff members to manage upcoming and ongoing tournaments.
+
+    - View dates and ordering of tournament events with the agenda commands.
+    - Manage assigning and removing of the captain role for tournaments with the captain commands.
+    """
 
     def __init__(self, bot):
         self.bot = bot
@@ -57,6 +64,51 @@ class Tourney(commands.Cog, command_attrs={"hidden": True}):
             title=f"📆 Event Name: `{tourney.event.name}`",
             description=self.tourney_desc(ctx, tourney),
         ))
+
+    @commands.has_role("Staff")
+    @agenda.command(aliases=["download"])
+    async def export(self, ctx, index: int = 0):
+        """Freeze and download a compiled report of the team data for a tournament."""
+        tourney = utils.agenda.tourney_at(index)
+        if not tourney:
+            return await ctx.send("⛔ **No event found**")
+        async with ctx.typing():
+            battlefy_tourney = await battlefy.connector.get_tournament(tourney.battlefy)
+            # Build exported data dictionary, to dump to json file
+            exported_data = {
+                "name": tourney.event.name,
+                "role": tourney.role,
+                "battlefy": battlefy_tourney.raw,
+                "start_time": str(battlefy_tourney.start_time),
+                "teams": [
+                    {
+                        "raw": team.raw,
+                        "name": team.name,
+                        "logo": team.logo,
+                        "created_at": str(team.created_at),
+                        "captain": {
+                            "fc": team.captain.fc,
+                            "discord": d.id if (d := await team.captain.get_discord(ctx)) else team.captain.discord,
+                        },
+                        "players": [{
+                            "raw": player.raw,
+                            "created_at": str(player.created_at),
+                        } for player in team.players]
+                    } for team in battlefy_tourney.teams
+                ]
+            }
+            print(exported_data)
+            # Create a file in memory and dump the dictionary into it
+            file = StringIO()
+            json.dump(exported_data, file)
+            file.seek(0)
+
+        # Send the file with an embed
+        await ctx.send(
+            embed=utils.Embed(
+                title=f"📥 **Success:** Exported data for `{tourney.event.name}`",
+                description="Froze and exported a compiled report of the tournament data!"),
+            file=discord.File(file, filename="export.json"))
 
     @staticmethod
     def tourney_desc(ctx, tourney):
