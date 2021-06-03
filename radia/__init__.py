@@ -9,7 +9,7 @@ This includes:
 import os
 import logging
 
-debug = d if (d := os.getenv("DEBUG") != "false") else False
+debug = os.getenv("DEBUG", "false").lower() != "false"
 
 # Initialize logging
 logging.basicConfig(
