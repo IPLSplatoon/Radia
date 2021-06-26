@@ -177,7 +177,7 @@ class LowInk(commands.Cog):
                 "Gamma Bracket Champions"
             )
             # Create a set of all members with any champion role
-            all_champions = set()
+            all_champions = list()
             for role in roles:
                 all_champions += role.members
             # Remove champion roles from each of those members
