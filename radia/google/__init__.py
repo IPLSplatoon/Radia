@@ -13,8 +13,12 @@ class Connector:
     """Google connector."""
 
     def __init__(self):
+        debug = os.getenv("DEBUG", "false").lower() != "false"
         try:
-            self.service = gspread.service_account(filename='google.json')
+            # In debug mode allows for stating a file path to google.json to cover come linking issue
+            if not ((google_file := os.getenv("GOOGLE_FILE_LOCATION")) and debug):
+                google_file = 'google.json'
+            self.service = gspread.service_account(filename=google_file)
         except FileNotFoundError:
             logging.error("google.json - file not found, google sheet will be hollow.")
             self.gsheet = None
