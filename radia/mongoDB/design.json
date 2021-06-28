@@ -1,0 +1,14 @@
+[
+  "This file holds JSON object designs for mongo",
+  {
+    "_id": "team._id",
+    "battlefyTournamentId": "ID",
+    "name": "team.name",
+    "logoUrl": "team.persistentTeam.logoUrl",
+    "captainDiscord": "team.custom.field",
+    "additionalDiscord": [],
+    "bracket": "Alpha|Beta|Gamma|Delta|",
+    "checkin": true
+  }
+
+]
