@@ -86,16 +86,16 @@ class CheckIn(commands.Cog):
 
         battlefy_teams = await battlefy.connector.get_teams(tourney.battlefy)
 
-        # try:
-        await mongoDB.db_connector.checkin.load_teams(battlefy_teams, tourney.battlefy)
-        self._battlefy_id = tourney.battlefy
-        embed = utils.Embed(
-            title=f"✅ **Success:** teams loaded for `{tourney.event.name}` checkin",
-            description=f"Loaded `{len(battlefy_teams)}` teams.")
-        await ctx.send(embed=embed)
-        # except Exception as error:
-        #     await ctx.send(f"Error\n ```\n{error}\n```")
-        #     pass
+        try:
+            await mongoDB.db_connector.checkin.load_teams(battlefy_teams, tourney.battlefy)
+            self._battlefy_id = tourney.battlefy
+            embed = utils.Embed(
+                title=f"✅ **Success:** teams loaded for `{tourney.event.name}` checkin",
+                description=f"Loaded `{len(battlefy_teams)}` teams.")
+            await ctx.send(embed=embed)
+        except Exception as error:
+            await ctx.send(f"Error\n ```\n{error}\n```")
+            pass
 
     @commands.has_role("Staff")
     @checkin.command(aliases=["a"])
