@@ -17,15 +17,78 @@ valid_bracket_type = {
     "DELTA": {"name": "Delta", "id": 4}
 }
 
+id_to_bracket = {
+    1: "Alpha",
+    2: "Beta",
+    3: "Gamma",
+    4: "Delta"
+}
+
 
 class CheckIn(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self._battlefy_id = utils.agenda.tourney_at(0).battlefy  # Set default ID as next/current tournament
+        self._battlefy_id = ""
+        # Set default ID as next/current tournament if available
+        if tourney := utils.agenda.tourney_at(0):
+            self._battlefy_id = tourney.battlefy
+        else:
+            print("unable to get next tourney")
 
     @property
     def database(self) -> mongoDB.database.CheckinDB:
         return mongoDB.db_connector.checkin
+
+    async def _set_checkin(self, ctx: commands.Context, checkin_status: bool, team_name: str = None):
+        """
+        Set checkin status
+        :param ctx:
+        :param checkin_status:
+        :param team_name:
+        :return:
+        """
+
+        async def checkin_set():
+            """
+            Check in team
+            :return: None
+            """
+            status_message = "in" if checkin_status else "out"
+
+            if team.bracket <= 0:
+                fun_embed = utils.Embed(title=f"❌ Checking Disabled for: {team.name}",
+                                        thumbnail=team.logo_icon)
+                return await ctx.send(embed=fun_embed)
+            if await team.set_check_in(checkin_status):
+                fun_embed = utils.Embed(title=f"Checked {status_message} {team.name} ✅",
+                                        thumbnail=team.logo_icon)
+                return await ctx.send(embed=fun_embed)
+            else:
+                fun_embed = utils.Embed(title=f"Error Checking in: {team.name} ⛔",
+                                        description=f"Internal Error trying to check {checkin_status}!"
+                                                    f" Go to Helpdesk for help.",
+                                        thumbnail=team.logo_icon)
+                return await ctx.send(embed=fun_embed)
+
+        if team_name and not discord.utils.get(ctx.author.roles, name="Staff"):
+            raise commands.MissingRole
+        if team_name:
+            team = await self.database.get_team(team_name, self._battlefy_id)
+            if team:
+                await checkin_set()
+            else:
+                embed = utils.Embed(title=f"No Team Found under: {team_name} ❌")
+                return await ctx.send(embed=embed)
+        else:
+            team = await self.database.get_discord_team(
+                [f"{ctx.author.name}#{ctx.author.discriminator}", str(ctx.author.id)],  # Forms list of field to find by
+                self._battlefy_id)
+            if team:
+                await checkin_set()
+            else:
+                embed = utils.Embed(title=f"No Team Found for {ctx.author.name}❗",
+                                    description=f"{ctx.author.mention}, head to Helpdesk if you need help!")
+                return await ctx.send(embed=embed)
 
     @commands.group(hidden=True, invoke_without_command=True, aliases=["bracket", "b"])
     async def checkin(self, ctx: commands.Context, team_name: str = None):
@@ -34,46 +97,13 @@ class CheckIn(commands.Cog):
         Specify a team_name to override checkin for a team.
         Group of commands handling Low Ink day 2 check-in.
         """
-        async def checkin(team_object: mongoDB.MongoTeam):
-            """
-            Check in team
-            :param team_object: Team to check in
-            :return: None
-            """
-            if team_object.bracket <= 0:
-                embed = utils.Embed(title=f"❌ Checking Disabled for {team_object.name}",
-                                    thumbnail=team.logo_icon)
-                return await ctx.send(embed=embed)
-            if await team_object.set_check_in(True):
-                embed = utils.Embed(title=f"Checked in {team.name} ✅",
-                                    thumbnail=team.logo_icon)
-                return await ctx.send(embed=embed)
-            else:
-                embed = utils.Embed(title=f"Error Checking in {team.name} ⛔",
-                                    description="Internal Error trying to check in! Go to Helpdesk for help.",
-                                    thumbnail=team.logo_icon)
-                return await ctx.send(embed=embed)
+        await self._set_checkin(ctx, True, team_name)
 
-        if team_name and not discord.utils.get(ctx.author.roles, name="Staff"):
-            raise commands.MissingRole
-        if team_name:
-            team = await self.database.get_team(team_name, self._battlefy_id)
-            if team:
-                await checkin(team)
-            else:
-                embed = utils.Embed(title=f"No Team Found under {team_name} ❌")
-                return await ctx.send(embed=embed)
-        else:
-            team = await self.database.get_discord_team(
-                [f"{ctx.author.name}#{ctx.author.discriminator}", str(ctx.author.id)],  # Forms list of field to find by
-                self._battlefy_id)
-            if team:
-                await checkin(team)
-            else:
-                embed = utils.Embed(title=f"No Team Found for {ctx.author.mention}❗",
-                                    description="Head to Helpdesk if you need help!")
-                return await ctx.send(embed=embed)
-
+    @commands.has_role("Staff")
+    @checkin.command()
+    async def checkout(self, ctx: commands.Context, team_name: str = None):
+        """Check out of the tournament """
+        await self._set_checkin(ctx, False, team_name)
 
     @commands.has_role("Staff")
     @checkin.command(aliases=["start", "setup", "open"])
@@ -122,6 +152,33 @@ class CheckIn(commands.Cog):
                 await ctx.send("⛔ **Insufficient Permissions to set Role**")
         else:
             await ctx.send("🤔 **Unable to find team!**")
+
+    @commands.has_role("Staff")
+    @checkin.command(aliases=["list"])
+    async def view(self, ctx, bracket: str = None):
+        with ctx.typing():
+            if not bracket:
+                bracket_teams = await self.database.get_bracket_teams(self._battlefy_id)
+            else:
+                if not (bracket_type := valid_bracket_type.get(bracket.upper())):
+                    return await ctx.send(f"⛔ **Invalid Bracket Type**")
+                bracket_teams = await self.database.get_bracket_teams(self._battlefy_id, bracket_type['id'])
+        check_in, check_out = [], []  # Stores string of teams checked in/out
+        if not bracket_teams:
+            embed = utils.Embed(title=f"Not teams to list")
+            return await ctx.send(embed=embed)
+        for team in bracket_teams:
+            if team.checkin:
+                check_in.append(team.name)
+            else:
+                check_out.append(team.name)
+        embed = utils.Embed(title=f"Check in List for {'All' if not bracket else bracket_type['name']}")
+        if check_in:
+            embed.add_field(name=f"Checked in: {len(check_in)}", value=f"{utils.Embed.list(check_in)}", inline=False)
+        if check_out:
+            embed.add_field(name=f"Checked out: {len(check_out)}", value=f"{utils.Embed.list(check_out)}",
+                            inline=False)
+        await ctx.send(embed=embed)
 
     @commands.has_role("Staff")
     @checkin.command(aliases=["clean"])
