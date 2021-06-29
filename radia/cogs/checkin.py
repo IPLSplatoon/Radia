@@ -138,10 +138,10 @@ class CheckIn(commands.Cog):
         """Remove all of the bracket roles."""
         async with ctx.typing():
             counter = 0
-            for bracket in battlefy.Team.Bracket:
-                bracket_role = bracket.role(ctx)
-                for member in bracket_role.members:
-                    await member.remove_roles(bracket_role)
+            for bracket in id_to_bracket.values():
+                role = discord.utils.get(ctx.guild.roles, name=f"{bracket}")
+                for member in role.members:
+                    await member.remove_roles(role)
                     counter += 1
         embed = utils.Embed(
             title=f"✅ **Success:** bracket roles cleared from all members",

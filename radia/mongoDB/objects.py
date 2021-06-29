@@ -27,7 +27,7 @@ class MongoTeam:
         """
         update = await self._collection.update_one(
             {"name": self.name, "battlefyTournamentId": self.battlefy_tournament_id},
-            {"checkin": status}, upsert=True)
+            {"$set": {"checkin": status}}, upsert=True)
         if update:
             self.checkin = status
             return True
@@ -94,7 +94,7 @@ class MongoTeam:
         except commands.BadArgument:
             raise CaptainNotFound
         try:
-            if not (role := discord.utils.get(ctx.guild.roles, name=f"LI {bracket_info['name']}")):
+            if not (role := discord.utils.get(ctx.guild.roles, name=f"{bracket_info['name']}")):
                 raise RoleNotFound
             await captain.add_roles(role)
             return await self.set_bracket(bracket_info['id'])
