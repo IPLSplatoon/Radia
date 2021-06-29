@@ -25,7 +25,6 @@ class CheckinDB:
                     "name": team.name,
                     "logoUrl": team.logo,
                     "captainDiscord": team.captain.discord,
-                    "bracket": 0,  # 0 = No bracket, 1 Alpha, 2 Beta, 3 Gamma, 4 Delta...
                 }
             }
             write_list.append(pymongo.UpdateOne({"_id": team.id}, instance, upsert=True))
@@ -56,3 +55,21 @@ class CheckinDB:
             elif team := await self.db.find_one(
                     {"additionalDiscord": {"$in": [x]}, "battlefyTournamentId": battlefy_id}):
                 return MongoTeam(team, self.db)
+
+    async def get_bracket_teams(self, battlefy_id: str, bracket: int = None) -> List[MongoTeam]:
+        """
+        Bracket
+        :param battlefy_id: Tournament ID
+        :param bracket: bracket to get teams for
+        :return: List[MongoTeam]
+        """
+        if not bracket:
+            # If no bracket is specified we look for all brackets in a tournament that are greater than 0
+            db_teams = self.db.find({"battlefyTournamentId": battlefy_id, "bracket": {"$gt": 0}})
+        else:
+            db_teams = self.db.find({"battlefyTournamentId": battlefy_id, "bracket": bracket})
+        mongo_team_objects = []
+        # for team in await db_teams.to_list(length=100):
+        async for team in db_teams:
+            mongo_team_objects.append(MongoTeam(team, self.db))
+        return mongo_team_objects
