@@ -6,7 +6,13 @@ from .objects import MongoTeam
 
 
 class CheckinDB:
+    """Handled all the data for the checkin Database"""
     def __init__(self, connection: motor.motor_asyncio, db_name: str):
+        """
+        Init
+        :param connection: MongoDB connection
+        :param db_name: Database Name
+        """
         self._connection = connection[db_name]
         self.db = self._connection.teams
 
@@ -50,9 +56,10 @@ class CheckinDB:
         :return: Optional[MongoTeam]
         """
         for x in discord:
+            # looks if captain discord wit the value
             if team := await self.db.find_one({"captainDiscord": x, "battlefyTournamentId": battlefy_id}):
                 return MongoTeam(team, self.db)
-            elif team := await self.db.find_one(
+            elif team := await self.db.find_one(  # looks for it additional discord would have the value
                     {"additionalDiscord": {"$in": [x]}, "battlefyTournamentId": battlefy_id}):
                 return MongoTeam(team, self.db)
 

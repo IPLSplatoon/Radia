@@ -53,49 +53,50 @@ class CheckIn(commands.Cog):
             Check in team
             :return: None
             """
-            status_message = "in" if checkin_status else "out"
-
-            if team.bracket <= 0:
-                fun_embed = utils.Embed(title=f"❌ Checking Disabled for: {team.name}",
+            if team.bracket <= 0:  # Team isn't in a bracket
+                fun_embed = utils.Embed(title=f"❌ Checking Disabled for: `{team.name}`",
                                         thumbnail=team.logo_icon)
                 return await ctx.send(embed=fun_embed)
             if await team.set_check_in(checkin_status):
-                fun_embed = utils.Embed(title=f"Checked {status_message} {team.name} ✅",
-                                        thumbnail=team.logo_icon)
+                fun_embed = utils.Embed(title=f"Checked {'in' if checkin_status else 'out'} `{team.name}` ✅")
+                if team.logo_icon:
+                    fun_embed.set_thumbnail(url=team.logo_icon)
                 return await ctx.send(embed=fun_embed)
-            else:
-                fun_embed = utils.Embed(title=f"Error Checking in: {team.name} ⛔",
+            else:  # We got an error somewhere checking in
+                fun_embed = utils.Embed(title=f"Error Checking in: `{team.name}` ⛔",
                                         description=f"Internal Error trying to check {checkin_status}!"
                                                     f" Go to Helpdesk for help.",
                                         thumbnail=team.logo_icon)
                 return await ctx.send(embed=fun_embed)
 
+        # Someone check in/out with name that's not staff
         if team_name and not discord.utils.get(ctx.author.roles, name="Staff"):
             raise commands.MissingRole
-        if team_name:
+        if team_name:  # if a team name was given by staff member
             team = await self.database.get_team(team_name, self._battlefy_id)
             if team:
                 await checkin_set()
             else:
-                embed = utils.Embed(title=f"No Team Found under: {team_name} ❌")
+                embed = utils.Embed(title=f"No Team Found under: `{team_name}` ❌")
                 return await ctx.send(embed=embed)
-        else:
+        else:  # If no team name given
             team = await self.database.get_discord_team(
                 [f"{ctx.author.name}#{ctx.author.discriminator}", str(ctx.author.id)],  # Forms list of field to find by
                 self._battlefy_id)
             if team:
                 await checkin_set()
             else:
-                embed = utils.Embed(title=f"No Team Found for {ctx.author.name}❗",
+                embed = utils.Embed(title=f"No Team Found for `{ctx.author.name}`❗",
                                     description=f"{ctx.author.mention}, head to Helpdesk if you need help!")
                 return await ctx.send(embed=embed)
 
     @commands.group(hidden=True, invoke_without_command=True, aliases=["bracket", "b"])
     async def checkin(self, ctx: commands.Context, team_name: str = None):
-        """ Check in your team for Low Ink day 2!
+        """
+        Check in your team for Low Ink day 2!
 
         Specify a team_name to override checkin for a team.
-        Group of commands handling Low Ink day 2 check-in.
+        Group of commands handling IPL check-in.
         """
         await self._set_checkin(ctx, True, team_name)
 
@@ -117,7 +118,7 @@ class CheckIn(commands.Cog):
         battlefy_teams = await battlefy.connector.get_teams(tourney.battlefy)
 
         try:
-            await mongoDB.db_connector.checkin.load_teams(battlefy_teams, tourney.battlefy)
+            await self.database.load_teams(battlefy_teams, tourney.battlefy)
             self._battlefy_id = tourney.battlefy
             embed = utils.Embed(
                 title=f"✅ **Success:** teams loaded for `{tourney.event.name}` checkin",
@@ -128,18 +129,34 @@ class CheckIn(commands.Cog):
             pass
 
     @commands.has_role("Staff")
+    @checkin.command(aliases=["setid"])
+    async def setID(self, ctx, tourney: int = 0):
+        """Set tournament ID to use."""
+        async with ctx.typing():
+            if not (tourney := utils.agenda.tourney_at(tourney)):
+                return await ctx.send("⛔ **No event found**")
+            else:
+                self._battlefy_id = tourney.battlefy
+                embed = utils.Embed(
+                    title=f"✅ **Success:** ID set for `{tourney.event.name}`")
+                await ctx.send(embed=embed)
+                await ctx.send(embed=embed)
+
+    @commands.has_role("Staff")
     @checkin.command(aliases=["a"])
     async def assign(self, ctx, bracket: str, team_name: str, captain: discord.Member = None):
-        """Assign bracket role to team based on team name.
+        """
+        Assign bracket role to team based on team name.
 
         You can optionally specify a captain in case the battlefy one is incorrect.
         """
         team = await self.database.get_team(team_name, self._battlefy_id)
         if team:
             if captain:
+                # if provided a captain we attempt to assign it to the team first
                 if not await team.set_captain_discord(str(captain.id)):
                     return await ctx.send(f"⛔ **Failed to override set captain**")
-            if not (bracket_type := valid_bracket_type.get(bracket.upper())):
+            if not (bracket_type := valid_bracket_type.get(bracket.upper())):  # if the stored bracket type is invalid
                 return await ctx.send(f"⛔ **Invalid Bracket Type**")
             try:
                 if await team.set_assign_bracket(ctx, bracket_type):
@@ -156,8 +173,9 @@ class CheckIn(commands.Cog):
     @commands.has_role("Staff")
     @checkin.command(aliases=["list"])
     async def view(self, ctx, bracket: str = None):
+        """View all teams checked in/out for tournament"""
         with ctx.typing():
-            if not bracket:
+            if not bracket:  # gets all teams for tournament with bracket > 0 if one isn't provided
                 bracket_teams = await self.database.get_bracket_teams(self._battlefy_id)
             else:
                 if not (bracket_type := valid_bracket_type.get(bracket.upper())):

@@ -9,8 +9,10 @@ class TeamNoFoundError(MongoError):
 
 
 class CaptainNotFound(MongoError):
+    """Captain not Found"""
     pass
 
 
 class RoleNotFound(MongoError):
+    """Role not Found"""
     pass

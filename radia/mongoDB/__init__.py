@@ -8,6 +8,7 @@ from .objects import *
 
 
 class DBConnector:
+    """MongoDB Connector"""
     def __init__(self):
         if not (mongo_string := os.getenv("MONGO_STRING")):
             logging.error(".env - 'MONGO_STRING' key not found. Cannot start bot.")

@@ -7,7 +7,13 @@ from .errors import CaptainNotFound, RoleNotFound
 
 
 class MongoTeam:
+    """Represents a team stored in MongoDB"""
     def __init__(self, mongo_object: dict, collection: motor.motor_asyncio.AsyncIOMotorCollection):
+        """
+        Init
+        :param mongo_object: MongoDB document
+        :param collection: MongoDB Collection connection
+        """
         self._collection = collection
 
         self.team_id = mongo_object.get("_id")
@@ -49,7 +55,7 @@ class MongoTeam:
         else:
             return False
 
-    async def set_captain_discord(self, captain_discord: str):
+    async def set_captain_discord(self, captain_discord: str) -> bool:
         """
         Set team's bracket
         :param captain_discord: captain username#tag
@@ -64,15 +70,15 @@ class MongoTeam:
         else:
             return False
 
-    async def add_additional_discord(self, discord: str) -> bool:
+    async def add_additional_discord(self, discord_field: str) -> bool:
         """
         Add additional Discord to team
-        :param discord: Discord ID
+        :param discord_field: Discord ID
         :return: success status
         """
         update = await self._collection.update_one(
             {"name": self.name, "battlefyTournamentId": self.battlefy_tournament_id},
-            {"$set": {"additional_discord": {"$each": [discord]}}}, upsert=True)
+            {"$set": {"additional_discord": {"$each": [discord_field]}}}, upsert=True)
         if update:
             self.additional_discord.append(discord)
             return True
@@ -89,9 +95,10 @@ class MongoTeam:
         if not self.captain_discord:
             raise CaptainNotFound
         try:
+            # If we can't find the person stated on the discord field in the server
             if not (captain := await commands.MemberConverter().convert(ctx, self.captain_discord)):
                 raise CaptainNotFound
-        except commands.BadArgument:
+        except commands.BadArgument:  # catch all for above
             raise CaptainNotFound
         try:
             if not (role := discord.utils.get(ctx.guild.roles, name=f"{bracket_info['name']}")):
