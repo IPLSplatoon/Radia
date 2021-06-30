@@ -1,5 +1,6 @@
 """Battlefy Check in Cog"""
 import sys
+import logging
 
 import discord
 from discord.ext import commands
@@ -33,7 +34,7 @@ class CheckIn(commands.Cog):
         if tourney := utils.agenda.tourney_at(0):
             self._battlefy_id = tourney.battlefy
         else:
-            print("unable to get next tourney")
+            logging.info("unable to get next tourney")
 
     @property
     def database(self) -> mongoDB.database.CheckinDB:
@@ -150,8 +151,7 @@ class CheckIn(commands.Cog):
 
         You can optionally specify a captain in case the battlefy one is incorrect.
         """
-        team = await self.database.get_team(team_name, self._battlefy_id)
-        if team:
+        if team := await self.database.get_team(team_name, self._battlefy_id):
             if captain:
                 # if provided a captain we attempt to assign it to the team first
                 if not await team.set_captain_discord(str(captain.id)):
@@ -167,6 +167,26 @@ class CheckIn(commands.Cog):
                 await ctx.send("⛔ **Bracket assign failed, could not find captain discord**")
             except discord.Forbidden:
                 await ctx.send("⛔ **Insufficient Permissions to set Role**")
+        else:
+            await ctx.send("🤔 **Unable to find team!**")
+
+    @commands.has_role("Staff")
+    @checkin.command(aliases=["u"])
+    async def unassign(self, ctx, team_name: str):
+        """Unassign bracket role to team based on team name."""
+        if team := await self.database.get_team(team_name, self._battlefy_id):
+            if team.bracket > 0:
+                if not (role := discord.utils.get(ctx.guild.roles, name=f"{id_to_bracket[team.bracket]}")):
+                    return await ctx.send("⚠ **Role not round**")
+                if not (captain := await commands.MemberConverter().convert(ctx, team.captain_discord)):
+                    return await ctx.send("⛔ **Bracket assign failed, could not find captain discord**")
+                await captain.remove_roles(role)
+                if await team.set_bracket(0):
+                    await ctx.message.add_reaction("✅")
+                else:
+                    await ctx.send("⛔ **Bracket unassign failed, Internal Error**")
+            else:
+                await ctx.send("❔ **No bracket set for team**")
         else:
             await ctx.send("🤔 **Unable to find team!**")
 
