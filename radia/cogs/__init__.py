@@ -8,4 +8,5 @@ names = [
     "lowink",
     "refresh",
     "misc",
+    "checkin"
 ]

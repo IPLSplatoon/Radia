@@ -5,8 +5,9 @@ sentry_sdk
 aiohttp
 
 # Database
-sqlalchemy
-psycopg2
+motor
+dnspython
+pymongo
 
 # Google
 gspread

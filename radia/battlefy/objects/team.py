@@ -35,6 +35,7 @@ class Team:
 
     def __init__(self, battlefy, discord_field_id, fc_field_id):
         self.raw = battlefy
+        self.id = self.raw["_id"]
         self.name = self.raw["name"]
         self.logo = self.raw["persistentTeam"].get("logoUrl", None)
         self.created_at = dateutil.parser.isoparse(self.raw["createdAt"])
