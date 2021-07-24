@@ -28,6 +28,7 @@ if debug:
         ".env - 'DEBUG' key found. Running in debug mode, do not use in production."
     )
 
+
 # Optionally initialize sentry
 def initialize_sentry(sentry_env):
     import sentry_sdk

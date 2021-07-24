@@ -86,6 +86,9 @@ Managing the check-in command staff can use these subcommands:
 1. Share the Google Sheet with the `client_email` from the json file.
 1. Copy the gsheet key from the url at `https://docs.google.com/spreadsheets/d/`**`{key}`**`/edit`, you will use this in the `.env`
 
+#### MongoDB
+(coming soon)
+
 #### Bot Setup
 1. Create a `.env` in the repository root:
 

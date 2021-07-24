@@ -141,7 +141,6 @@ class CheckIn(commands.Cog):
                 embed = utils.Embed(
                     title=f"✅ **Success:** ID set for `{tourney.event.name}`")
                 await ctx.send(embed=embed)
-                await ctx.send(embed=embed)
 
     @commands.has_role("Staff")
     @checkin.command(aliases=["a"])
