@@ -10,12 +10,12 @@ from .objects import *
 class DBConnector:
     """MongoDB Connector"""
     def __init__(self):
-        if not (mongo_string := os.getenv("MONGO_STRING")):
-            logging.error(".env - 'MONGO_STRING' key not found. Cannot start bot.")
+        if not (mongo_string := os.getenv("MONGOURI")):
+            logging.error(".env - 'MONGOURI' key not found. Cannot start bot.")
             raise EnvironmentError
 
-        if not (db_name := os.getenv("DATABASE_NAME")):
-            logging.error(".env - 'DATABASE_NAME' key not found. Cannot start bot.")
+        if not (db_name := os.getenv("DATABASENAME")):
+            logging.error(".env - 'DATABASENAME' key not found. Cannot start bot.")
             raise EnvironmentError
 
         self.mongo = motor.motor_asyncio.AsyncIOMotorClient(mongo_string)

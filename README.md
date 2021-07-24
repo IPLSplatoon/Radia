@@ -90,11 +90,13 @@ Managing the check-in command staff can use these subcommands:
 1. Create a `.env` in the repository root:
 
    ```py
-   TOKEN = discord.bot.token
-   GSHEET = gsheet_key
-   ICAL = "https://calendar.google.com/calendar/ical/43cm%40group.calendar.google.com/private-1b6d/basic.ics"
-   SENTRY = "System Environment"  # Optional
-   DEBUG = 1  # Optional
+   TOKEN=discord.bot.token
+   GSHEET=gsheet_key
+   ICAL="https://calendar.google.com/calendar/ical/43cm%40group.calendar.google.com/private-1b6d/basic.ics"
+   MONGOURI="Your MongoDB Connection URI"
+   DATABASENAME=DatabaseName
+   SENTRY="System Environment"  # Optional
+   DEBUG=1  # Optional
    ```
 
    Please know that there are no `true` or `false` values in `.env` files. If you want to set a key to false, set it to `0`
