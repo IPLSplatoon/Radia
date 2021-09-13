@@ -55,8 +55,9 @@ class CheckIn(commands.Cog):
             :return: None
             """
             if team.bracket <= 0:  # Team isn't in a bracket
-                fun_embed = utils.Embed(title=f"❌ Checking Disabled for: `{team.name}`",
-                                        thumbnail=team.logo_icon)
+                fun_embed = utils.Embed(title=f"❌ Checking Disabled for: `{team.name}`")
+                if team.logo_icon:
+                    fun_embed.set_thumbnail(url=team.logo_icon)
                 return await ctx.send(embed=fun_embed)
             if await team.set_check_in(checkin_status):
                 fun_embed = utils.Embed(title=f"Checked {'in' if checkin_status else 'out'} `{team.name}` ✅")
@@ -66,8 +67,9 @@ class CheckIn(commands.Cog):
             else:  # We got an error somewhere checking in
                 fun_embed = utils.Embed(title=f"Error Checking in: `{team.name}` ⛔",
                                         description=f"Internal Error trying to check {checkin_status}!"
-                                                    f" Go to Helpdesk for help.",
-                                        thumbnail=team.logo_icon)
+                                                    f" Go to Helpdesk for help.")
+                if team.logo_icon:
+                    fun_embed.set_thumbnail(url=team.logo_icon)
                 return await ctx.send(embed=fun_embed)
 
         # Someone check in/out with name that's not staff
