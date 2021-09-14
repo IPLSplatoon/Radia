@@ -4,6 +4,9 @@ asyncio
 sentry_sdk
 aiohttp
 
+# Smashgg
+aiographql-client
+
 # Database
 motor
 dnspython
