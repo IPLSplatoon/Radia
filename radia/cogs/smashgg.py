@@ -87,6 +87,28 @@ class Smashgg(commands.Cog):
             value=utils.Embed.list(invalid_teams) if invalid_teams else "> ✨ **~ No invalid captains! ~**")
         await ctx.send(embed=embed)
 
+    @commands.has_role("Staff")
+    @smashgg.command(aliases=['cat'])
+    async def category(self, ctx: commands.Context, nick: bool = True, role="878245267349073980"):
+        if not self.tournament:
+            return await ctx.send("⛔ **No event set**")
+        role = ctx.guild.get_role(int(role))
+        assigned_to = 0
+
+        async with ctx.typing():
+            event_teams = await self.tournament.events[self.event].get_teams()
+            for team in event_teams:
+                for player in team.players:
+                    if member := await player.get_discord(ctx):
+                        await member.add_roles(role)
+                        assigned_to += 1
+
+        # Send Report Embed
+        embed = utils.Embed(
+            title=f"✅ **Success:** roles assigned for `{self.tournament.name}`",
+            description=f"{role.mention} assigned to `{assigned_to}` members.")
+        await ctx.send(embed=embed)
+
 
 def setup(bot):
     bot.add_cog(Smashgg(bot))

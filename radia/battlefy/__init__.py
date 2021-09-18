@@ -42,4 +42,5 @@ class Connector:
         tourney = await self.get_tournament(*args)
         return tourney.teams
 
+
 connector = Connector()
