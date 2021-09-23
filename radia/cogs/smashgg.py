@@ -61,7 +61,7 @@ class Smashgg(commands.Cog):
                 else:
                     if nick:
                         # Attempts to give the name Username-TeamName, if fails, give the teamName limited to 32 char
-                        name = f"{member.name} - {team.name}"
+                        name = f"{team.name} - {member.name}"
                         if len(name) > 32:
                             name = team.name[:32]
                         await member.edit(nick=name)
