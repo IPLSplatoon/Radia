@@ -6,7 +6,7 @@ async def main():
     tournament = await smashgg.get_tournament("superjump-1")
     for e in tournament.events:
         if e.name == "Splatoon 2":
-            teams = await e.get_teams()
+            teams = await e.get_bracket_teams("Group Stage")
             for t in teams:
                 print(t)
     print(tournament.name)

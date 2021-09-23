@@ -1,5 +1,5 @@
 # Bot
-discord
+discord.py
 asyncio
 sentry_sdk
 aiohttp

@@ -1,5 +1,6 @@
 from .connect import Connect
 from .team import Team
+from .phaseGroup import PhaseGroup
 from typing import List
 from aiographql.client import GraphQLRequest
 
@@ -10,6 +11,9 @@ class Event:
         self.id: int = self._raw.get("id", None)
         self.name = self._raw.get("name", None)
         self.session = gql_connector
+        self.phase_groups: List[PhaseGroup] = []
+        for pg in self._raw["phaseGroups"]:
+            self.phase_groups.append(PhaseGroup(pg, self.session))
 
     def _get_entrants_request(self, page: int, per_page: int):
         return GraphQLRequest(
@@ -65,6 +69,20 @@ class Event:
                     if data["event"]:
                         for t in data["event"]["entrants"]["nodes"]:
                             teams.append(Team(t))
+        return teams
+
+    async def get_bracket_teams(self, bracket_name: str) -> List[Team]:
+        teams = []
+        for x in self.phase_groups:
+            if x.phase_name == bracket_name:
+                teams = teams + (await x.get_teams())
+        return teams
+
+    async def get_wave_teams(self, wave_id: str) -> List[Team]:
+        teams = []
+        for x in self.phase_groups:
+            if x.wave.identifier == wave_id:
+                teams = teams + (await x.get_teams())
         return teams
 
 

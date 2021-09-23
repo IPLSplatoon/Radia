@@ -2,7 +2,9 @@
 
 import discord
 from discord.ext import commands
+from typing import List
 
+from radia.smashgg.objects import Team
 from radia import utils, smashgg
 
 
@@ -11,6 +13,31 @@ class Smashgg(commands.Cog):
         self.bot = bot
         self.tournament: smashgg.Tournament = None
         self.event: int = None  # Index of the event in the tournament object
+
+    async def assign_roles(self, ctx: commands.Context, teams: List[Team], role_id: int, all_players: bool = False):
+        role = ctx.guild.get_role(role_id)
+        assigned_to = 0
+
+        async with ctx.typing():
+            event_teams = teams
+            for team in event_teams:
+                if all_players:
+                    for player in team.players:
+                        if member := await player.get_discord(ctx):
+                            await member.add_roles(role)
+                            assigned_to += 1
+                else:
+                    captain = team.captain
+                    if captain:
+                        if member := await captain.get_discord(ctx):
+                            await member.add_roles(role)
+                            assigned_to += 1
+
+        # Send Report Embed
+        embed = utils.Embed(
+            title=f"✅ **Success:** roles assigned for `{self.tournament.name}`",
+            description=f"{role.mention} assigned to `{assigned_to}` members.")
+        await ctx.send(embed=embed)
 
     @commands.has_role("Staff")
     @commands.group(hidden=True)
@@ -89,25 +116,27 @@ class Smashgg(commands.Cog):
 
     @commands.has_role("Staff")
     @smashgg.command(aliases=['cat'])
-    async def category(self, ctx: commands.Context, nick: bool = True, role="878245267349073980"):
+    async def category(self, ctx: commands.Context, role="878245267349073980"):
         if not self.tournament:
             return await ctx.send("⛔ **No event set**")
-        role = ctx.guild.get_role(int(role))
-        assigned_to = 0
+        event_teams = await self.tournament.events[self.event].get_teams()
+        await self.assign_roles(ctx, event_teams, int(role), all_players=True)
 
-        async with ctx.typing():
-            event_teams = await self.tournament.events[self.event].get_teams()
-            for team in event_teams:
-                for player in team.players:
-                    if member := await player.get_discord(ctx):
-                        await member.add_roles(role)
-                        assigned_to += 1
+    @commands.has_role("Staff")
+    @smashgg.command()
+    async def bracket(self, ctx: commands.Context, bracket, role):
+        if not self.tournament:
+            return await ctx.send("⛔ **No event set**")
+        teams = await self.tournament.events[self.event].get_bracket_teams(bracket)
+        await self.assign_roles(ctx, teams, int(role), all_players=True)
 
-        # Send Report Embed
-        embed = utils.Embed(
-            title=f"✅ **Success:** roles assigned for `{self.tournament.name}`",
-            description=f"{role.mention} assigned to `{assigned_to}` members.")
-        await ctx.send(embed=embed)
+    @commands.has_role("Staff")
+    @smashgg.command()
+    async def wave(self, ctx: commands.Context, wave, role):
+        if not self.tournament:
+            return await ctx.send("⛔ **No event set**")
+        teams = await self.tournament.events[self.event].get_wave_teams(wave)
+        await self.assign_roles(ctx, teams, int(role), all_players=True)
 
 
 def setup(bot):

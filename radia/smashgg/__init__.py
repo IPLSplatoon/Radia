@@ -20,6 +20,17 @@ class Connector:
                     events {
                         id
                         name
+                        phaseGroups{
+                            displayIdentifier
+                            id
+                            phase{
+                                name
+                            }
+                            wave{
+                                id
+                                identifier
+                            }
+                        }
                     }
                 }
             }
