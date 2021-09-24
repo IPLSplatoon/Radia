@@ -8,9 +8,10 @@ class Team:
         self._raw_team: dict = self._raw.get('team', {})
         self.name: str = self._raw.get('name', '')
         self.players = []
-        for p in self._raw_team.get("members", []):
-            if p:
-                self.players.append(Player(p))
+        if self._raw_team:
+            for p in self._raw_team.get("members", []):
+                if p:
+                    self.players.append(Player(p))
 
     def __str__(self):
         player = ""

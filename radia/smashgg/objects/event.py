@@ -61,14 +61,16 @@ class Event:
         initial_data = initial_request.data
         if initial_data["event"]:
             for t in initial_data["event"]["entrants"]["nodes"]:
-                teams.append(Team(t))
+                if t:
+                    teams.append(Team(t))
             pages = initial_data["event"]["entrants"]["pageInfo"]["totalPages"]
             if pages > 1:
                 for x in range(2, pages+1):
                     data = (await self.session.client.query(self._get_entrants_request(x, per_page))).data
                     if data["event"]:
                         for t in data["event"]["entrants"]["nodes"]:
-                            teams.append(Team(t))
+                            if t:
+                                teams.append(Team(t))
         return teams
 
     async def get_bracket_teams(self, bracket_name: str) -> List[Team]:
