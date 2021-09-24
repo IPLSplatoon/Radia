@@ -105,7 +105,13 @@ class Smashgg(commands.Cog):
         await ctx.send(embed=embed)
 
         # Send status check embed
-        invalid_teams = [f"`{team.captain.name}` | `{team.name}`" for team in invalid_captains]
+        invalid_teams = []
+        for team in invalid_captains:
+            captain_name = "UNKNOWN"
+            captain = team.captain
+            if captain:
+                captain_name = captain.name
+            invalid_teams.append(f"`{captain_name}` | `{team.name}`")
         embed = utils.Embed(
             title=f"🗒️ Captain status check for `{self.tournament.name}`",
             description=f"Invalid Captains / Total Teams: `{len(invalid_teams)}/{len(event_teams)}`")
