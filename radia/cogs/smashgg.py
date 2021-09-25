@@ -14,9 +14,11 @@ class Smashgg(commands.Cog):
         self.tournament: smashgg.Tournament = None
         self.event: int = None  # Index of the event in the tournament object
 
-    async def assign_roles(self, ctx: commands.Context, teams: List[Team], role_id: int, all_players: bool = False):
+    async def assign_roles(self, ctx: commands.Context, teams: List[Team], role_id: int, all_players: bool = False,
+                           remove_old: bool = False):
         role = ctx.guild.get_role(role_id)
         assigned_to = 0
+        assigned_list = []
 
         async with ctx.typing():
             event_teams = teams
@@ -26,12 +28,19 @@ class Smashgg(commands.Cog):
                         if member := await player.get_discord(ctx):
                             await member.add_roles(role)
                             assigned_to += 1
+                            assigned_list.append(member)
                 else:
                     captain = team.captain
                     if captain:
                         if member := await captain.get_discord(ctx):
                             await member.add_roles(role)
                             assigned_to += 1
+                            assigned_list.append(member)
+
+        if remove_old:
+            for member in role.members:
+                if member not in assigned_list:
+                    await member.remove_roles(role)
 
         # Send Report Embed
         embed = utils.Embed(
@@ -134,7 +143,7 @@ class Smashgg(commands.Cog):
         if not self.tournament:
             return await ctx.send("⛔ **No event set**")
         teams = await self.tournament.events[self.event].get_bracket_teams(bracket)
-        await self.assign_roles(ctx, teams, int(role), all_players=True)
+        await self.assign_roles(ctx, teams, int(role), all_players=True, remove_old=True)
 
     @commands.has_role("Staff")
     @smashgg.command()
@@ -142,7 +151,7 @@ class Smashgg(commands.Cog):
         if not self.tournament:
             return await ctx.send("⛔ **No event set**")
         teams = await self.tournament.events[self.event].get_wave_teams(wave)
-        await self.assign_roles(ctx, teams, int(role), all_players=True)
+        await self.assign_roles(ctx, teams, int(role), all_players=True, remove_old=True)
 
 
 def setup(bot):

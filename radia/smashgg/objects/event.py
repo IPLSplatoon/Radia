@@ -83,7 +83,7 @@ class Event:
     async def get_wave_teams(self, wave_id: str) -> List[Team]:
         teams = []
         for x in self.phase_groups:
-            if x.wave.identifier == wave_id:
+            if x.wave and x.wave.identifier == wave_id:
                 teams = teams + (await x.get_teams())
         return teams
 

@@ -13,7 +13,10 @@ class PhaseGroup:
         self.phase_name = self._phase.get("name", "")
         self.id: int = self._raw.get("id", None)
         self.display_identifier = self._raw.get("displayIdentifier", None)
-        self.wave = Wave(self._raw["wave"])
+        if self._raw["wave"]:
+            self.wave = Wave(self._raw["wave"])
+        else:
+            self.wave = None
 
     def _get_entrants_request(self, page: int, per_page: int):
         return GraphQLRequest(
