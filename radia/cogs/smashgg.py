@@ -143,7 +143,7 @@ class Smashgg(commands.Cog):
         if not self.tournament:
             return await ctx.send("⛔ **No event set**")
         teams = await self.tournament.events[self.event].get_bracket_teams(bracket)
-        await self.assign_roles(ctx, teams, int(role), all_players=True, remove_old=True)
+        await self.assign_roles(ctx, teams, int(role), all_players=False, remove_old=True)
 
     @commands.has_role("Staff")
     @smashgg.command()

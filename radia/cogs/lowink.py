@@ -50,8 +50,8 @@ class LowInk(commands.Cog):
             # Create list of applicable champion roles
             roles = self.get_roles(ctx,
                 "Low Ink Current Champions",
-                "Beta Bracket Champions",
-                "Gamma Bracket Champions"
+                "Low Beta Bracket Champions",
+                "Low Gamma Bracket Champions"
             )
             # Create a set of all members with any champion role
             all_champions = list()
