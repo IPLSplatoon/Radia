@@ -1,8 +1,11 @@
 # Bot
-discord
+discord.py
 asyncio
 sentry_sdk
 aiohttp
+
+# Smashgg
+aiographql-client==1.0.3a3
 
 # Database
 motor

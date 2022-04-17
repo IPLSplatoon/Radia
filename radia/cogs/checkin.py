@@ -83,6 +83,9 @@ class CheckIn(commands.Cog):
                 embed = utils.Embed(title=f"No Team Found under: `{team_name}` ❌")
                 return await ctx.send(embed=embed)
         else:  # If no team name given
+            if not ('check-in' in ctx.channel.name or 'checkin' in ctx.channel.name):
+                await ctx.message.add_reaction("❌")
+                return
             team = await self.database.get_discord_team(
                 [f"{ctx.author.name}#{ctx.author.discriminator}", str(ctx.author.id)],  # Forms list of field to find by
                 self._battlefy_id)
@@ -208,9 +211,9 @@ class CheckIn(commands.Cog):
             return await ctx.send(embed=embed)
         for team in bracket_teams:
             if team.checkin:
-                check_in.append(team.name)
+                check_in.append(team.name[:32])
             else:
-                check_out.append(team.name)
+                check_out.append(team.name[:32])
         embed = utils.Embed(title=f"Check in List for {'All' if not bracket else bracket_type['name']}")
         if check_in:
             embed.add_field(name=f"Checked in: {len(check_in)}", value=f"{utils.Embed.list(check_in)}", inline=False)
@@ -223,7 +226,7 @@ class CheckIn(commands.Cog):
     @checkin.command(aliases=["clean"])
     async def purge(self, ctx):
         """Purge the current check-in channel of messages, and clear the list of checked in players."""
-        if 'check-in' in ctx.channel.name:
+        if 'check-in' in ctx.channel.name or 'checkin' in ctx.channel.name:
             await ctx.channel.purge(limit=sys.maxsize)
         else:
             await ctx.channel.send("⛔ **You'd better be careful throwing that command around**")
