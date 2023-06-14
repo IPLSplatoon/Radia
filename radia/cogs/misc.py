@@ -39,12 +39,12 @@ class Misc(commands.Cog):
             # Signup!
             "Signup for Low Ink!",
             "Signup for Swim or Sink!",
-            "Signup for Testing Grounds!",
-            "Signup for Unnamed Tournament!",
+            "Signup for Proving Grounds!",
+            # "Signup for Unnamed Tournament!",
             # funny
             "Powered by High Ink!",
             "Investing in buying LUTI.",
-            "Get your coffee grounds 45% off this weekend at Testing Grounds.",
+            "Get your coffee grounds 45% off this weekend at Proving Grounds.",
             "Sink or Swim or Swim or Sink",
             "According to all known laws of aviation",
             # Round 4
@@ -65,9 +65,6 @@ class Misc(commands.Cog):
             "Icon by Ozei!",
             "Ban Kraken Mare",
             "I kid you not Hoeen, he turns himself into a pickle",
-            "Go to sleep Lepto",
-            "Skye passed out again",
-            "Helpdesk needs you .jpg",
         ])))
 
     @commands.Cog.listener()
