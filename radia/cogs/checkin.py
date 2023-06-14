@@ -12,17 +12,26 @@ valid_bracket_type = {
     "B": {"name": "Beta", "id": 2},
     "G": {"name": "Gamma", "id": 3},
     "D": {"name": "Delta", "id": 4},
+    "Z": {"name": "Zeta", "id": 5},
+    "T": {"name": "Top 32", "id": 6},
+    "E": {"name": "Epsilon", "id": 7},
     "ALPHA": {"name": "Alpha", "id": 1},
     "BETA": {"name": "Beta", "id": 2},
     "GAMMA": {"name": "Gamma", "id": 3},
-    "DELTA": {"name": "Delta", "id": 4}
+    "DELTA": {"name": "Delta", "id": 4},
+    "ZETA": {"name": "Zeta", "id": 5},
+    "TOP 32": {"name": "Top 32", "id": 6},
+    "EPSILON": {"name": "Epsilon", "id":7},
 }
 
 id_to_bracket = {
     1: "Alpha",
     2: "Beta",
     3: "Gamma",
-    4: "Delta"
+    4: "Delta",
+    5: "Zeta",
+    6: "Top 32",
+    7: "Epsilon",
 }
 
 
