@@ -30,17 +30,6 @@ class Misc(commands.Cog):
         embed.set_image(url=f"https://cdn.vlee.me.uk/TurnipBot/pets/{num if num != None else random.randint(0, 140)}.png")
         await ctx.send(embed=embed)
 
-    @commands.command()
-    async def scrim(self, ctx):
-        """Toggle the scrim role."""
-        scrim_role = ctx.guild.get_role(722264366124105809)
-        if scrim_role in ctx.author.roles:
-            await ctx.author.remove_roles(scrim_role)
-            await ctx.message.add_reaction('❎')
-        else:
-            await ctx.author.add_roles(scrim_role)
-            await ctx.message.add_reaction('✅')
-
     @tasks.loop(minutes=1)
     async def update_presence(self):
         """Loop to update the bot presence by selecting one of the strings at random."""
@@ -80,30 +69,6 @@ class Misc(commands.Cog):
             "Skye passed out again",
             "Helpdesk needs you .jpg",
         ])))
-
-    @tasks.loop(hours=24)
-    async def kraken(self):
-        """Remove all of Kraken Mare's roles occasionally."""
-        guild = discord.utils.get(self.bot.guilds, id=406137039285649428)
-        if guild is None:
-            return logging.warning("Cannot run update_roles, is the bot in the correct server?")
-        kraken = discord.utils.get(guild.members, id=158733178713014273)
-        role_ids = [
-            471466333771399168, 563484622717976606, 722500918485975040,
-            717481862242762793, 717476155590180876, 717475987821953085,
-            406171863698505739, 406160013531283457, 722581040593633364,
-            644384378100645910, 724997028291280896, 717475987821953085,
-            717476155590180876, 726243712908263484, 726904603756462080,
-            726904633720832100, 725146685684056097
-        ]
-        try:
-            await kraken.remove_roles(*[guild.get_role(role_id) for role_id in role_ids])
-        except discord.errors.Forbidden:
-            logging.warning("Cannot remove kraken's roles, does the bot have the proper permissions?")
-
-    @kraken.before_loop
-    async def before_kraken(self):
-        await self.bot.wait_until_ready()
 
     @commands.Cog.listener()
     async def on_message(self, message):
