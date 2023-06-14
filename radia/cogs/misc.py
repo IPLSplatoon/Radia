@@ -65,6 +65,7 @@ class Misc(commands.Cog):
             "Icon by Ozei!",
             "Ban Kraken Mare",
             "I kid you not Hoeen, he turns himself into a pickle",
+            "popgun bald comment.txt",
         ])))
 
     @commands.Cog.listener()
