@@ -4,8 +4,12 @@ import os
 import logging
 import aiohttp
 import arrow
+import re
 from ics import Calendar
 from yaml import safe_load as load_yaml
+
+
+clean_html_tags = re.compile("/&([a-z0-9]+|#[0-9]{1,6}|#x[0-9a-fA-F]{1,6});/ig")
 
 
 class Agenda:
@@ -37,7 +41,9 @@ class Agenda:
                 prev_event = event
             # This is next, meaning the prev_event variable stores the previous event
             else:
-                return Event(prev_event, **load_yaml(prev_event.description))
+                # Removes HTML tags using regex to remove formatting from iCal
+                prev_event_description = re.sub(clean_html_tags, '', prev_event.description)
+                return Event(prev_event, **load_yaml(prev_event_description))
 
     def tourney_at(self, index: int):
         """Return the tournament at the given index."""
