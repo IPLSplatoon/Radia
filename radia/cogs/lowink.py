@@ -25,7 +25,7 @@ class LowInk(commands.Cog):
     @champion.command(aliases=["coronate", "crown"])
     async def add(self, ctx):
         """Add the Champion role to members."""
-        with ctx.typing():
+        async with ctx.typing():
             # Create list of applicable champion roles
             roles = self.get_roles(ctx,
                 "Past Low Ink Winner",
@@ -46,7 +46,7 @@ class LowInk(commands.Cog):
     @champion.command(aliases=["dethrone"])
     async def remove(self, ctx):
         """Remove the champion roles from members who currently have it."""
-        with ctx.typing():
+        async with ctx.typing():
             # Create list of applicable champion roles
             roles = self.get_roles(ctx,
                 "Low Ink Current Champions",
@@ -82,5 +82,5 @@ class LowInk(commands.Cog):
         ]
 
 
-def setup(bot):
-    bot.add_cog(LowInk(bot))
+async def setup(bot):
+    await bot.add_cog(LowInk(bot))

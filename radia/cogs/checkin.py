@@ -207,7 +207,7 @@ class CheckIn(commands.Cog):
     @checkin.command(aliases=["list"])
     async def view(self, ctx, bracket: str = None):
         """View all teams checked in/out for tournament"""
-        with ctx.typing():
+        async with ctx.typing():
             if not bracket:  # gets all teams for tournament with bracket > 0 if one isn't provided
                 bracket_teams = await self.database.get_bracket_teams(self._battlefy_id)
             else:
@@ -257,5 +257,5 @@ class CheckIn(commands.Cog):
         await ctx.send(embed=embed)
 
 
-def setup(bot):
-    bot.add_cog(CheckIn(bot))
+async def setup(bot):
+    await bot.add_cog(CheckIn(bot))

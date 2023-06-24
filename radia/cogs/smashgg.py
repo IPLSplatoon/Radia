@@ -154,6 +154,6 @@ class Smashgg(commands.Cog):
         await self.assign_roles(ctx, teams, int(role), all_players=True, remove_old=True)
 
 
-def setup(bot):
-    bot.add_cog(Smashgg(bot))
+async def setup(bot):
+    await bot.add_cog(Smashgg(bot))
 

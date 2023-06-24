@@ -14,6 +14,9 @@ class Bot(commands.Bot):
         super().__init__(*args, **kwargs)
         self.help_command = utils.HelpCommand()
 
+    async def setup_hook(self) -> None:
+        pass
+
     async def on_ready(self):
         logging.info("Logged in as: %s", self.user.name)
 

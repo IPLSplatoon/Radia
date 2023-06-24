@@ -14,8 +14,8 @@ from radia import cogs, battlefy, google
 from radia.bot import Bot
 
 # Create Bot
-intents = Intents.default()
-intents.members = True
+intents = Intents.all()
+# intents.members = True
 debug = os.getenv("DEBUG", "false").lower() != "false"
 bot = Bot(command_prefix="!" if not debug else "^", intents=intents)
 

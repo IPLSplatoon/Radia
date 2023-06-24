@@ -14,7 +14,6 @@ class Misc(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        self.kraken.start()
         self.update_presence.start()
 
     @commands.command(aliases=['🏓'])
@@ -82,5 +81,5 @@ class Misc(commands.Cog):
                 await message.channel.send(embed=utils.Embed(title="Error: Unreciprocated"))
 
 
-def setup(bot):
-    bot.add_cog(Misc(bot))
+async def setup(bot):
+    await bot.add_cog(Misc(bot))
