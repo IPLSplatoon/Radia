@@ -30,6 +30,11 @@ class Captain(Player):
         super().__init__(battlefy)
         self.member_converter = commands.MemberConverter()
         self.discord = discord_field
+        if self.discord:
+            if self.discord.endswith("#0000"):
+                self.discord = self.discord[:-5]
+            elif self.discord.endswith("#0"):
+                self.discord = self.discord[:-2]
         self.fc = fc_field
 
     async def get_discord(self, ctx):
