@@ -2,7 +2,7 @@ version: "3.8"
 services:
 
     bot:
-        build: .
+        image: iplsplatoon/radia:latest
         env_file: .env
         restart: unless-stopped
  
