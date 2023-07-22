@@ -79,7 +79,8 @@ class Agenda:
         async with session.get(url) as response:
             if response.status == 200:
                 data = await response.text()
-            logging.error("Unable to fetch google calendar file, Status Code: %s", response.status)
+            else:
+                logging.error("Unable to fetch google calendar file, Status Code: %s", response.status)
         await session.close()
         return data
 
