@@ -74,11 +74,14 @@ class Agenda:
 
         :param str url: The url to the ical file, defaults to the environment provided one.
         """
+        data = None
         session = aiohttp.ClientSession()
         async with session.get(url) as response:
             if response.status == 200:
-                return await response.text()
+                data = await response.text()
             logging.error("Unable to fetch google calendar file, Status Code: %s", response.status)
+        await session.close()
+        return data
 
     def filter_cal(self):
         for event in self.calendar.timeline:
