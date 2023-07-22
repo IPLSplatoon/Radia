@@ -12,7 +12,10 @@ class Player:
 
     def __init__(self, battlefy):
         self.raw = battlefy
-        self.created_at = dateutil.parser.isoparse(self.raw.get("createdAt"))
+        if self.raw:
+            self.created_at = dateutil.parser.isoparse(self.raw.get("createdAt"))
+        else:
+            self.created_at = None
 
 
 class Captain(Player):
