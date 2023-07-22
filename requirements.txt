@@ -5,7 +5,7 @@ sentry_sdk
 aiohttp
 
 # Smashgg
-aiographql-client==1.0.3a3
+aiographql-client
 
 # Database
 motor
