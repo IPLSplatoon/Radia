@@ -127,21 +127,21 @@ class CheckIn(commands.Cog):
         """Load battlefy teams data."""
         async with ctx.typing():
             tourney = utils.agenda.tourney_at(tourney)
-        if not tourney:
-            return await ctx.send("⛔ **No event found**")
+            if not tourney:
+                return await ctx.send("⛔ **No event found**")
 
-        battlefy_teams = await battlefy.connector.get_teams(tourney.battlefy)
+            battlefy_teams = await battlefy.connector.get_teams(tourney.battlefy)
 
-        try:
-            await self.database.load_teams(battlefy_teams, tourney.battlefy)
-            self._battlefy_id = tourney.battlefy
-            embed = utils.Embed(
-                title=f"✅ **Success:** teams loaded for `{tourney.event.name}` checkin",
-                description=f"Loaded `{len(battlefy_teams)}` teams.")
-            await ctx.send(embed=embed)
-        except Exception as error:
-            await ctx.send(f"Error\n ```\n{error}\n```")
-            pass
+            try:
+                await self.database.load_teams(battlefy_teams, tourney.battlefy)
+                self._battlefy_id = tourney.battlefy
+                embed = utils.Embed(
+                    title=f"✅ **Success:** teams loaded for `{tourney.event.name}` checkin",
+                    description=f"Loaded `{len(battlefy_teams)}` teams.")
+                await ctx.send(embed=embed)
+            except Exception as error:
+                await ctx.send(f"Error\n ```\n{error}\n```")
+                pass
 
     @commands.has_role("Staff")
     @checkin.command(aliases=["setid"])
@@ -214,21 +214,21 @@ class CheckIn(commands.Cog):
                 if not (bracket_type := valid_bracket_type.get(bracket.upper())):
                     return await ctx.send(f"⛔ **Invalid Bracket Type**")
                 bracket_teams = await self.database.get_bracket_teams(self._battlefy_id, bracket_type['id'])
-        check_in, check_out = [], []  # Stores string of teams checked in/out
-        if not bracket_teams:
-            embed = utils.Embed(title=f"Not teams to list")
-            return await ctx.send(embed=embed)
-        for team in bracket_teams:
-            if team.checkin:
-                check_in.append(team.name[:32])
-            else:
-                check_out.append(team.name[:32])
-        embed = utils.Embed(title=f"Check in List for {'All' if not bracket else bracket_type['name']}")
-        if check_in:
-            embed.add_field(name=f"Checked in: {len(check_in)}", value=f"{utils.Embed.list(check_in)}", inline=False)
-        if check_out:
-            embed.add_field(name=f"Checked out: {len(check_out)}", value=f"{utils.Embed.list(check_out)}",
-                            inline=False)
+            check_in, check_out = [], []  # Stores string of teams checked in/out
+            if not bracket_teams:
+                embed = utils.Embed(title=f"No teams to list")
+                return await ctx.send(embed=embed)
+            for team in bracket_teams:
+                if team.checkin:
+                    check_in.append(team.name[:32])
+                else:
+                    check_out.append(team.name[:32])
+            embed = utils.Embed(title=f"Check in List for {'All' if not bracket else bracket_type['name']}")
+            if check_in:
+                embed.add_field(name=f"Checked in: {len(check_in)}", value=f"{utils.Embed.list(check_in)}", inline=False)
+            if check_out:
+                embed.add_field(name=f"Checked out: {len(check_out)}", value=f"{utils.Embed.list(check_out)}",
+                                inline=False)
         await ctx.send(embed=embed)
 
     @commands.has_role("Staff")
@@ -251,9 +251,9 @@ class CheckIn(commands.Cog):
                 for member in role.members:
                     await member.remove_roles(role)
                     counter += 1
-        embed = utils.Embed(
-            title=f"✅ **Success:** bracket roles cleared from all members",
-            description=f"Cleared `{str(counter)}` roles.")
+            embed = utils.Embed(
+                title=f"✅ **Success:** bracket roles cleared from all members",
+                description=f"Cleared `{str(counter)}` roles.")
         await ctx.send(embed=embed)
 
 
