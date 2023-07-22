@@ -17,7 +17,7 @@ class HelpCommand(commands.DefaultHelpCommand):
     async def send_bot_help(self, mapping):
         """Send bot command page."""
         embed = self.create_embed(
-            title=f"`{self.clean_prefix}help`",
+            title=f"`{self.context.clean_prefix}help`",
             fields=[{
                 "name": cog.qualified_name if cog else '\u200B',
                 "value": "\n".join([
@@ -90,9 +90,9 @@ class HelpCommand(commands.DefaultHelpCommand):
         for field in fields:
             embed.add_field(**field, inline=False)
         embed.set_footer(
-            text=f"Type {self.clean_prefix}help command for more info on a command. You can also type {self.clean_prefix}help category for more info on a category.")
+            text=f"Type {self.context.clean_prefix}help command for more info on a command. You can also type {self.context.clean_prefix}help category for more info on a category.")
         return embed
 
     def short(self, command, doc=True):
         """List the command as a one-liner."""
-        return f'`{self.clean_prefix}{command}` {(command.short_doc if doc else "")}'
+        return f'`{self.context.clean_prefix}{command}` {(command.short_doc if doc else "")}'

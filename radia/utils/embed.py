@@ -1,6 +1,7 @@
 """Utilities to help with embedding."""
 
 from datetime import datetime
+from typing import List
 
 import discord
 
@@ -28,6 +29,27 @@ class Embed(discord.Embed):
                 return f"> `{i}.` {item}"
             else:
                 return f"> `-` {item}"
+
+        return "\n".join([
+            *[format(i, item) for i, item in enumerate(items)],
+        ])
+
+    @staticmethod
+    def file_list(items: list, *, ordered=False) -> str:
+        """ Return a formatted list
+
+        :param list items: List of items to format
+        :param bool ordered: Whether the list should be ordered or not
+        :return str:
+            The list codeblock
+        """
+
+        def format(i, item):
+            """Format a list item."""
+            if ordered:
+                return f"- {i}. {item}"
+            else:
+                return f"- {item}"
 
         return "\n".join([
             *[format(i, item) for i, item in enumerate(items)],

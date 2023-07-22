@@ -21,6 +21,7 @@ class Connector:
             self.service = gspread.service_account(filename=google_file)
         except FileNotFoundError:
             logging.error("google.json - file not found, google sheet will be hollow.")
+            logging.error("is the correct working dir been set?")
             self.gsheet = None
         else:
             self.gsheet = self.service.open_by_key(os.getenv("GSHEET"))

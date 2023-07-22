@@ -10,7 +10,6 @@ class Connector:
     """Battlefy connector."""
 
     def __init__(self):
-        self.session = aiohttp.ClientSession()
         logging.debug("Loaded battlefy.connector")
 
     async def query(self, url: str):
@@ -18,11 +17,14 @@ class Connector:
 
         :param str url: The battlefy tournament id
         """
-        async with self.session.get("https://dtmwra1jsgyb0.cloudfront.net/" + url) as response:
+        session = aiohttp.ClientSession()
+        data = None
+        async with session.get("https://dtmwra1jsgyb0.cloudfront.net/" + url) as response:
             if response.status != 200:
                 logging.error("Unable to query battlefy api, Status Code: %s", response.status)
-                return
-            return await response.json()
+            data = await response.json()
+        await session.close()
+        return data
 
     async def get_tournament(self, tournament: str):
         """ Get tournament object from battlefy api.

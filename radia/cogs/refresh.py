@@ -25,7 +25,7 @@ class Refresh(commands.Cog, command_attrs={"hidden": True}):
     async def refresh(self, ctx):
         """Refresh data for Info and Tourney."""
         try:
-            with ctx.typing():
+            async with ctx.typing():
                 await self.run_refresh()
             await ctx.send("♻ **Refreshed!**")
         except google.HollowSheet as e:
@@ -37,5 +37,5 @@ class Refresh(commands.Cog, command_attrs={"hidden": True}):
         await self.run_refresh()
 
 
-def setup(bot):
-    bot.add_cog(Refresh(bot))
+async def setup(bot):
+    await bot.add_cog(Refresh(bot))

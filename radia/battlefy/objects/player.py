@@ -12,7 +12,10 @@ class Player:
 
     def __init__(self, battlefy):
         self.raw = battlefy
-        self.created_at = dateutil.parser.isoparse(self.raw.get("createdAt"))
+        if self.raw:
+            self.created_at = dateutil.parser.isoparse(self.raw.get("createdAt"))
+        else:
+            self.created_at = None
 
 
 class Captain(Player):
@@ -27,6 +30,11 @@ class Captain(Player):
         super().__init__(battlefy)
         self.member_converter = commands.MemberConverter()
         self.discord = discord_field
+        if self.discord:
+            if self.discord.endswith("#0000"):
+                self.discord = self.discord[:-5]
+            elif self.discord.endswith("#0"):
+                self.discord = self.discord[:-2]
         self.fc = fc_field
 
     async def get_discord(self, ctx):

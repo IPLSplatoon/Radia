@@ -4,15 +4,18 @@ import os
 import logging
 import aiohttp
 import arrow
+import re
 from ics import Calendar
 from yaml import safe_load as load_yaml
+
+
+clean_html_tags = re.compile("/&([a-z0-9]+|#[0-9]{1,6}|#x[0-9a-fA-F]{1,6});/ig")
 
 
 class Agenda:
     """Represents a ical file."""
 
     def __init__(self):
-        self.session = aiohttp.ClientSession()
         self.calendar = None
         self.agenda = []
 
@@ -37,7 +40,9 @@ class Agenda:
                 prev_event = event
             # This is next, meaning the prev_event variable stores the previous event
             else:
-                return Event(prev_event, **load_yaml(prev_event.description))
+                # Removes HTML tags using regex to remove formatting from iCal
+                prev_event_description = re.sub(clean_html_tags, '', prev_event.description)
+                return Event(prev_event, **load_yaml(prev_event_description))
 
     def tourney_at(self, index: int):
         """Return the tournament at the given index."""
@@ -69,10 +74,14 @@ class Agenda:
 
         :param str url: The url to the ical file, defaults to the environment provided one.
         """
-        async with self.session.get(url) as response:
+        data = None
+        session = aiohttp.ClientSession()
+        async with session.get(url) as response:
             if response.status == 200:
-                return await response.text()
+                data = await response.text()
             logging.error("Unable to fetch google calendar file, Status Code: %s", response.status)
+        await session.close()
+        return data
 
     def filter_cal(self):
         for event in self.calendar.timeline:

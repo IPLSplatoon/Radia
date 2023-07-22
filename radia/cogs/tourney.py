@@ -1,7 +1,7 @@
 """Tourney cog."""
 
 import json
-from io import StringIO
+from io import BytesIO
 
 import discord
 from discord.ext import commands
@@ -139,31 +139,41 @@ class Tourney(commands.Cog, command_attrs={"hidden": True}):
     @captain.command()
     async def check(self, ctx, index: int = 0, _invalid_captains=None):
         """Show the current status of captains."""
-        await ctx.trigger_typing()
+        async with ctx.typing():
+            # Get the tournament teams
+            tourney = utils.agenda.tourney_at(index)
+            if not tourney:
+                return await ctx.send("⛔ **No event found**")
+            teams = await battlefy.connector.get_teams(tourney.battlefy)
 
-        # Get the tournament teams
-        tourney = utils.agenda.tourney_at(index)
-        if not tourney:
-            return await ctx.send("⛔ **No event found**")
-        teams = await battlefy.connector.get_teams(tourney.battlefy)
+            # Create list of invalid captains
+            if not _invalid_captains:
+                invalid_captains = [
+                    f"`{team.captain.discord}` | `{team.name}`" for team in teams
+                    if not await team.captain.get_discord(ctx)
+                ]
+            else:
+                invalid_captains = [f"`{team.captain.discord}` | `{team.name}`" for team in _invalid_captains]
 
-        # Create list of invalid captains
-        if not _invalid_captains:
-            invalid_captains = [
-                f"`{team.captain.discord}` | `{team.name}`" for team in teams
-                if not await team.captain.get_discord(ctx)
-            ]
-        else:
-            invalid_captains = [f"`{team.captain.discord}` | `{team.name}`" for team in _invalid_captains]
-
-        # Send status check embed
-        embed = utils.Embed(
-            title=f"🗒️ Captain status check for `{tourney.event.name}`",
-            description=f"Invalid Captains / Total Teams: `{len(invalid_captains)}/{len(teams)}`")
-        embed.add_field(
-            name="List of invalid captains:",
-            value=utils.Embed.list(invalid_captains) if invalid_captains else "> ✨ **~ No invalid captains! ~**")
-        await ctx.send(embed=embed)
+            # Send status check embed
+            send = False
+            embed = utils.Embed(
+                title=f"🗒️ Captain status check for `{tourney.event.name}`",
+                description=f"Invalid Captains / Total Teams: `{len(invalid_captains)}/{len(teams)}`")
+            if invalid_captains:
+                list_invalid_captains = utils.Embed.list(invalid_captains)
+                if len(list_invalid_captains) < 1024:
+                    embed.add_field(name="List of invalid captains:", value=list_invalid_captains)
+                else:
+                    send_file = BytesIO(utils.Embed.file_list(invalid_captains).encode())
+            else:
+                embed.add_field(
+                    name="List of invalid captains:",
+                    value="> ✨ **~ No invalid captains! ~**")
+            await ctx.send(embed=embed)
+            if send_file:
+                await ctx.send(content="## File with invalid captains",
+                               file=discord.File(fp=send_file, filename="invalid_captains.md"))
 
     @commands.has_role("Staff")
     @captain.command()
@@ -231,5 +241,5 @@ class Tourney(commands.Cog, command_attrs={"hidden": True}):
         await ctx.send(embed=embed)
 
 
-def setup(bot):
-    bot.add_cog(Tourney(bot))
+async def setup(bot):
+    await bot.add_cog(Tourney(bot))

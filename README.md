@@ -1,5 +1,7 @@
 # Radia
 
+**This is a V2 branch to move IPL's bot to discord.py V2 and is not stable**
+
 > Radia is the mascot of Inkling Performance Labs. As the lead researcher, her duty is to take care of the teams participating in Low Ink as well as to see growth in the teams and individuals taking part in the tournaments.
 
 <!-- Banner -->
@@ -87,7 +89,11 @@ Managing the check-in command staff can use these subcommands:
 1. Copy the gsheet key from the url at `https://docs.google.com/spreadsheets/d/`**`{key}`**`/edit`, you will use this in the `.env`
 
 #### MongoDB
-(coming soon)
+1. Create a MongoDB Database, either locally via a docker or using MongoDB Cloud
+1. Form a valid URI to access the database. *e.g. `mongodb://username:password@localhost:27017`*
+1. Place URI into environment variables
+
+*Database will create tables as needed and used*
 
 #### Bot Setup
 1. Create a `.env` in the repository root:
@@ -98,6 +104,7 @@ Managing the check-in command staff can use these subcommands:
    ICAL="https://calendar.google.com/calendar/ical/43cm%40group.calendar.google.com/private-1b6d/basic.ics"
    MONGOURI="Your MongoDB Connection URI"
    DATABASENAME=DatabaseName
+   MONGOURI=MongoDbURI
    SENTRY="System Environment"  # Optional
    DEBUG=1  # Optional
    ```
@@ -105,3 +112,4 @@ Managing the check-in command staff can use these subcommands:
    Please know that there are no `true` or `false` values in `.env` files. If you want to set a key to false, set it to `0`
 
 1. Run `docker-compose up` in the repository root.
+

@@ -32,14 +32,14 @@ class Tournament:
         # Loop over each field attempting to detect if it's a discord field or not.
         for i, field in enumerate(custom_fields):
             fields = custom_fields.copy()  # Makes sure using .pop() doesn't mess with the actual team fields
-            # Regex pattern matches valid discord usernames
-            if re.match(r'^[^@#:]{1,}#\d{4}$', field["value"]):
-                discord_field = fields.pop(i)
-                # If there are still more fields, other field must be fc
+            # Regex pattern matches valid Friend codes
+            if re.match(r'\(?(SW|FC|sw|fc)?\s*([:\-=])?\s?(\d{4})\s*([- ._/=])\s*(\d{4})\s*([- ._/=])\s*(\d{4})\s*\)?', field["value"]):
+                fc_field = fields.pop(i)
+                # If there are still more fields, other field must be Discord Usernames
                 if fields:
-                    fc_field = fields.pop(0)
+                    discord_field = fields.pop(0)
                 else:  # Otherwise, there's no fc field
-                    fc_field = {"_id": None}
+                    discord_field = {"_id": None}
                 # Return field ids
                 return discord_field["_id"], fc_field["_id"]
         else:
