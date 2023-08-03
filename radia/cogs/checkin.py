@@ -96,7 +96,7 @@ class CheckIn(commands.Cog):
                 await ctx.message.add_reaction("❌")
                 return
             team = await self.database.get_discord_team(
-                [f"{ctx.author.name}#{ctx.author.discriminator}", str(ctx.author.id)],  # Forms list of field to find by
+                [f"{ctx.author.name}", str(ctx.author.id)],  # Forms list of field to find by
                 self._battlefy_id)
             if team:
                 await checkin_set()

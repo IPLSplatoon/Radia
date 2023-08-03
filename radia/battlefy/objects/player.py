@@ -35,6 +35,7 @@ class Captain(Player):
                 self.discord = self.discord[:-5]
             elif self.discord.endswith("#0"):
                 self.discord = self.discord[:-2]
+        # self.discord = self.discord.lower()
         self.fc = fc_field
 
     async def get_discord(self, ctx):
