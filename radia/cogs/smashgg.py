@@ -57,7 +57,7 @@ class Smashgg(commands.Cog):
     @smashgg.command(aliases=["tournament"])
     async def set_tournament(self, ctx: commands.Context, *, tournament_slug: str):
         """Set a tournament using the Smash.gg tournament slug"""
-        with ctx.typing():
+        async with ctx.typing():
             tournament = await smashgg.connector.get_tournament(tournament_slug)
             if not tournament:
                 return await ctx.send("⛔ **No tournament found**")
