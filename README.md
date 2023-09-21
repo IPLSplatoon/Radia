@@ -1,8 +1,6 @@
 # Radia
 
-**This is a V2 branch to move IPL's bot to discord.py V2 and is not stable**
-
-> Radia is the mascot of Inkling Performance Labs. As the lead researcher, her duty is to take care of the teams participating in Low Ink as well as to see growth in the teams and individuals taking part in the tournaments.
+Radia is the mascot of Inkling Performance Labs. As the lead researcher, her duty is to take care of the teams participating in Low Ink as well as to see growth in the teams and individuals taking part in the tournaments.
 
 <!-- Banner -->
 
