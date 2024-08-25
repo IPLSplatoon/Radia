@@ -43,9 +43,6 @@ As said before, you can append the index of a tournament to use that tournament 
 - `!captain remove` Removes the captain role for the next tournament. Be careful, if you're running this command after the tournament has ended, make sure to specify it to use the previous tournament with `!captain remove -1`.
 - `!captain check` This is simply an alias for `!captain`.
 
-### Final words
-Thanks for reading, I hope this documentation section was helpful to you. If you have any questions, feel free to ask me [@LeptoFlare](https://github.com/LeptoFlare).
-
 ## Contributing
 1. Fork the repository, do NOT create any branches on the source repository.
 1. Make a new branch to submit your pull request from.
