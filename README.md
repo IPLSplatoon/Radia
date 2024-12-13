@@ -102,6 +102,7 @@ Managing the check-in command staff can use these subcommands:
    MONGOURI=MongoDbURI
    SENTRY="System Environment"  # Optional
    DEBUG=1  # Optional
+   SENDOU_API_KEY="Sendou.ink API Key"
    ```
 
    Please know that there are no `true` or `false` values in `.env` files. If you want to set a key to false, set it to `0`

@@ -1,0 +1,32 @@
+[project]
+name = "Radia"
+version = "0.1.0"
+description = "Default template for PDM package"
+authors = [
+    {name = "Vincent Lee", email = "vlee@vlee.me.uk"},
+]
+dependencies = [
+    "discord-py",
+    "asyncio",
+    "sentry-sdk",
+    "aiohttp",
+    "aiographql-client",
+    "motor",
+    "dnspython",
+    "pymongo",
+    "gspread",
+    "pandas",
+    "ics",
+    "pyyaml",
+    "sendou-py>=1.2.12",
+    "audioop-lts>=0.2.1",
+    "aiohttp-client-cache>=0.12.4",
+    "redis>=5.2.1",
+]
+requires-python = "==3.13.*"
+readme = "README.md"
+license = {text = "MIT"}
+
+
+[tool.pdm]
+distribution = false

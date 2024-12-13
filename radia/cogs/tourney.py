@@ -6,7 +6,7 @@ from io import BytesIO
 import discord
 from discord.ext import commands
 
-from radia import utils, battlefy
+from radia import utils, battlefy, sendouConnector
 
 
 class Tourney(commands.Cog, command_attrs={"hidden": True}):
@@ -18,6 +18,7 @@ class Tourney(commands.Cog, command_attrs={"hidden": True}):
 
     def __init__(self, bot):
         self.bot = bot
+        self.sendou = sendouConnector.Connector()
 
     # Agenda Command Group:
 
@@ -117,12 +118,16 @@ class Tourney(commands.Cog, command_attrs={"hidden": True}):
         :param utils.Event tourney: the tournament event object
         """
         format_str = 'MMM DD, YYYY h:mm A UTC'
-        return "\n".join([
+        text = [
             f"Event Begin Time: `{tourney.event.begin.format(format_str)}`",
             f"Event End Time: `{tourney.event.end.format(format_str)}`",
-            f"Battlefy Tournament ID: `{tourney.battlefy}`",
             f"Captain Role: {tourney.get_role(ctx).mention}",
-        ])
+        ]
+        if tourney.battlefy:
+            text.append(f"Battlefy Tournament ID: `{tourney.battlefy}`")
+        elif tourney.sendou:
+            text.append(f"Sendou Tournament ID: `{tourney.sendou}`")
+        return "\n".join(text)
 
     # Captain Command Group:
 
@@ -144,7 +149,12 @@ class Tourney(commands.Cog, command_attrs={"hidden": True}):
             tourney = utils.agenda.tourney_at(index)
             if not tourney:
                 return await ctx.send("⛔ **No event found**")
-            teams = await battlefy.connector.get_teams(tourney.battlefy)
+            if tourney.battlefy:
+                teams = await battlefy.connector.get_teams(tourney.battlefy)
+            elif tourney.sendou:
+                teams = await self.sendou.get_teams(tourney.sendou)
+            else:
+                return await ctx.send("⛔ **No platform found**")
 
             # Create list of invalid captains
             if not _invalid_captains:
@@ -156,7 +166,7 @@ class Tourney(commands.Cog, command_attrs={"hidden": True}):
                 invalid_captains = [f"`{team.captain.discord}` | `{team.name}`" for team in _invalid_captains]
 
             # Send status check embed
-            send = False
+            send_file = None
             embed = utils.Embed(
                 title=f"🗒️ Captain status check for `{tourney.event.name}`",
                 description=f"Invalid Captains / Total Teams: `{len(invalid_captains)}/{len(teams)}`")
@@ -189,7 +199,12 @@ class Tourney(commands.Cog, command_attrs={"hidden": True}):
 
         # Loop over teams and assign valid captains
         async with ctx.typing():
-            teams = await battlefy.connector.get_teams(tourney.battlefy)
+            if tourney.battlefy:
+                teams = await battlefy.connector.get_teams(tourney.battlefy)
+            elif tourney.sendou:
+                teams = await self.sendou.get_teams(tourney.sendou)
+            else:
+                return await ctx.send("⛔ **No platform found**")
             for team in teams:
                 # Attempt to add captain role to members
                 try:

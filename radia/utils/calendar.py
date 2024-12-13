@@ -93,10 +93,12 @@ class Agenda:
 class Event:
     """Represents a tournament event."""
 
-    def __init__(self, event, battlefy, role="406171863698505739", **kwargs):
+    def __init__(self, event, battlefy=None, sendou=None, role="406171863698505739", **kwargs):
         self.event = event
         # Event description params
         self.battlefy = battlefy
+        self.sendou = sendou
+        self.sendou = sendou
         self.role = role
 
     def get_role(self, ctx):
